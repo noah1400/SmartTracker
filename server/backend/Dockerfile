@@ -8,7 +8,8 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 COPY . .
 
-ENV FLASK_APP smarttracker.py
+# FLASK_APP is in folder smarttracker/app
+ENV FLASK_APP smarttracker/app
 ENV FLASK_ENV development
 ENV FLASK_RUN_PORT 8000
 ENV FLASK_RUN_HOST 0.0.0.0
