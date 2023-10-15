@@ -10,8 +10,10 @@ def create_app(config_class=Config):
     db.init_app(app)
 
     from app.models import User
-    db.drop_all()
-    db.create_all()
+    # db.drop_all()
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
 
     from app.main import bp as main_bp
     app.register_blueprint(main_bp)
