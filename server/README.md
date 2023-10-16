@@ -54,6 +54,7 @@ This table logs the time entries for users on various projects. Each time entry 
   | start_time | DateTime | Start time of the work |
   | end_time | DateTime | End time of the work |
   | date | DateTime | The date when the work was performed |
+  | description | String | Description of the work performed, can be null |
   | created_at | DateTime | Timestamp when the time entry was created |
   | updated_at | DateTime | Timestamp when the time entry was last updated |
 
