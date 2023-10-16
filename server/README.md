@@ -4,11 +4,12 @@
 
 ## Overview
 
-The database comprises three main tables:
+The database comprises four main tables:
 
 1. **Users**: Stores user information and credentials.
 2. **Projects**: Stores data related to projects on which users are working.
 3. **Time Entries**: Logs individual user's time entries for various projects.
+4. **Token Blacklist**: Stores JWT tokens that have been invalidated before their expiration.
 
 ### Users Table
 
@@ -20,7 +21,7 @@ This table holds the user's data, including authentication details. Each user ha
   | --- | --- | --- |
   | id | Integer | Primary key, unique identifier for a user |
   | username | String | User's unique username |
-  | email | String | User's email address, unique |
+  | email | String | User's email address (null if external auth) |
   | password | String | Encrypted user's password (null if external auth) |
   | auth_method | String | Authentication method used ('INTERNAL', 'LDAP', 'LINUX', etc.) |
   | created_at | DateTime | Timestamp when the user was created |
@@ -55,6 +56,18 @@ This table logs the time entries for users on various projects. Each time entry 
   | date | DateTime | The date when the work was performed |
   | created_at | DateTime | Timestamp when the time entry was created |
   | updated_at | DateTime | Timestamp when the time entry was last updated |
+
+### Token Blacklist Table
+
+This table keeps track of JWT tokens that are no longer valid.
+
+- **TableName**: `token_blacklist`
+
+  | Column Name | Data Type | Description |
+  | --- | --- | --- |
+  | id | Integer | Primary key, unique identifier for the blacklisted token entry |
+  | token | String | The blacklisted JWT token; this should be hashed or encrypted |
+  | blacklisted_on | DateTime | Timestamp when the token was blacklisted |
 
 ## Relationships
 
