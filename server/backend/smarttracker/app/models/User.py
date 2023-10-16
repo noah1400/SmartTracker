@@ -1,7 +1,8 @@
-from app.extensions import db
+from app.db import DB
 
 
-class User(db.Model):
+class User(DB().instance.Model):
+    db = DB().instance
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(64), index=True, unique=True)
     password_hash = db.Column(db.String(256))
