@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.4
-FROM --platform=$BUILDPLATFORM python:3.10-alpine AS builder
+FROM --platform=$BUILDPLATFORM python:alpine AS builder
 
 RUN apk update && apk add --no-cache mariadb-dev build-base
 
