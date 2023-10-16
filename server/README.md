@@ -2,8 +2,6 @@
 
 # Database
 
-This document outlines the database schema design for a cloud-based time tracking application. The application allows users to track their working time on different projects and can operate both standalone and with a server connection.
-
 ## Overview
 
 The database comprises three main tables:
