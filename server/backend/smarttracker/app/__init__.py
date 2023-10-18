@@ -1,17 +1,16 @@
 from flask import Flask
 from config import Config
-from app.db import DB
+from sqlalchemy import MetaData
+from app.db import db
 
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    db = DB().instance
-
     # Initialize extensions
     db.init_app(app)
 
-    from app.models import User
+    from app.models import User, Project, TimeEntry
     with app.app_context():
         print('Creating database tables...')
         db.create_all()
