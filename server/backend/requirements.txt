@@ -2,3 +2,5 @@ Flask==3.0.*
 Flask-SQLAlchemy==3.1.*
 mysqlclient==2.2.*
 python-dotenv==1.0.0
+python-keycloak==3.3.*
+PyJWT==2.8.*
