@@ -8,7 +8,6 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True)
-    description = db.Column(db.String(256))
     password_hash = db.Column(db.String(256))
     service = db.Column(db.String(64))
     created_at = db.Column(db.DateTime, server_default=db.func.now())
@@ -31,16 +30,16 @@ class User(db.Model):
     def __repr__(self):
         return '<User {}>'.format(self.username)
     
-    def to_dict(self):
-        return {
+    def to_dict(self, include_time_entries=False):
+        data = {
             'id': self.id,
             'username': self.username,
             'email': self.email,
-            'description': self.description,
             'service': self.service,
-            'created_at': self.created_at,
-            'updated_at': self.updated_at
+            'createdAt': self.created_at.isoformat() if self.created_at else None,
+            'updatedAt': self.updated_at.isoformat() if self.updated_at else None,
         }
+        return data
     
 class Project(db.Model):
     __tablename__ = 'projects'
@@ -65,8 +64,8 @@ class Project(db.Model):
             'id': self.id,
             'name': self.name,
             'description': self.description,
-            'created_at': self.created_at,
-            'updated_at': self.updated_at
+            'createdAt': self.created_at,
+            'updatedAt': self.updated_at
         }
     
 class TimeEntry(db.Model):
@@ -75,6 +74,7 @@ class TimeEntry(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     start_time = db.Column(db.DateTime, server_default=db.func.now())
     end_time = db.Column(db.DateTime)
+    description = db.Column(db.String(256))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
     created_at = db.Column(db.DateTime, server_default=db.func.now())
@@ -93,10 +93,11 @@ class TimeEntry(db.Model):
     def to_dict(self):
         return {
             'id': self.id,
-            'start_time': self.start_time,
-            'end_time': self.end_time,
-            'user': self.user.to_dict(),
-            'project': self.project.to_dict(),
-            'created_at': self.created_at,
-            'updated_at': self.updated_at
+            'description': self.description,
+            'startTime': self.start_time.isoformat() if self.start_time else None,
+            'endTime': self.end_time.isoformat() if self.end_time else None,
+            'userId': self.user_id,  # just the ID, not the whole user
+            'projectId': self.project_id,  # just the ID, not the whole project
+            'createdAt': self.created_at.isoformat() if self.created_at else None,
+            'updatedAt': self.updated_at.isoformat() if self.updated_at else None
         }

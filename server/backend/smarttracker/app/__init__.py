@@ -14,8 +14,20 @@ def create_app(config_class=Config):
 
     from app.models import User, Project, TimeEntry
     with app.app_context():
+        print('Dropping database tables...')
+        db.drop_all()
         print('Creating database tables...')
         db.create_all()
+        user = User(username='admin', email="admin@example.com", service="internal", password="admin")
+        try:
+            db.session.add(user)
+            db.session.commit()
+        except Exception as e:
+            print("Error adding user: ", e)
+            db.session.rollback()
+            pass 
+        users = User.query.all()
+        print('Users: ', [usr.to_dict() for usr in users])
 
     from app.main import bp as main_bp
     app.register_blueprint(main_bp)

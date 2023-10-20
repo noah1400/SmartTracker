@@ -4,13 +4,13 @@ schema {
 
 type User {
     id: ID!
-    name: String!
+    username: String!
     email: String!
     service: String!
     createdAt: String!
     updatedAt: String!
 
-    timeEntries: [TimeEntry!]!
+    timeEntries: [TimeEntry]
 }
 
 type Project {
@@ -37,7 +37,7 @@ type TimeEntry {
 
 type Query {
     user(id: ID!): User
-    users: [User!]!
+    users: [User]
     project(id: ID!): Project
     projects: [Project!]!
     timeEntry(id: ID!): TimeEntry
