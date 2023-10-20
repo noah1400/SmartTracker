@@ -1,7 +1,10 @@
 from app.auth.services.keycloak_auth import KeyCloakService
-from app.auth.exceptions import InvalidCredentials, UnregisteredService
+from app.auth.exceptions import InvalidCredentials, UnregisteredService, InvalidToken, ExpiredToken
 import jwt, datetime
 from app.db import db
+from app.models import User
+from flask import request
+from functools import wraps
 import os
 
 services = {
@@ -16,6 +19,23 @@ services = {
         'service': KeyCloakService,
     }
 }
+
+def auth_authenticated(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        try:
+            token = request.headers.get('Authorization')
+            print("token: ", token)
+            if token:
+                token = token.split(' ')[1] # Bearer <token>
+                username = auth_decodeJWT(token)
+                if username:
+                    return f(username, *args, **kwargs)
+        except Exception as e:
+            return { 'error <authenticated func in except>': str(e) }, 401
+        return { 'error <authenticated func>': 'Missing Token' }, 401
+    return decorated
+
 
 def auth_generateJWT(username):
     try:
@@ -33,8 +53,19 @@ def auth_generateJWT(username):
         return e
 
 
+def auth_decodeJWT(token):
+    print("jwt token: ", token)
+    try:
+        payload = jwt.decode(token, os.environ.get('SECRET_KEY'), algorithms=['HS256'])
+        return payload['sub']
+    except jwt.ExpiredSignatureError:
+        raise ExpiredToken('Signature expired. Please log in again.')
+    except jwt.InvalidTokenError:
+        raise InvalidToken('Invalid token. Please log in again.')
+
+
 def auth_checkInternal(username, password):
-    user = db.session.query(db.User).filter_by(username=username).first()
+    user = User.query.filter_by(username=username).first()
     if user:
         if user.service == "internal" and user.check_password(password):
             return username
@@ -49,7 +80,7 @@ def auth_checkInternal(username, password):
 def auth_authenticate(username, password):
     user = auth_checkInternal(username, password)
     if user:
-        return user
+        return { 'username': user, 'token': auth_generateJWT(user) }
     for service in services.values():
         user = service['service'].getUser(username, password, service['config'])
         if user:

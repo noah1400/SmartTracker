@@ -10,7 +10,6 @@ class AuthService(ABC):
     @param password: The password of the user
     @return: The username if the user exists, None otherwise
     """
-    @abstractmethod
     @classmethod
     def getUser(self, username, password, config = {}) -> str | None:
         pass

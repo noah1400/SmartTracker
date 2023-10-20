@@ -24,6 +24,9 @@ class User(db.Model):
     def set_password(self, password):
         self.password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
+    def check_password(self, password):
+        return bcrypt.checkpw(password.encode('utf-8'), self.password_hash.encode('utf-8'))
+
     def __repr__(self):
         return '<User {}>'.format(self.username)
     
