@@ -31,6 +31,17 @@ class User(db.Model):
     def __repr__(self):
         return '<User {}>'.format(self.username)
     
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'description': self.description,
+            'service': self.service,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at
+        }
+    
 class Project(db.Model):
     __tablename__ = 'projects'
 
@@ -48,6 +59,15 @@ class Project(db.Model):
     
     def __repr__(self):
         return '<Project {}>'.format(self.name)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'created_at': self.created_at,
+            'updated_at': self.updated_at
+        }
     
 class TimeEntry(db.Model):
     __tablename__ = 'time_entries'
@@ -69,3 +89,14 @@ class TimeEntry(db.Model):
     
     def __repr__(self):
         return '<TimeEntry {}>'.format(self.id)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'start_time': self.start_time,
+            'end_time': self.end_time,
+            'user': self.user.to_dict(),
+            'project': self.project.to_dict(),
+            'created_at': self.created_at,
+            'updated_at': self.updated_at
+        }

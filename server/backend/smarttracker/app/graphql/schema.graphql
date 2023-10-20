@@ -1,0 +1,45 @@
+schema {
+    query: Query
+}
+
+type User {
+    id: ID!
+    name: String!
+    email: String!
+    service: String!
+    createdAt: String!
+    updatedAt: String!
+
+    timeEntries: [TimeEntry!]!
+}
+
+type Project {
+    id: ID!
+    name: String!
+    description: String!
+    createdAt: String!
+    updatedAt: String!
+
+    timeEntries: [TimeEntry!]!
+}
+
+type TimeEntry {
+    id: ID!
+    description: String!
+    startTime: String!
+    endTime: String!
+    createdAt: String!
+    updatedAt: String!
+
+    user: User!
+    project: Project!
+}
+
+type Query {
+    user(id: ID!): User
+    users: [User!]!
+    project(id: ID!): Project
+    projects: [Project!]!
+    timeEntry(id: ID!): TimeEntry
+    timeEntries: [TimeEntry!]!
+}

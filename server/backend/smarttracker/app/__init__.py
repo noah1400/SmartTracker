@@ -1,10 +1,12 @@
 from flask import Flask
+from flask_cors import CORS
 from config import Config
 from sqlalchemy import MetaData
 from app.db import db
 
 def create_app(config_class=Config):
     app = Flask(__name__)
+    CORS(app)
     app.config.from_object(Config)
 
     # Initialize extensions
@@ -20,6 +22,9 @@ def create_app(config_class=Config):
 
     from app.auth import bp_auth
     app.register_blueprint(bp_auth)
+
+    from app.graphql import bp_graphql
+    app.register_blueprint(bp_graphql)
 
     
     @app.route('/test')
