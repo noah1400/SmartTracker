@@ -8,6 +8,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True)
+    description = db.Column(db.String(256))
     password_hash = db.Column(db.String(256))
     service = db.Column(db.String(64))
     created_at = db.Column(db.DateTime, server_default=db.func.now())
