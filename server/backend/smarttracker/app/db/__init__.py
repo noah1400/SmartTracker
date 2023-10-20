@@ -1,6 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
 
-
 class DB(object):
 
     def __new__(cls):
@@ -16,3 +15,5 @@ class DB(object):
     def instance(self):
         print('Returning database instance...')
         return self.db
+
+db = DB().instance

@@ -4,3 +4,4 @@ mysqlclient==2.2.*
 python-dotenv==1.0.0
 python-keycloak==3.3.*
 PyJWT==2.8.*
+bcrypt==4.0.*

@@ -4,5 +4,6 @@ import os
 class KeyCloakService(AuthService):
     name = 'keycloak'
 
-    def getUser(self, username, password) -> str | None:
-        pass
+    @classmethod
+    def getUser(self, username, password, config = {}) -> str | None:
+        return username
