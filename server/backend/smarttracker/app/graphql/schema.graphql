@@ -10,13 +10,13 @@ type User {
     createdAt: String!
     updatedAt: String!
 
-    timeEntries: [TimeEntry]
+    timeEntries: [TimeEntry!]!
 }
 
 type Project {
     id: ID!
     name: String!
-    description: String!
+    description: String
     createdAt: String!
     updatedAt: String!
 
@@ -25,10 +25,10 @@ type Project {
 
 type TimeEntry {
     id: ID!
-    description: String!
+    description: String
     startTime: String!
     endTime: String!
-    createdAt: String!
+    createdAt: String
     updatedAt: String!
 
     user: User!

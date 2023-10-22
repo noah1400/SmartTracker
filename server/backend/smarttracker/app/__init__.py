@@ -12,22 +12,18 @@ def create_app(config_class=Config):
     # Initialize extensions
     db.init_app(app)
 
-    from app.models import User, Project, TimeEntry
+    from app.db.models import User, Project, TimeEntry
+    from app.db.seeders import create_fake_data
+
+    create_fake_data(app)
+
     with app.app_context():
-        print('Dropping database tables...')
-        db.drop_all()
-        print('Creating database tables...')
-        db.create_all()
-        user = User(username='admin', email="admin@example.com", service="internal", password="admin")
-        try:
-            db.session.add(user)
-            db.session.commit()
-        except Exception as e:
-            print("Error adding user: ", e)
-            db.session.rollback()
-            pass 
-        users = User.query.all()
-        print('Users: ', [usr.to_dict() for usr in users])
+        first_user = User.query.first()
+        first_project = Project.query.first()
+        first_time_entry = TimeEntry.query.first()
+        print(first_user.to_dict())
+        print(first_project.to_dict())
+        print(first_time_entry.to_dict())
 
     from app.main import bp as main_bp
     app.register_blueprint(main_bp)

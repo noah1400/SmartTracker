@@ -36,8 +36,8 @@ class User(db.Model):
             'username': self.username,
             'email': self.email,
             'service': self.service,
-            'createdAt': self.created_at.isoformat() if self.created_at else None,
-            'updatedAt': self.updated_at.isoformat() if self.updated_at else None,
+            'createdAt': self.created_at.isoformat(),
+            'updatedAt': self.updated_at.isoformat(),
         }
         return data
     
@@ -46,9 +46,9 @@ class Project(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(64), index=True, unique=True)
-    description = db.Column(db.String(256))
-    created_at = db.Column(db.DateTime, server_default=db.func.now())
-    updated_at = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now())
+    description = db.Column(db.String(256), nullable=True)
+    created_at = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now(), nullable=False)
     
     time_entries = db.relationship('TimeEntry', back_populates='project')
     
@@ -64,8 +64,8 @@ class Project(db.Model):
             'id': self.id,
             'name': self.name,
             'description': self.description,
-            'createdAt': self.created_at,
-            'updatedAt': self.updated_at
+            'createdAt': self.created_at.isoformat(),
+            'updatedAt': self.updated_at.isoformat()
         }
     
 class TimeEntry(db.Model):
@@ -83,9 +83,12 @@ class TimeEntry(db.Model):
     user = db.relationship('User', back_populates='time_entries')
     project = db.relationship('Project', back_populates='time_entries')
     
-    def __init__(self, user, project):
+    def __init__(self, user, project, start, end, description=None):
         self.user = user
         self.project = project
+        self.start_time = start
+        self.end_time = end
+        self.description = description
     
     def __repr__(self):
         return '<TimeEntry {}>'.format(self.id)
@@ -94,10 +97,10 @@ class TimeEntry(db.Model):
         return {
             'id': self.id,
             'description': self.description,
-            'startTime': self.start_time.isoformat() if self.start_time else None,
-            'endTime': self.end_time.isoformat() if self.end_time else None,
-            'userId': self.user_id,  # just the ID, not the whole user
-            'projectId': self.project_id,  # just the ID, not the whole project
-            'createdAt': self.created_at.isoformat() if self.created_at else None,
-            'updatedAt': self.updated_at.isoformat() if self.updated_at else None
+            'startTime': self.start_time.isoformat(),
+            'endTime': self.end_time.isoformat(),
+            'userId': self.user_id,
+            'projectId': self.project_id, 
+            'createdAt': self.created_at.isoformat(),  
+            'updatedAt': self.updated_at.isoformat() 
         }

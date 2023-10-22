@@ -4,7 +4,6 @@ class DB(object):
 
     def __new__(cls):
         if not hasattr(cls, '_instance') or not cls._instance:
-            print('Creating database instance...')
             cls._instance = super().__new__(cls)
         return cls._instance
 
@@ -13,7 +12,6 @@ class DB(object):
 
     @property
     def instance(self):
-        print('Returning database instance...')
         return self.db
 
 db = DB().instance
