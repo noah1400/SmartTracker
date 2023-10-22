@@ -17,14 +17,6 @@ def create_app(config_class=Config):
 
     create_fake_data(app)
 
-    with app.app_context():
-        first_user = User.query.first()
-        first_project = Project.query.first()
-        first_time_entry = TimeEntry.query.first()
-        print(first_user.to_dict())
-        print(first_project.to_dict())
-        print(first_time_entry.to_dict())
-
     from app.main import bp as main_bp
     app.register_blueprint(main_bp)
 

@@ -28,7 +28,7 @@ type TimeEntry {
     description: String
     startTime: String!
     endTime: String!
-    createdAt: String
+    createdAt: String!
     updatedAt: String!
 
     user: User!
