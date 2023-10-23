@@ -2,7 +2,7 @@ from app.auth.services.keycloak_auth import KeyCloakService
 from app.auth.exceptions import InvalidCredentials, UnregisteredService, InvalidToken, ExpiredToken
 import jwt, datetime
 from app.db import db
-from app.models import User
+from app.db.models import User
 from flask import request
 from functools import wraps
 import os
@@ -25,15 +25,14 @@ def auth_authenticated(f):
     def decorated(*args, **kwargs):
         try:
             token = request.headers.get('Authorization')
-            print("token: ", token)
             if token:
                 token = token.split(' ')[1] # Bearer <token>
                 username = auth_decodeJWT(token)
                 if username:
                     return f(username, *args, **kwargs)
         except Exception as e:
-            return { 'error <authenticated func in except>': str(e) }, 401
-        return { 'error <authenticated func>': 'Missing Token' }, 401
+            return { 'error': str(e) }, 401
+        return { 'error': 'Missing Token' }, 401
     return decorated
 
 
@@ -54,7 +53,6 @@ def auth_generateJWT(username):
 
 
 def auth_decodeJWT(token):
-    print("jwt token: ", token)
     try:
         payload = jwt.decode(token, os.environ.get('SECRET_KEY'), algorithms=['HS256'])
         return payload['sub']
