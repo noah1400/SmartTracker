@@ -10,16 +10,18 @@ class User(db.Model):
     email = db.Column(db.String(120), index=True)
     password_hash = db.Column(db.String(256))
     service = db.Column(db.String(64))
+    role = db.Column(db.String(64), default='basic')
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now())
 
     time_entries = db.relationship('TimeEntry', back_populates='user')
 
-    def __init__(self, username, email, password, service):
+    def __init__(self, username, email, password, service, role='basic'):
         self.username = username
         self.email = email
         self.set_password(password)
         self.service = service
+        self.role = role
 
     def set_password(self, password):
         self.password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
@@ -36,6 +38,7 @@ class User(db.Model):
             'username': self.username,
             'email': self.email,
             'service': self.service,
+            'role': self.role,
             'createdAt': self.created_at.isoformat(),
             'updatedAt': self.updated_at.isoformat(),
         }
