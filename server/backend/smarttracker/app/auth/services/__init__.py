@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from db.models import User
 
 class AuthService(ABC):
 
@@ -11,5 +12,5 @@ class AuthService(ABC):
     @return: The username if the user exists, None otherwise
     """
     @classmethod
-    def getUser(self, username, password, config = {}) -> str | None:
+    def getUser(self, username, password, config = {}) -> User | None:
         pass
