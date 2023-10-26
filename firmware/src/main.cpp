@@ -7,6 +7,11 @@
 UBYTE flag = 0,flgh = 0;
 UWORD x,y,l = 0;
 
+void Touch_INT_callback()
+{
+    flag = TOUCH_IRQ;
+}
+
 void setup()
 {  
     Touch_1IN28_XY XY;
@@ -26,7 +31,7 @@ void setup()
     attachInterrupt(1,Touch_INT_callback,LOW);
     pinMode(TP_INT_PIN, INPUT_PULLUP);
     Paint_DrawString_EN(35, 90, "SmartTracker", &Font20, BLACK, WHITE);
-    Paint_DrawString_EN(35, 120, "Hello world!", &Font16, BLACK, WHITE);
+    Paint_DrawString_EN(35, 120, "Hello Marc!", &Font16, BLACK, WHITE);
     DEV_Delay_ms(50000);
 }
 
@@ -181,12 +186,3 @@ void loop()
     
     
 }
-
-void Touch_INT_callback()
-{
-    flag = TOUCH_IRQ;
-}
-
-/*********************************************************************************************************
-  END FILE
-*********************************************************************************************************/
