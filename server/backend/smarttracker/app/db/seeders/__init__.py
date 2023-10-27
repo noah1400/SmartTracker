@@ -46,5 +46,14 @@ def create_fake_data(app, num_users=10, num_projects=5, entries_per_user=5):
                 time_entry = create_fake_time_entry(user, project)
                 time_entries.append(time_entry)
                 db.session.add(time_entry)
+        
+
         db.session.commit()
+
+        try:
+            user = User('admin', 'admin@example.com', 'admin', 'internal')
+            db.session.add(user)
+            db.session.commit()
+        except:
+            pass
         return users, projects, time_entries

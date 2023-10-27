@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from db.models import User
+from app.db.models import User
 
 class AuthService(ABC):
 
