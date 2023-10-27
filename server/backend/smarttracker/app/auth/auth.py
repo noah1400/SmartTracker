@@ -42,7 +42,7 @@ class Auth():
             return { 'error': 'Missing Token' }, 401
         return decorated
     
-    def auth_generateJWT(username) -> str:
+    def auth_generateJWT(self, username) -> str:
         try:
             payload = {
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, minutes=30),
@@ -57,7 +57,7 @@ class Auth():
         except Exception as e:
             return e
         
-    def auth_decodeJWT(token) -> str:
+    def auth_decodeJWT(self, token) -> str:
         try:
             payload = jwt.decode(token, os.environ.get('SECRET_KEY'), algorithms=['HS256'])
             return payload['sub']
@@ -79,16 +79,21 @@ class Auth():
             if user:
                 return user
         return None
+    
+    def auth_upsertUser(self, user: User):
+        db.session.add(user)
+        db.session.commit()
 
     def auth_authenticate(self, username: str, password: str) -> dict:
         user = self.auth_checkInternal(username, password)
         if user:
-            return { 'username': user, 'token': self.auth_generateJWT(user) }
+            self._user = user
+            return { 'username': user.username, 'service': user.service, 'token': self.auth_generateJWT(user.username) }
         for service in self.services.values():
             user = service['service'].getUser(username, password, service['config'])
             if user:
                 self._user = user
-                return { 'username': user, 'service': service['name'], 'token': self.auth_generateJWT(user.username) }
+                return { 'username': user.username, 'service': service['name'], 'token': self.auth_generateJWT(user.username) }
         raise InvalidCredentials('Invalid credentials')
     
 auth = Auth()
