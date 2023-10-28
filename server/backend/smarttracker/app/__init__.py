@@ -12,7 +12,7 @@ def create_app(config_class=Config):
     # Initialize extensions
     db.init_app(app)
 
-    from app.db.models import User, Project, TimeEntry
+    from app.db.models import User, Project, TimeEntry, Role, Permission
     from app.db.seeders import create_fake_data
 
     create_fake_data(app)

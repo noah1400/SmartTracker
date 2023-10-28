@@ -1,5 +1,6 @@
 from app.db import db
 import bcrypt
+import logging
 
 class User(db.Model):
 
@@ -10,18 +11,31 @@ class User(db.Model):
     email = db.Column(db.String(120), index=True)
     password_hash = db.Column(db.String(256))
     service = db.Column(db.String(64))
-    role = db.Column(db.String(64), default='basic')
+    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now())
 
     time_entries = db.relationship('TimeEntry', back_populates='user')
+    role = db.relationship('Role', back_populates='users')
 
-    def __init__(self, username, email, password, service, role='basic'):
+    @classmethod
+    def create_with_role(cls, username, email, password, service, role='user'):
+        user = cls(username, email, password, service)
+        
+        role_obj = Role.query.filter_by(name=role).first()
+        if role_obj:
+            user.role = role_obj
+
+        db.session.add(user)
+        db.session.commit()
+
+        return user
+
+    def __init__(self, username, email, password, service):
         self.username = username
         self.email = email
         self.set_password(password)
         self.service = service
-        self.role = role
 
     def set_password(self, password):
         self.password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
@@ -32,17 +46,26 @@ class User(db.Model):
     def __repr__(self):
         return '<User {}>'.format(self.username)
     
-    def to_dict(self, include_time_entries=False):
+    def to_dict(self):
         data = {
             'id': self.id,
             'username': self.username,
             'email': self.email,
             'service': self.service,
-            'role': self.role,
             'createdAt': self.created_at.isoformat(),
             'updatedAt': self.updated_at.isoformat(),
         }
         return data
+    
+    def has_permission(self, permissions: str | list[str]) -> bool:
+        if isinstance(permissions, str):
+            permissions = [permissions]
+        for permission in permissions:
+            if self.role and self.role.permissions:
+                if permission in [p.name for p in self.role.permissions]:
+                    return True
+        return False
+        
     
 class Project(db.Model):
     __tablename__ = 'projects'
@@ -106,4 +129,60 @@ class TimeEntry(db.Model):
             'projectId': self.project_id, 
             'createdAt': self.created_at.isoformat(),  
             'updatedAt': self.updated_at.isoformat() 
+        }
+    
+class Role(db.Model):
+    __tablename__ = 'roles'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(64), index=True, unique=True)
+    description = db.Column(db.String(256), nullable=True)
+    created_at = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now(), nullable=False)
+
+    users = db.relationship('User', back_populates='role')
+    permissions = db.relationship('Permission', back_populates='role')
+    
+    def __init__(self, name, description):
+        self.name = name
+        self.description = description
+    
+    def __repr__(self):
+        return '<Role {}>'.format(self.name)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'createdAt': self.created_at.isoformat(),
+            'updatedAt': self.updated_at.isoformat()
+        }
+    
+class Permission(db.Model):
+    __tablename__ = 'permissions'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(64), index=True, unique=True)
+    description = db.Column(db.String(256), nullable=True)
+    created_at = db.Column(db.DateTime, server_default=db.func.now(), nullable=False)
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now(), nullable=False)
+    
+    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
+    role = db.relationship('Role', back_populates='permissions')
+    
+    def __init__(self, name, description):
+        self.name = name
+        self.description = description
+    
+    def __repr__(self):
+        return '<Permission {}>'.format(self.name)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'createdAt': self.created_at.isoformat(),
+            'updatedAt': self.updated_at.isoformat()
         }
