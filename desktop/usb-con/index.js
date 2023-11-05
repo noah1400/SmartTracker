@@ -1,4 +1,3 @@
-// Modules to control application life and create native browser window
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const usb = require('usb');
@@ -22,7 +21,7 @@ const getDeviceName = (device) => {
 };
 
 const createWindow = () => {
-    // Create the browser window.
+
     const win = new BrowserWindow({
         width: 800,
         height: 600,
@@ -31,10 +30,8 @@ const createWindow = () => {
         }
     });
 
-    // and load the index.html of the app.
     win.loadFile('index.html');
 
-    // Open the DevTools.
     win.webContents.openDevTools();
 
     windows.push(win);
@@ -86,5 +83,3 @@ app.on('window-all-closed', () => {
 
 });
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
