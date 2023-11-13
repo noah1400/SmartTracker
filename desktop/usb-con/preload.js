@@ -1,15 +1,30 @@
-const { ipcRenderer } = require('electron')
-
+const { ipcRenderer } = require('electron');
 
 window.addEventListener('DOMContentLoaded', () => {
-    const replaceText = (selector, text) => {
-        const element = document.getElementById(selector)
-        if (element) element.innerText = text
-    }
+    const deviceList = document.getElementById('deviceList');
 
-    for (const dependency of ['chrome', 'node', 'electron']) {
-        replaceText(`${dependency}-version`, process.versions[dependency])
-    }
+    const updateDeviceList = (devices) => {
+        // Clear previous content
+        deviceList.innerHTML = '';
 
-    ipcRenderer.on('devices', (_event, text) => replaceText('devices', text))
-})
+        // Display  device infos
+        devices.forEach(device => {
+            const deviceInfoElement = document.createElement('div');
+            deviceInfoElement.innerHTML = `
+                <p><strong>Vendor ID:</strong> ${device.vendorId}</p>
+                <p><strong>Product ID:</strong> ${device.productId}</p>
+                <p><strong>Serial Number:</strong> ${device.serialNumber}</p>
+                <hr>
+            `;
+            deviceList.appendChild(deviceInfoElement);
+        });
+    };
+
+    // Initial device list display
+    ipcRenderer.send('getDevices');
+    
+    // Update device list when devices change
+    ipcRenderer.on('devices', (_event, devices) => {
+        updateDeviceList(devices);
+    });
+});
