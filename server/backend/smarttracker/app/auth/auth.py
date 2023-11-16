@@ -111,11 +111,16 @@ class Auth():
         if user:
             self._user = user
             return { 'username': user.username, 'service': user.service, 'token': self.auth_generateJWT(user.username) }
-        for service in self.services.values():
-            user = service['service'].getUser(username, password, service['config'])
-            if user:
-                self._user = self.auth_upsertUser(user)
-                return { 'username': user.username, 'service': service['name'], 'token': self.auth_generateJWT(user.username) }
+        raise InvalidCredentials('Invalid credentials')
+    
+    def oauth_authenticate(self, token: str, service: str) -> dict:
+        service = self.services[service]
+        if not service:
+            raise UnregisteredService(f'Service {service} not registered')
+        user = service['service'].getUser(token, service['config'])
+        if user:
+            self._user = user
+            return { 'username': user.username, 'service': user.service, 'token': self.auth_generateJWT(user.username) }
         raise InvalidCredentials('Invalid credentials')
     
     @property

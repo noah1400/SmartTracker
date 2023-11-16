@@ -6,8 +6,6 @@ from app.auth.auth import auth
 def login():
     username = request.json.get('username', None)
     password = request.json.get('password', None)
-    if not username or not password:
-        return { 'error': 'Missing credentials' }, 401
     try:
         return auth.auth_authenticate(username, password)
     except Exception as e:
