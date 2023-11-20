@@ -1,84 +1,107 @@
-from app.auth.services.keycloak_auth import KeyCloakService
-from app.auth.exceptions import InvalidCredentials, UnregisteredService, InvalidToken, ExpiredToken
-import jwt, datetime
+import os
+import jwt
+import datetime
+import logging
+from functools import wraps
+from flask import request
 from app.db import db
 from app.db.models import User
-from flask import request
-from functools import wraps
-import os
+from app.auth.services.keycloak_auth import KeyCloakService
+from app.auth.exceptions import InvalidCredentials, UnregisteredService, InvalidToken, ExpiredToken
 
+class Auth:
+    """
+    Auth class to handle authentication and user management.
+    Implements Singleton pattern to ensure only one instance.
+    """
 
-
-class Auth():
-    
     _instance = None
 
-    services = {
-        'keycloak': {
-            'name': 'keycloak',
-            'config': {
-                'url': os.environ.get('KEYCLOAK_URL'),
-                'realm': os.environ.get('KEYCLOAK_REALM'),
-                'client_id': os.environ.get('KEYCLOAK_CLIENT_ID'),
-                'client_secret': os.environ.get('KEYCLOAK_CLIENT_SECRET')
-            },
-            'service': KeyCloakService,
-        }
-    }
-
     def __new__(cls):
-        if not cls._instance:
+        """Implement singleton pattern."""
+        if cls._instance is None:
             cls._instance = super(Auth, cls).__new__(cls)
         return cls._instance
-    
+
     def __init__(self):
         self._user = None
+        self.services = self._load_services()
+
+    @staticmethod
+    def _load_services():
+        """Load services configuration."""
+        return {
+            'keycloak': {
+                'name': 'keycloak',
+                'config': {
+                    'url': os.environ.get('KEYCLOAK_URL'),
+                    'realm': os.environ.get('KEYCLOAK_REALM'),
+                    'client_id': os.environ.get('KEYCLOAK_CLIENT_ID'),
+                    'client_secret': os.environ.get('KEYCLOAK_CLIENT_SECRET')
+                },
+                'service': KeyCloakService,
+            }
+        }
 
     def auth_authenticated(self, f):
+        """Decorator to authenticate API requests."""
         @wraps(f)
         def decorated(*args, **kwargs):
-            token = request.headers.get('Authorization')
-            if not token:
-                return {'error': 'Missing Token'}, 401
-
-            token_parts = token.split(' ', 2)  # Split into 3 parts
-            if len(token_parts) < 2:
-                return {'error': 'Invalid Authorization header'}, 401
-
-            token_type = token_parts[0]
-
             try:
-                if token_type == 'Bearer': # Bearer <JWT token>
-                    # JWT token validation
-                    jwt_token = token_parts[1]
-                    username = self.auth_decodeJWT(jwt_token)
-                elif token_type == 'OAuth': # OAuth <provider> <token>
-                    if len(token_parts) != 3:
-                        return {'error': 'Invalid OAuth token format'}, 401
-                    provider, oauth_token = token_parts[1], token_parts[2]
-                    username = self.validate_oauth_token(oauth_token, provider)
-                else:
-                    return {'error': 'Invalid token type'}, 401
-
-                if not username:
-                    return {'error': 'Invalid or expired token'}, 401
-
-                self._user = User.query.filter_by(username=username).first()
-                return f(username, *args, **kwargs)
-
+                token = self._extract_token(request)
+                username = self._validate_token(token)
+                self._user = self._get_user_by_username(username)
+                return f(self._user, *args, **kwargs)
             except Exception as e:
+                logging.error(f'Authentication error: {e}')
                 return {'error': str(e)}, 401
 
         return decorated
-    
+
+    @staticmethod
+    def _extract_token(request):
+        """Extract token from the Authorization header."""
+        auth_header = request.headers.get('Authorization')
+        if not auth_header:
+            raise InvalidToken("Authorization header is missing")
+
+        parts = auth_header.split()
+
+        if parts[0] != 'Bearer' or len(parts) != 2:
+            raise InvalidToken("Invalid Authorization header format")
+
+        return parts[1]
+
+    def _validate_token(self, token):
+        """Validate the extracted token."""
+        try:
+            payload = jwt.decode(token, os.environ.get('SECRET_KEY'), algorithms=['HS256'])
+            return payload['sub']
+        except jwt.ExpiredSignatureError:
+            raise ExpiredToken('Signature expired. Please log in again.')
+        except jwt.InvalidTokenError:
+            raise InvalidToken('Invalid token. Please log in again.')
+
+    @staticmethod
+    def _get_user_by_username(username):
+        """Retrieve user by username."""
+        return User.query.filter_by(username=username).first()
+
     def validate_oauth_token(self, oauth_token, provider):
-        service = self.services[provider]
-        if not service:
-            raise UnregisteredService(f'Service {provider} not registered')
-        user = service['service'].validateToken(oauth_token, service['config'])
-        self._user = self.auth_upsertUser(user)
-    
+        """Validate OAuth token."""
+        try:
+            service = self.services.get(provider)
+            if not service:
+                raise UnregisteredService(f'Service {provider} not registered')
+            
+            user_info = service['service'].validateToken(oauth_token, service['config'])
+            return self.auth_upsertUser(user_info)
+        except Exception as e:
+            logging.error(f'OAuth token validation error: {e}')
+            raise
+
     def auth_generateJWT(self, username) -> str:
+        """Generate JWT token."""
         try:
             payload = {
                 'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, minutes=30),
@@ -91,9 +114,11 @@ class Auth():
                 algorithm='HS256'
             )
         except Exception as e:
-            return e
-        
+            logging.error(f'JWT generation error: {e}')
+            raise
+
     def auth_decodeJWT(self, token) -> str:
+        """Decode JWT token."""
         try:
             payload = jwt.decode(token, os.environ.get('SECRET_KEY'), algorithms=['HS256'])
             return payload['sub']
@@ -102,42 +127,41 @@ class Auth():
         except jwt.InvalidTokenError:
             raise InvalidToken('Invalid token. Please log in again.')
 
-
     def auth_checkInternal(self, username: str, password: str) -> User | None:
+        """Check internal user credentials."""
         user = User.query.filter_by(username=username).first()
-        if user:
-            if user.service == "internal" and user.check_password(password):
-                return user
+        if user and user.service == "internal" and user.check_password(password):
+            return user
         return None
     
-    def auth_upsertUser(self, user: User):
-        existing_user = User.query.filter_by(username=user.username).first()
+    def auth_upsertUser(self, user_info):
+        """Upsert user information."""
+        existing_user = User.query.filter_by(username=user_info['username']).first()
         if existing_user:
-            existing_user.username = user.username
-            existing_user.email = user.email
-            existing_user.password_hash = user.password_hash
-            existing_user.service = user.service
-            existing_user.role_id = user.role_id
-            existing_user.created_at = user.created_at
-            existing_user.updated_at = user.updated_at
+            # Update existing user
+            for key, value in user_info.items():
+                setattr(existing_user, key, value)
             db.session.commit()
             return existing_user
         else:
-            new_user = User.create_with_role(user.username, user.email, user.password_hash, user.service, 'user')
+            # Create new user
+            new_user = User(**user_info)
+            db.session.add(new_user)
+            db.session.commit()
             return new_user
 
-
-
     def auth_authenticate(self, username: str, password: str) -> dict:
+        """Authenticate user and generate token."""
         user = self.auth_checkInternal(username, password)
         if user:
             self._user = user
-            return { 'username': user.username, 'token': self.auth_generateJWT(user.username) }
+            token = self.auth_generateJWT(user.username)
+            return {'username': user.username, 'token': token}
         raise InvalidCredentials('Invalid credentials')
-    
-    @property
-    def user(self) -> User:
-        return self._user
-    
-auth = Auth()
 
+    @property
+    def user(self):
+        """Get the current user."""
+        return self._user
+
+auth = Auth()
