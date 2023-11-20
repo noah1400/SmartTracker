@@ -37,18 +37,46 @@ class Auth():
     def auth_authenticated(self, f):
         @wraps(f)
         def decorated(*args, **kwargs):
+            token = request.headers.get('Authorization')
+            if not token:
+                return {'error': 'Missing Token'}, 401
+
+            token_parts = token.split(' ', 2)  # Split into 3 parts
+            if len(token_parts) < 2:
+                return {'error': 'Invalid Authorization header'}, 401
+
+            token_type = token_parts[0]
+
             try:
-                token = request.headers.get('Authorization')
-                if token:
-                    token = token.split(' ')[1] # Bearer <token>
-                    username = self.auth_decodeJWT(token)
-                    self._user = User.query.filter_by(username=username).first()
-                    if username:
-                        return f(username, *args, **kwargs)
+                if token_type == 'Bearer': # Bearer <JWT token>
+                    # JWT token validation
+                    jwt_token = token_parts[1]
+                    username = self.auth_decodeJWT(jwt_token)
+                elif token_type == 'OAuth': # OAuth <provider> <token>
+                    if len(token_parts) != 3:
+                        return {'error': 'Invalid OAuth token format'}, 401
+                    provider, oauth_token = token_parts[1], token_parts[2]
+                    username = self.validate_oauth_token(oauth_token, provider)
+                else:
+                    return {'error': 'Invalid token type'}, 401
+
+                if not username:
+                    return {'error': 'Invalid or expired token'}, 401
+
+                self._user = User.query.filter_by(username=username).first()
+                return f(username, *args, **kwargs)
+
             except Exception as e:
-                return { 'error': str(e) }, 401
-            return { 'error': 'Missing Token' }, 401
+                return {'error': str(e)}, 401
+
         return decorated
+    
+    def validate_oauth_token(self, oauth_token, provider):
+        service = self.services[provider]
+        if not service:
+            raise UnregisteredService(f'Service {provider} not registered')
+        user = service['service'].validateToken(oauth_token, service['config'])
+        self._user = self.auth_upsertUser(user)
     
     def auth_generateJWT(self, username) -> str:
         try:
@@ -80,12 +108,6 @@ class Auth():
         if user:
             if user.service == "internal" and user.check_password(password):
                 return user
-            service = self.services[user.service]
-            if not service:
-                raise UnregisteredService(f'Service {user.service} not registered')
-            user = service['service'].getUser(username, password, service['config'])
-            if user:
-                return user
         return None
     
     def auth_upsertUser(self, user: User):
@@ -110,17 +132,7 @@ class Auth():
         user = self.auth_checkInternal(username, password)
         if user:
             self._user = user
-            return { 'username': user.username, 'service': user.service, 'token': self.auth_generateJWT(user.username) }
-        raise InvalidCredentials('Invalid credentials')
-    
-    def oauth_authenticate(self, token: str, service: str) -> dict:
-        service = self.services[service]
-        if not service:
-            raise UnregisteredService(f'Service {service} not registered')
-        user = service['service'].getUser(token, service['config'])
-        if user:
-            self._user = user
-            return { 'username': user.username, 'service': user.service, 'token': self.auth_generateJWT(user.username) }
+            return { 'username': user.username, 'token': self.auth_generateJWT(user.username) }
         raise InvalidCredentials('Invalid credentials')
     
     @property
