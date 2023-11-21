@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>USB Detection</title>
+    <style>
+        table { border-collapse: collapse; }
+        table, th, td { border: 1px solid black; }
+    </style>
+  </head>
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
-    <title> USB Detection</title>
-</head>
-
-<body>
+  <body>
     <h1>Connected USB Devices</h1>
-    <div id="deviceList"></div>
-    <script src="renderer.js"></script>
-</body>
-
+    <div id="error"></div>
+    <table id="ports"></table>
+    
+  </body>
+  <script src="renderer.js"></script>
 </html>
