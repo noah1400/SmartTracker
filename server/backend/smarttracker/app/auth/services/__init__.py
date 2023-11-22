@@ -12,5 +12,5 @@ class AuthService(ABC):
     @return: The username if the user exists, None otherwise
     """
     @classmethod
-    def getUser(self, token, config = {}) -> User | None:
+    def getUser(self, token, config = {}) -> dict | None:
         pass
