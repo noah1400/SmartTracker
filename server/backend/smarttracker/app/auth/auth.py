@@ -9,27 +9,11 @@ from app.db.models import User
 from app.auth.services.keycloak_auth import KeyCloakService
 from app.auth.exceptions import InvalidCredentials, UnregisteredService, InvalidToken, ExpiredToken
 
-class Auth:
-    """
-    Auth class to handle authentication and user management.
-    Implements Singleton pattern to ensure only one instance.
-    """
-
-    _instance = None
-
-    def __new__(cls):
-        """Implement singleton pattern."""
-        if cls._instance is None:
-            cls._instance = super(Auth, cls).__new__(cls)
-        return cls._instance
-
-    def __init__(self):
-        self._user = None
-        self.services = self._load_services()
-
+class AuthConfig:
+    """Class to manage auth service configurations."""
     @staticmethod
-    def _load_services():
-        """Load services configuration."""
+    def load_services():
+        """Load services configuration from environment or external file."""
         return {
             'keycloak': {
                 'name': 'keycloak',
@@ -43,12 +27,34 @@ class Auth:
             }
         }
 
+class Auth:
+    """
+    Auth class to handle authentication and user management.
+    Implements Singleton pattern to ensure only one instance.
+    """
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(Auth, cls).__new__(cls)
+        return cls._instance
+
+    def __init__(self):
+        self._user = None
+        self.services = AuthConfig.load_services()
+
     def auth_authenticated(self, f):
         """Decorator to authenticate API requests."""
         @wraps(f)
         def decorated(*args, **kwargs):
             try:
-                token = self._extract_token(request)
+                auth_method, token = self._extract_token(request)
+                logging.info(f'Authenticating token: {token}')
+                if auth_method == 'oauth':
+                    provider = self._get_provider_from_request(request)
+                    user = self.validate_oauth_token(token, provider)
+                    self._user = user
+                    return f(self._user, *args, **kwargs)
                 username = self._validate_token(token)
                 self._user = self._get_user_by_username(username)
                 return f(self._user, *args, **kwargs)
@@ -58,20 +64,28 @@ class Auth:
 
         return decorated
 
-    @staticmethod
-    def _extract_token(request):
+    def _get_provider_from_request(self, request):
+        """Get the current provider from the request."""
+        provider = request.headers.get('Provider')
+        if not provider:
+            raise UnregisteredService("Provider header is missing")
+        return provider
+
+    def _extract_token(self, request):
         """Extract token from the Authorization header."""
         auth_header = request.headers.get('Authorization')
         if not auth_header:
             raise InvalidToken("Authorization header is missing")
 
         parts = auth_header.split()
-
-        if parts[0] != 'Bearer' or len(parts) != 2:
+        if parts[0] != 'Bearer':
             raise InvalidToken("Invalid Authorization header format")
-
-        return parts[1]
-
+        if len(parts) == 2:
+            return 'internal', parts[1]
+        elif len(parts) == 3 and parts[1].lower() == 'oauth':
+            return 'oauth', parts[2]
+        else:
+            raise InvalidToken("Invalid Authorization header format")
     def _validate_token(self, token):
         """Validate the extracted token."""
         try:
@@ -82,8 +96,7 @@ class Auth:
         except jwt.InvalidTokenError:
             raise InvalidToken('Invalid token. Please log in again.')
 
-    @staticmethod
-    def _get_user_by_username(username):
+    def _get_user_by_username(self, username):
         """Retrieve user by username."""
         return User.query.filter_by(username=username).first()
 
@@ -93,8 +106,10 @@ class Auth:
             service = self.services.get(provider)
             if not service:
                 raise UnregisteredService(f'Service {provider} not registered')
-            
+
             user_info = service['service'].validateToken(oauth_token, service['config'])
+
+
             return self.auth_upsertUser(user_info)
         except Exception as e:
             logging.error(f'OAuth token validation error: {e}')
@@ -133,7 +148,7 @@ class Auth:
         if user and user.service == "internal" and user.check_password(password):
             return user
         return None
-    
+      
     def auth_upsertUser(self, user_info):
         """Upsert user information."""
         existing_user = User.query.filter_by(username=user_info['username']).first()
@@ -145,7 +160,7 @@ class Auth:
             return existing_user
         else:
             # Create new user
-            new_user = User(**user_info)
+            new_user = User.create_with_role(**user_info)
             db.session.add(new_user)
             db.session.commit()
             return new_user

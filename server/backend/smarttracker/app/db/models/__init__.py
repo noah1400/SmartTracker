@@ -52,8 +52,8 @@ class User(db.Model):
             'username': self.username,
             'email': self.email,
             'service': self.service,
-            'createdAt': self.created_at.isoformat(),
-            'updatedAt': self.updated_at.isoformat(),
+            'createdAt': self.created_at.isoformat() if self.created_at else None,
+            'updatedAt': self.updated_at.isoformat() if self.updated_at else None
         }
         return data
     
