@@ -86,7 +86,6 @@ class Auth:
             return 'oauth', parts[2]
         else:
             raise InvalidToken("Invalid Authorization header format")
-
     def _validate_token(self, token):
         """Validate the extracted token."""
         try:
@@ -109,6 +108,7 @@ class Auth:
                 raise UnregisteredService(f'Service {provider} not registered')
 
             user_info = service['service'].validateToken(oauth_token, service['config'])
+
 
             return self.auth_upsertUser(user_info)
         except Exception as e:
@@ -148,7 +148,7 @@ class Auth:
         if user and user.service == "internal" and user.check_password(password):
             return user
         return None
-
+      
     def auth_upsertUser(self, user_info):
         """Upsert user information."""
         existing_user = User.query.filter_by(username=user_info['username']).first()
