@@ -1,5 +1,6 @@
 schema {
     query: Query
+    mutation: Mutation
 }
 
 type User {
@@ -43,4 +44,18 @@ type Query {
     projects: [Project!]!
     timeEntry(id: ID!): TimeEntry
     timeEntries: [TimeEntry!]!
+}
+
+type Mutation {
+    createUser(username: String!, email: String!, password: String!, service: String!, role: String): User!
+    updateUser(id: ID!, username: String, email: String, service: String, role: String): [Int!]!
+    deleteUser(id: ID!): Int!
+
+    createProject(name: String!, description: String): Project!
+    updateProject(id: ID!, name: String, description: String): [Int!]!
+    deleteProject(id: ID!): Int!
+
+    createTimeEntry(description: String!, startTime: String!, endTime: String!, userId: ID!, projectId: ID!): TimeEntry!
+    updateTimeEntry(id: ID!, description: String, startTime: String, endTime: String, userId: ID, projectId: ID): [Int!]!
+    deleteTimeEntry(id: ID!): Int!
 }
