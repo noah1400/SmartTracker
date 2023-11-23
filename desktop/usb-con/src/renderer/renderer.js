@@ -3,17 +3,12 @@ const { SerialPort } = require('serialport');
 function listSerialPorts() {
   const portsTable = document.getElementById('ports');
 
-  SerialPort.list().then((ports, err) => {
-    if (err) {
-      document.getElementById('error').textContent = err.message;
-      return;
-    } else {
-      document.getElementById('error').textContent = '';
-    }
-
+  SerialPort.list().then((ports) => {
     if (ports.length === 0) {
       document.getElementById('error').textContent = 'No ports discovered';
       return;
+    } else {
+      document.getElementById('error').textContent = '';
     }
 
     portsTable.innerHTML = '';
@@ -24,21 +19,30 @@ function listSerialPorts() {
 
     ports.forEach((port) => {
       const tableRow = document.createElement('tr');
-      tableRow.innerHTML = `<td>${port.path}</td><td>${port.manufacturer}</td><td>${port.serialNumber}</td><td>${port.location}</td><td>${port.vendorId}</td><td>${port.productId}</td>`;
-      tableRow.addEventListener('click', () => connectToPort(port.path, 9600)); // Adjust baudRate as needed
+      tableRow.innerHTML = `<td>${port.path}</td><td>${port.manufacturer || ''}</td><td>${port.serialNumber || ''}</td><td>${port.location || ''}</td><td>${port.vendorId || ''}</td><td>${port.productId || ''}</td>`;
+      tableRow.addEventListener('click', () => connectToPort(port.path, 9600));
       portsTable.appendChild(tableRow);
     });
+  }).catch((err) => {
+    document.getElementById('error').textContent = err.message;
   });
 }
 
 let selectedPort;
 
 function connectToPort(portPath, baudRate) {
+  console.log('Connecting to port:', portPath);
+
   if (selectedPort) {
     selectedPort.close();
   }
 
-  selectedPort = new SerialPort(portPath, { baudRate });
+  try {
+    selectedPort = new SerialPort( {path: portPath, baudRate, autoOpen: true });
+  } catch (err) {
+    console.error(`Error creating SerialPort: ${err.message}`);
+    return;
+  }
 
   selectedPort.on('data', (data) => {
     console.log(`Received data: ${data}`);

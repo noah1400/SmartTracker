@@ -25,9 +25,9 @@ const createWindow = () => {
     width: 800,
     height: 600,
     webPreferences: {
-      nodeIntegration: true, // to allow require
-      contextIsolation: false, // allow use with Electron 12+
-      preload: path.join(__dirname, "preload.js"),
+      nodeIntegration: true, //allow require
+      contextIsolation: false, // allow use with higher electron version
+      preload: path.join(__dirname,"preload.js"),
     },
   });
 
@@ -35,7 +35,6 @@ const createWindow = () => {
 
   win.webContents.openDevTools();
 
-  //Show DeviceList when starting the App
 };
 
 app.whenReady().then(() => {
