@@ -1,7 +1,9 @@
 from flask import Blueprint
 from ariadne import load_schema_from_path, make_executable_schema,snake_case_fallback_resolvers, ObjectType
 import app.graphql.queries as queries
-import app.graphql.mutations as mutations
+import app.graphql.mutations.user_mutations as user_mutations
+import app.graphql.mutations.project_mutations as project_mutations
+import app.graphql.mutations.time_entry_mutations as time_entry_mutations
 
 bp_graphql = Blueprint('graphql', __name__, url_prefix='/graphql')
 
@@ -24,17 +26,17 @@ timeEntry_type.set_field('user', queries.resolve_user_for_time_entry)
 timeEntry_type.set_field('project', queries.resolve_project_for_time_entry)
 
 mutation = ObjectType('Mutation')
-mutation.set_field('createUser', mutations.resolve_create_user)
-mutation.set_field('updateUser', mutations.resolve_update_user)
-mutation.set_field('deleteUser', mutations.resolve_delete_user)
+mutation.set_field('createUser', user_mutations.resolve_create_user)
+mutation.set_field('updateUser', user_mutations.resolve_update_user)
+mutation.set_field('deleteUser', user_mutations.resolve_delete_user)
 
-mutation.set_field('createProject', mutations.resolve_create_project)
-mutation.set_field('updateProject', mutations.resolve_update_project)
-mutation.set_field('deleteProject', mutations.resolve_delete_project)
+mutation.set_field('createProject', project_mutations.resolve_create_project)
+mutation.set_field('updateProject', project_mutations.resolve_update_project)
+mutation.set_field('deleteProject', project_mutations.resolve_delete_project)
 
-mutation.set_field('createTimeEntry', mutations.resolve_create_time_entry)
-mutation.set_field('updateTimeEntry', mutations.resolve_update_time_entry)
-mutation.set_field('deleteTimeEntry', mutations.resolve_delete_time_entry)
+mutation.set_field('createTimeEntry', time_entry_mutations.resolve_create_time_entry)
+mutation.set_field('updateTimeEntry', time_entry_mutations.resolve_update_time_entry)
+mutation.set_field('deleteTimeEntry', time_entry_mutations.resolve_delete_time_entry)
 
 type_defs = load_schema_from_path('smarttracker/app/graphql/schema.graphql')
 schema = make_executable_schema(type_defs, query, mutation, user_type, project_type, timeEntry_type)
