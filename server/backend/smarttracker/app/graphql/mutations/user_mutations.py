@@ -2,7 +2,7 @@ from app.auth.auth import auth
 from app.auth.exceptions import Unauthorized
 from app.db.models import User
 from app.db import db
-from app.graphql.mutations import is_authorized_for_action
+from app.graphql.utils.auhorizations import is_authorized_for_action
 from app.graphql.exceptions import NotFound
 
 user_not_found = NotFound('User not found')
