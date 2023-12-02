@@ -5,7 +5,7 @@ import logging
 from functools import wraps
 from flask import request
 from app.db import db
-from app.db.models import User
+from app.db.models.User import User
 from app.auth.services.keycloak_auth import KeyCloakService
 from app.auth.exceptions import InvalidCredentials, UnregisteredService, InvalidToken, ExpiredToken
 

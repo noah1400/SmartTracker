@@ -1,5 +1,5 @@
 from app.graphql.utils.auhorizations import is_authorized_for_action
-from app.db.models import User
+from app.db.models.User import User
 from app.auth.auth import auth
 from app.auth.exceptions import Unauthorized
 
