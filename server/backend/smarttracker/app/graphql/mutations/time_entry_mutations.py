@@ -1,6 +1,6 @@
 
 from app.auth.auth import auth
-from app.graphql.mutations import is_authorized_for_action
+from app.graphql.utils.auhorizations import is_authorized_for_action
 from app.db.models import TimeEntry
 from app.auth.exceptions import Unauthorized
 from app.graphql.exceptions import NotFound
