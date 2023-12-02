@@ -1,4 +1,8 @@
-from app.db.models import User, Project, TimeEntry, Role, Permission
+from app.db.models.User import User
+from app.db.models.Project import Project
+from app.db.models.TimeEntry import TimeEntry
+from app.db.models.Role import Role
+from app.db.models.Permission import Permission
 from app.db import db
 from datetime import datetime, timedelta
 from faker import Faker

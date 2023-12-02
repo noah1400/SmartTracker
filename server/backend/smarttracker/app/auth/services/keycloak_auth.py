@@ -1,5 +1,5 @@
 from app.auth.services import AuthService
-from app.db.models import User
+from app.db.models.User import User
 import requests
 import logging
 import jwt

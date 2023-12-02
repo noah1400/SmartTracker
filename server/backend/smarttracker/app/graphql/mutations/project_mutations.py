@@ -2,7 +2,7 @@ from app.auth.auth import auth
 from app.auth.exceptions import Unauthorized
 from app.graphql.exceptions import NotFound
 from app.db import db
-from app.db.models import Project
+from app.db.models.Project import Project
 
 unauthorized = Unauthorized('Unauthorized')
 project_not_found = NotFound('Project not found')
