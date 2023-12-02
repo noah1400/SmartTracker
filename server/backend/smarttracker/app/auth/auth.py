@@ -110,12 +110,12 @@ class Auth:
             user_info = service['service'].validateToken(oauth_token, service['config'])
 
 
-            return self.auth_upsertUser(user_info)
+            return self.upsert_user(user_info)
         except Exception as e:
             logging.error(f'OAuth token validation error: {e}')
             raise
 
-    def auth_generateJWT(self, username) -> str:
+    def generate_jwt(self, username) -> str:
         """Generate JWT token."""
         try:
             payload = {
@@ -132,7 +132,7 @@ class Auth:
             logging.error(f'JWT generation error: {e}')
             raise
 
-    def auth_decodeJWT(self, token) -> str:
+    def decode_jwt(self, token) -> str:
         """Decode JWT token."""
         try:
             payload = jwt.decode(token, os.environ.get('SECRET_KEY'), algorithms=['HS256'])
@@ -142,14 +142,14 @@ class Auth:
         except jwt.InvalidTokenError:
             raise InvalidToken('Invalid token. Please log in again.')
 
-    def auth_checkInternal(self, username: str, password: str) -> User | None:
+    def check_internal(self, username: str, password: str) -> User | None:
         """Check internal user credentials."""
         user = User.query.filter_by(username=username).first()
         if user and user.service == "internal" and user.check_password(password):
             return user
         return None
       
-    def auth_upsertUser(self, user_info):
+    def upsert_user(self, user_info):
         """Upsert user information."""
         existing_user = User.query.filter_by(username=user_info['username']).first()
         if existing_user:
@@ -167,10 +167,10 @@ class Auth:
 
     def auth_authenticate(self, username: str, password: str) -> dict:
         """Authenticate user and generate token."""
-        user = self.auth_checkInternal(username, password)
+        user = self.check_internal(username, password)
         if user:
             self._user = user
-            token = self.auth_generateJWT(user.username)
+            token = self.generate_jwt(user.username)
             return {'username': user.username, 'token': token}
         raise InvalidCredentials('Invalid credentials')
 
