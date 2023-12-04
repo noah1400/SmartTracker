@@ -17,7 +17,7 @@ function listSerialPorts() {
 
       portsTable.innerHTML = '';
 
-      const tableHeader = document.createElement('tr');
+const tableHeader = document.createElement('tr');
       tableHeader.innerHTML = '<th>Port</th><th>Manufacturer</th><th>Serial Number</th><th>Location</th><th>Vendor ID</th><th>Product ID</th>';
       portsTable.appendChild(tableHeader);
 
