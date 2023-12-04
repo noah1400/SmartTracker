@@ -1,4 +1,5 @@
 #include "display.h"
+#include "encoder.h"
 
 void setup()
 {
