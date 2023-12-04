@@ -1,14 +1,7 @@
 const { SerialPort } = require('serialport');
-const fs = require('fs'); 
 
-async function portPermissions(portPath){
-  try{
-    fs.chmod(portPath, '666'); 
-    console.log("Permissions updated"); 
-  } catch (err){
-    console.error("Error giving permissions"); 
-  }
-}
+
+
 
 function listSerialPorts() {
   const portsTable = document.getElementById('ports');
@@ -32,7 +25,6 @@ function listSerialPorts() {
         const tableRow = document.createElement('tr');
         tableRow.innerHTML = `<td>${port.path}</td><td>${port.manufacturer || ''}</td><td>${port.serialNumber || ''}</td><td>${port.location || ''}</td><td>${port.vendorId || ''}</td><td>${port.productId || ''}</td>`;
         tableRow.addEventListener('click', () => {
-          portPermissions(port.path);
           connectToPort(port.path, 9600);
         });
         portsTable.appendChild(tableRow);
