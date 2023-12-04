@@ -3,7 +3,7 @@ const fs = require('fs');
 
 async function portPermissions(portPath){
   try{
-    fs.chmod(portPath, '666'); 
+    fs.promises.chmod(portPath, '0644'); 
     console.log("Permissions updated"); 
   } catch (err){
     console.error("Error giving permissions"); 
