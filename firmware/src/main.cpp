@@ -4,7 +4,6 @@
 void setup()
 {
     initDisplay();
-    initEncoder();
 }
 
 void loop()
