@@ -2,9 +2,9 @@
 const int pinRS1 = 2;
 const int pinRS2 = 3;
 
-volatile int encoderPos = 0;
-volatile int lastEncoded = 0;
-volatile long lastMillis = 0;
+int encoderPos = 0;
+int lastEncoded = 0;
+long lastMillis = 0;
 
 void updateEncoder()
 {
