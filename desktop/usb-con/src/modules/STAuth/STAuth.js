@@ -34,70 +34,85 @@ class STAuth {
     }
 
     init() {
-        const authData = this.readAuthData();
-        this.AUTH_TYPE = authData.authType;
-        this.TOKEN = authData.token;
-        this.LOGIN_DATA = authData.loginData;
-
+        if (app.isReady()) {
+            const authData = this.readAuthData();
+            this.AUTH_TYPE = authData.authType;
+            this.TOKEN = authData.token;
+            this.LOGIN_DATA = authData.loginData;
+        } else {
+            throw new Error("App is not ready. Call init() after app is ready. See https://www.electronjs.org/docs/api/app#appwhenready");
+        }
     }
 
-    saveAuthData(authType, token, loginData) {
+    prepareAuthDataForStorage(authType, token, loginData) {
         const data = { authType, token, loginData };
         const jsonString = JSON.stringify(data);
         const base64String = Buffer.from(jsonString).toString('base64');
+        return base64String;
+    }
+
+    saveToDisk(filePath, data) {
+        fs.writeFileSync(filePath, data);
+    }
+
+    saveAuthData(authType, token, loginData) {
+        const base64String = this.prepareAuthDataForStorage(authType, token, loginData);
         console.log("Saving auth data: " + base64String)
         const filePath = app.getPath('userData') + '/auth';
 
         if (safeStorage.isEncryptionAvailable()) {
             console.log("Encryption available. Saving data encrypted.")
             const encryptedData = safeStorage.encryptString(base64String);
-            fs.writeFileSync(filePath, encryptedData);
+            this.saveToDisk(filePath, encryptedData);
         } else {
             console.warn("Warning: Encryption not available. Saving data in plain text. Ensure your environment supports encryption for enhanced security.");
             // Save data in plain text as a fallback
-            fs.writeFileSync(filePath, base64String);
+            this.saveToDisk(filePath, base64String);
+        }
+    }
+
+    readFromDisk(filePath) {
+        return fs.existsSync(filePath) ? fs.readFileSync(filePath) : null;
+    }
+
+    decryptData(fileData) {
+        return safeStorage.decryptString(fileData);
+    }
+
+    parseDataString(dataString) {
+        const data = JSON.parse(dataString);
+        if (data.authType && data.token && data.loginData) {
+            return data;
+        } else {
+            throw new Error("File structure is incorrect or missing required attributes.");
         }
     }
 
     readAuthData() {
-        console.log("Reading auth data")
+        console.log("Reading auth data");
         const filePath = app.getPath('userData') + '/auth';
-
-        if (fs.existsSync(filePath)) {
+        const fileData = this.readFromDisk(filePath);
+    
+        if (fileData) {
             try {
-                // Read the file as a Buffer
-                const fileData = fs.readFileSync(filePath);
-
                 let dataString;
-
+    
                 if (safeStorage.isEncryptionAvailable()) {
-                    // Decrypt the data (expecting a Buffer)
-                    const decryptedData = safeStorage.decryptString(fileData);
-                    // Convert decrypted data to a string from base64
+                    const decryptedData = this.decryptData(fileData);
                     dataString = Buffer.from(decryptedData, 'base64').toString();
                 } else {
                     console.warn("Warning: Decryption not available. Reading data as plain text.");
-                    // Convert file data to a string from base64
                     dataString = Buffer.from(fileData.toString('utf8'), 'base64').toString();
                 }
-
-                const data = JSON.parse(dataString);
-
-                // Check if all required attributes are present
-                if (data.authType && data.token && data.loginData) {
-                    return data;
-                } else {
-                    throw new Error("File structure is incorrect or missing required attributes.");
-                }
+    
+                return this.parseDataString(dataString);
             } catch (error) {
                 console.error("Error reading auth data: The file is corrupted or unreadable. " + error);
                 return { authType: null, token: null, loginData: null };
             }
         }
-
-        return { authType: null, token: null, loginData: null }; 
+        return { authType: null, token: null, loginData: null };
     }
-
 
 
     async ping() {
@@ -149,7 +164,7 @@ class STAuth {
                 this.TOKEN = data.token;
                 this.AUTH_TYPE = this.loginTypes.INTERNAL;
                 this.LOGIN_DATA = data;
-                await this.saveAuthData(this.AUTH_TYPE, this.TOKEN, this.LOGIN_DATA);
+                this.saveAuthData(this.AUTH_TYPE, this.TOKEN, this.LOGIN_DATA);
             } else {
                 return { success: false, error: "No token returned" };
             }
