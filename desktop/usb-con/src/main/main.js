@@ -1,6 +1,10 @@
 const { app, BrowserWindow } = require("electron");
 const path = require("path");
 const usb = require("usb");
+const { STAuth } = require("stauth");
+const stauthInstance = new STAuth();
+
+console.log(STAuth);
 
 let win;
 
@@ -35,9 +39,16 @@ const createWindow = () => {
 
   win.webContents.openDevTools();
 
+  console.log("ping"); 
+
+  stauthInstance.ping();
+
 };
 
 app.whenReady().then(() => {
+
+  
+
   createWindow();
 
   app.on("activate", () => {
