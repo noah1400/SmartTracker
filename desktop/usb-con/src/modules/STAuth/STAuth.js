@@ -193,9 +193,9 @@ class STAuth {
         return this.LOGIN_DATA;
     }
 
-    async oauthLogin(service, username, password) {
+    // async oauthLogin(service, username, password) {
 
-    }
+    // }
 
 
 

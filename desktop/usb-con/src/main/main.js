@@ -1,8 +1,6 @@
-const { app, BrowserWindow, safeStorage } = require("electron");
+const { app, BrowserWindow } = require("electron");
 const path = require("path");
 const usb = require("usb");
-const { STAuth } = require("stauth");
-const stauthInstance = new STAuth();
 
 let win;
 
@@ -36,28 +34,15 @@ const createWindow = () => {
   win.loadFile("index.html");
 
   win.webContents.openDevTools();
+
 };
 
-app.whenReady().then(async () => {
-
-  
-
+app.whenReady().then(() => {
   createWindow();
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
-
-
-  stauthInstance.init();
-
-  // Ping
-  const pingResult = await stauthInstance.ping();
-
-  const loginResult = await stauthInstance.login("admin", "admin");
-
-  const protectedPingResult = await stauthInstance.protectedPing();
-
 });
 
 app.on("window-all-closed", () => {
