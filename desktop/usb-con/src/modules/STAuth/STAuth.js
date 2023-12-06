@@ -89,7 +89,6 @@ class STAuth {
     }
 
     readAuthData() {
-        console.log("Reading auth data");
         const filePath = app.getPath('userData') + '/auth';
         const fileData = this.readFromDisk(filePath);
     
@@ -180,6 +179,18 @@ class STAuth {
         let tokenConditions = this.TOKEN !== null && this.TOKEN !== undefined && this.TOKEN !== '';
         let authTypeConditions = this.AUTH_TYPE !== null && this.AUTH_TYPE !== undefined && this.AUTH_TYPE !== '';
         return tokenConditions && authTypeConditions;
+    }
+
+    get token() {
+        return this.TOKEN;
+    }
+
+    get authType() {
+        return this.AUTH_TYPE;
+    }
+
+    get loginData() {
+        return this.LOGIN_DATA;
     }
 
     async oauthLogin(service, username, password) {

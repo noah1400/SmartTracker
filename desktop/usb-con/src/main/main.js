@@ -4,8 +4,6 @@ const usb = require("usb");
 const { STAuth } = require("stauth");
 const stauthInstance = new STAuth();
 
-console.log(STAuth);
-
 let win;
 
 
@@ -55,13 +53,11 @@ app.whenReady().then(async () => {
 
   // Ping
   const pingResult = await stauthInstance.ping();
-  console.log(pingResult);
 
   const loginResult = await stauthInstance.login("admin", "admin");
-  console.log(loginResult);
 
   const protectedPingResult = await stauthInstance.protectedPing();
-  console.log(protectedPingResult);
+
 });
 
 app.on("window-all-closed", () => {
