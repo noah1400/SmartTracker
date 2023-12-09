@@ -1,5 +1,6 @@
 const { app, safeStorage } = require('electron')
 const fs = require('fs')
+const jose = require('jose')
 
 class STAuth {
 
@@ -178,7 +179,13 @@ class STAuth {
     isLoggedin() {
         let tokenConditions = this.TOKEN !== null && this.TOKEN !== undefined && this.TOKEN !== '';
         let authTypeConditions = this.AUTH_TYPE !== null && this.AUTH_TYPE !== undefined && this.AUTH_TYPE !== '';
-        return tokenConditions && authTypeConditions;
+        return tokenConditions && authTypeConditions && !this.isTokenExpired(this.TOKEN);
+    }
+
+    isTokenExpired( jwt ) {
+        const claims = jose.decodeJwt(jwt);
+        const now = Math.floor(Date.now() / 1000);
+        return claims.exp < now;
     }
 
     get token() {

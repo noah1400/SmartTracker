@@ -1,6 +1,9 @@
 const { app, BrowserWindow } = require("electron");
 const path = require("path");
 const usb = require("usb");
+const { STAuth } = require("stauth");
+const { STApi } = require("stapi");
+const stAuthInstance = new STAuth();
 
 let win;
 
@@ -37,12 +40,25 @@ const createWindow = () => {
 
 };
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   createWindow();
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
+
+  stAuthInstance.init()
+
+  const loginResult = await stAuthInstance.login("admin", "admin")
+
+  console.log(loginResult, stAuthInstance.token)
+
+  const stApiInstance = new STApi()
+  stApiInstance.token = stAuthInstance.token
+
+  const timeEntries = await stApiInstance.getTimeEntryForUser("1")
+
+  console.log(JSON.stringify(timeEntries, null, 2))
 });
 
 app.on("window-all-closed", () => {
