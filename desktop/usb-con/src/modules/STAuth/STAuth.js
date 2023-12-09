@@ -145,6 +145,9 @@ class STAuth {
     }
 
     async login(username, password) {
+        if (!this.isSameUser(username)) {
+            this.logout();
+        }
         if (this.isLoggedin()) {
             return { success: true, error: "Already logged in" };
         }
@@ -159,6 +162,10 @@ class STAuth {
                     'Content-Type': 'application/json'
                 }
             });
+            // status check
+            if (response.status !== 200) {
+                return { success: false, error: "Login failed" };
+            }
             const data = await response.json();
             if (data.token) {
                 this.TOKEN = data.token;
@@ -179,13 +186,42 @@ class STAuth {
     isLoggedin() {
         let tokenConditions = this.TOKEN !== null && this.TOKEN !== undefined && this.TOKEN !== '';
         let authTypeConditions = this.AUTH_TYPE !== null && this.AUTH_TYPE !== undefined && this.AUTH_TYPE !== '';
-        return tokenConditions && authTypeConditions && !this.isTokenExpired(this.TOKEN);
+        return tokenConditions && authTypeConditions && !this.isTokenExpired();
     }
 
-    isTokenExpired( jwt ) {
-        const claims = jose.decodeJwt(jwt);
+    getTokenClaims() {
+        if (this.TOKEN === null || this.TOKEN === undefined || this.TOKEN === '') {
+            return null;
+        }
+        let claims = jose.decodeJwt(this.TOKEN);
+        console.log(claims);
+        return claims;
+    }
+
+    isTokenExpired() {
+        const claims = this.getTokenClaims();
+        if (claims === null) {
+            return true;
+        }
         const now = Math.floor(Date.now() / 1000);
         return claims.exp < now;
+    }
+
+    isSameUser(username) {
+        const claims = this.getTokenClaims();
+        if (claims === null) {
+            return false;
+        }
+        console.log(claims.sub, username)
+        return claims.sub === username;
+    }
+
+    logout() {
+        this.TOKEN = null;
+        this.AUTH_TYPE = null;
+        this.LOGIN_DATA = null;
+        const filePath = app.getPath('userData') + '/auth';
+        fs.writeFileSync(filePath, '');
     }
 
     get token() {

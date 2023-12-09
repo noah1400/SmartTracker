@@ -30,7 +30,7 @@ const createWindow = () => {
     webPreferences: {
       nodeIntegration: true, //allow require
       contextIsolation: false, // allow use with higher electron version
-      preload: path.join(__dirname,"preload.js"),
+      preload: path.join(__dirname, "preload.js"),
     },
   });
 
@@ -49,19 +49,23 @@ app.whenReady().then(async () => {
 
   stAuthInstance.init()
 
-  const loginResult = await stAuthInstance.login("admin", "admin")
+  await stAuthInstance.login("admin", "admin")
+    .then(async (result) => {
 
-  console.log(loginResult, stAuthInstance.token)
+      console.log(result)
+      const stApiInstance = new STApi()
+      stApiInstance.token = stAuthInstance.token
 
-  const stApiInstance = new STApi()
-  stApiInstance.token = stAuthInstance.token
+      const user = await stApiInstance.getUser("1").catch((err) => {
+        console.error(err)
+      })
+      console.log(JSON.stringify(user, null, 2))
+    })
+    .catch((err) => {
+      console.error(err)
+    })
 
-  // const timeEntries = await stApiInstance.getTimeEntryForUser("1")
-  // console.log(JSON.stringify(timeEntries, null, 2))
-  // const projects = await stApiInstance.getAllProjects(true)
-  // console.log(JSON.stringify(projects, null, 2))
-  const user = await stApiInstance.getUser("1")
-  console.log(JSON.stringify(user, null, 2))
+
 });
 
 app.on("window-all-closed", () => {

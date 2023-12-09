@@ -81,19 +81,22 @@ class STApi {
         return query;
     }
 
-    configureFetchOptions(query, variables, bearerToken) {
+    configureFetchOptions(query, variables) {
+        if (this._TOKEN === null || this._TOKEN === undefined) {
+            throw new Error("No token set");
+        }
         return {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${bearerToken}`
+                'Authorization': `Bearer ${this._TOKEN}`
             },
             body: JSON.stringify({ query, variables })
         };
     }
 
     async executeQuery(query, variables) {
-        const fetchOptions = this.configureFetchOptions(query, variables, this._TOKEN);
+        const fetchOptions = this.configureFetchOptions(query, variables);
     
         try {
             const response = await fetch(this.QL_URL, fetchOptions)
