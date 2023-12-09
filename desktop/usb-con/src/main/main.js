@@ -27,7 +27,7 @@ const createWindow = () => {
     webPreferences: {
       nodeIntegration: true, //allow require
       contextIsolation: false, // allow use with higher electron version
-      preload: path.join(__dirname,"preload.js"),
+      preload: path.join(__dirname, "preload.js"),
     },
   });
 
@@ -37,7 +37,7 @@ const createWindow = () => {
 
 };
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   createWindow();
 
   app.on("activate", () => {
