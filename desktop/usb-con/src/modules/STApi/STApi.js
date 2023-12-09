@@ -18,49 +18,9 @@ class STApi {
         }
     }
 
-    constructProjectQuery(withTimeEntries = false) {
-        let query = `
-            query GetAllProjects {
-                projects {
-                    id
-                    name
-                    description
-                    createdAt
-                    updatedAt
-        `;
-    
-        if (withTimeEntries) {
-            query += `
-                    timeEntries {
-                        id
-                        description
-                        startTime
-                        endTime
-                        createdAt
-                        updatedAt
-                        user {
-                            id
-                            username
-                        }
-                    }
-            `;
-        }
-    
-        query += `
-                }
-            }
-        `;
-    
-        return query;
-    }
-
-    constructUserTimeEntryQuery() {
+    getTimeEntriesQueryPart() {
         return `
-            query GetUserTimeEntries($userId: ID!) {
-                user(id: $userId) {
-                    id
-                    username
-                    timeEntries {
+            timeEntries {
                         id
                         description
                         startTime
@@ -72,9 +32,53 @@ class STApi {
                             name
                         }
                     }
+        `;
+    }
+
+    constructProjectQuery(withTimeEntries = false) {
+        let query = `
+            query GetAllProjects {
+                projects {
+                    id
+                    name
+                    description
+                    createdAt
+                    updatedAt
+                    ${withTimeEntries ? this.getTimeEntriesQueryPart() : ''}
+                }
+            }
+        `;
+        return query;
+    }
+
+    constructUserTimeEntryQuery() {
+        return `
+            query GetUserTimeEntries($userId: ID!) {
+                user(id: $userId) {
+                    id
+                    username
+                    ${this.getTimeEntriesQueryPart()}
                 }
             }
             `;
+    }
+
+    constructUserQuery(userId, withTimeEntries = false) {
+        let query = `
+            query GetUser($userId: ID!) {
+                user(id: $userId) {
+                    id
+                    username
+                    email
+                    service
+                    role
+                    createdAt
+                    updatedAt
+                    ${withTimeEntries ? this.getTimeEntriesQueryPart() : ''}
+                }
+            }
+        `;
+        return query;
     }
 
     configureFetchOptions(query, variables, bearerToken) {
@@ -88,9 +92,7 @@ class STApi {
         };
     }
 
-    async getTimeEntryForUser(userId) {
-        const query = this.constructUserTimeEntryQuery();
-        const variables = { userId };
+    async executeQuery(query, variables) {
         const fetchOptions = this.configureFetchOptions(query, variables, this._TOKEN);
     
         try {
@@ -98,37 +100,26 @@ class STApi {
             const data = await response.json()
             return data
         } catch (error) {
-            console.error('Error fetching time entries:', error)
-            throw error
-        }
-    }
-
-    async executeCustomQuery(query, variables) {
-        const fetchOptions = this.configureFetchOptions(query, variables, this._TOKEN);
-    
-        try {
-            const response = await fetch(this.QL_URL, fetchOptions)
-            const data = await response.json()
-            return data
-        } catch (error) {
-            console.error('Error fetching time entries:', error)
+            console.error('Error fetching query: ', error)
             throw error
         }
     }
 
     async getAllProjects(withTimeEntries = false) {
         const query = this.constructProjectQuery(withTimeEntries);
-        const variables = {};
-        const fetchOptions = this.configureFetchOptions(query, variables, this._TOKEN);
-    
-        try {
-            const response = await fetch(this.QL_URL, fetchOptions)
-            const data = await response.json()
-            return data
-        } catch (error) {
-            console.error('Error fetching projects:', error)
-            throw error
-        }
+        return await this.executeQuery(query, null)
+    }
+
+    async getUser(userId, withTimeEntries = false) {
+        const query = this.constructUserQuery(userId, withTimeEntries);
+        const variables = { userId };
+        return await this.executeQuery(query, variables)
+    }
+
+    async getTimeEntryForUser(userId) {
+        const query = this.constructUserTimeEntryQuery();
+        const variables = { userId };
+        return await this.executeQuery(query, variables)
     }
 
 }

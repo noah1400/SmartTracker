@@ -56,9 +56,12 @@ app.whenReady().then(async () => {
   const stApiInstance = new STApi()
   stApiInstance.token = stAuthInstance.token
 
-  const timeEntries = await stApiInstance.getTimeEntryForUser("1")
-
-  console.log(JSON.stringify(timeEntries, null, 2))
+  // const timeEntries = await stApiInstance.getTimeEntryForUser("1")
+  // console.log(JSON.stringify(timeEntries, null, 2))
+  // const projects = await stApiInstance.getAllProjects(true)
+  // console.log(JSON.stringify(projects, null, 2))
+  const user = await stApiInstance.getUser("1")
+  console.log(JSON.stringify(user, null, 2))
 });
 
 app.on("window-all-closed", () => {
