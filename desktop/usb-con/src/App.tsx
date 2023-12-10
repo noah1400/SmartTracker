@@ -1,16 +1,18 @@
 import React, { FC } from 'react';
+import SerialComp from './SerialComp';
 
-interface MyComponentProps {
+interface App {
   name: string;
 }
 
-function MyComponent(){
+function App(){
   return (
     <div>
       <h1>Hello World,</h1>
       <p>This is a simple TypeScript React component.</p>
+      <SerialComp/>
     </div>
   );
 };
 
-export default MyComponent;
+export default App;
