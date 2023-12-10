@@ -1,22 +1,15 @@
 import { contextBridge, ipcRenderer } from 'electron'
+import { IPC_ACTIONS } from './ipcActions';
 
+const {
+  GET_DEVICES
+} = IPC_ACTIONS.window
 // --------- Expose some API to the Renderer process ---------
 contextBridge.exposeInMainWorld('ipcRenderer', withPrototype(ipcRenderer))
 
 contextBridge.exposeInMainWorld('electron', {
 });
 
-contextBridge.exposeInMainWorld('serial', {
-  getPorts: async () => {
-    try {
-      const ports = await ipcRenderer.invoke('get-serial-ports');
-      return ports;
-    } catch (ex) {
-      console.error('Error getting serial ports:', ex);
-      return [];
-    }
-  },
-});
 
 // `exposeInMainWorld` can't detect attributes and methods of `prototype`, manually patching it.
 function withPrototype(obj: Record<string, any>) {
@@ -130,3 +123,7 @@ window.onmessage = ev => {
 }
 
 setTimeout(removeLoading, 4999)
+
+contextBridge.exposeInMainWorld('ipcAPI', {
+  getDevices: (devices: any) => ipcRenderer.send(GET_DEVICES, devices), 
+});
