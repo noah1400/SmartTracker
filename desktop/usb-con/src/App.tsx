@@ -1,36 +1,48 @@
-import React, { useEffect, useState } from 'react';
+// src/components/App.tsx
+import React, { useState, useEffect } from 'react';
 import { ipcRenderer } from 'electron';
+import { SerialPortManager } from '../electron/deviceManager'; 
 
-const MyComponent: React.FC = () => {
+const App: React.FC = () => {
   const [serialData, setSerialData] = useState<string[]>([]);
 
   useEffect(() => {
-    const fetchSerialData = async () => {
-      try {
-        // Send a request to the main process to get serial data
-        const data = await ipcRenderer.invoke('getSerialData');
-        setSerialData(data);
-      } catch (error) {
-        console.error('Error fetching serial data:', error);
-      }
+    // Replace 'COM3' with your actual port name
+    const serialPort = new SerialPortManager('COM4');
+
+    return () => {
+      // Cleanup or close the serial port if needed
+    };
+  }, []);
+
+  useEffect(() => {
+    // Handle data received from the main process
+    const handleSerialData = (event: Electron.IpcRendererEvent, data: string) => {
+      setSerialData((prevData) => [...prevData, data]);
     };
 
-    // Fetch serial data when the component mounts
-    fetchSerialData();
+    ipcRenderer.on('serial-data', handleSerialData);
+
+    return () => {
+      // Remove the event listener when the component unmounts
+      ipcRenderer.removeListener('serial-data', handleSerialData);
+    };
   }, []);
 
   return (
-    <div>
-      <h2>Serial Data Table</h2>
+    <div className="App">
+      <h1>Electron React Serialport</h1>
       <table>
         <thead>
           <tr>
-            <th>Serial Data</th>
+            <th>Index</th>
+            <th>Data</th>
           </tr>
         </thead>
         <tbody>
           {serialData.map((data, index) => (
             <tr key={index}>
+              <td>{index + 1}</td>
               <td>{data}</td>
             </tr>
           ))}
@@ -40,4 +52,4 @@ const MyComponent: React.FC = () => {
   );
 };
 
-export default MyComponent;
+export default App;

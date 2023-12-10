@@ -1,5 +1,7 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
 import path from 'node:path'
+import { setMainWindow } from './eGlobal'
+
 
 // The built directory structure
 //
@@ -14,7 +16,7 @@ process.env.DIST = path.join(__dirname, '../dist')
 process.env.VITE_PUBLIC = app.isPackaged ? process.env.DIST : path.join(process.env.DIST, '../public')
 
 
-let win: BrowserWindow | null
+let win: BrowserWindow 
 // 🚧 Use ['ENV_NAME'] avoid vite:define plugin - Vite@2.x
 const VITE_DEV_SERVER_URL = process.env['VITE_DEV_SERVER_URL']
 
@@ -47,7 +49,7 @@ async function createWindow() {
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
-    win = null
+    
   }
 })
 
@@ -59,4 +61,12 @@ app.on('activate', () => {
   }
 })
 
-app.whenReady().then(createWindow)
+app.whenReady().then(() => {
+  createWindow();
+  setMainWindow(win);
+}); 
+
+ipcMain.on('serial-data', (event, data) => {
+  console.log("Received data:", data); 
+
+}); 
