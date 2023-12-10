@@ -18,6 +18,8 @@ class STApi {
         }
     }
 
+    // get data query construction
+
     getTimeEntriesQueryPart() {
         return `
             timeEntries {
@@ -63,7 +65,7 @@ class STApi {
             `;
     }
 
-    constructUserQuery(userId, withTimeEntries = false) {
+    constructUserQuery(withTimeEntries = false) {
         let query = `
             query GetUser($userId: ID!) {
                 user(id: $userId) {
@@ -79,6 +81,138 @@ class STApi {
             }
         `;
         return query;
+    }
+
+    // post data query construction
+
+    constructCreateUserMutation() {
+        return `
+            mutation CreateUser($username: String!, $email: String!, $password: String!, $service: String!, $role: String) {
+                createUser(username: $username, email: $email, password: $password, service: $service, role: $role) {
+                    id
+                    username
+                    email
+                    service
+                    role
+                    createdAt
+                    updatedAt
+                }
+            }
+        `;
+    }
+
+    constructDeleteUserMutation() {
+        return `
+            mutation DeleteUser($userId: ID!) {
+                deleteUser(id: $userId)
+            }
+        `;
+    }
+
+    constructUpdateUserMutation() {
+        return `
+            mutation UpdateUser($userId: ID!, $username: String, $email: String, $service: String, $role: String) {
+                updateUser(id: $userId, username: $username, email: $email, service: $service, role: $role) {
+                    id
+                    username
+                    email
+                    service
+                    role
+                    createdAt
+                    updatedAt
+                }
+            }
+        `;
+    }
+
+    constructCreateProjectMutation() {
+        return `
+            mutation CreateProject($name: String!, $description: String) {
+                createProject(name: $name, description: $description) {
+                    id
+                    name
+                    description
+                    createdAt
+                    updatedAt
+                }
+            }
+        `;
+    }
+
+    constructUpdateProjectMutation() {
+        return `
+            mutation UpdateProject($projectId: ID!, $name: String, $description: String) {
+                updateProject(id: $projectId, name: $name, description: $description) {
+                    id
+                    name
+                    description
+                    createdAt
+                    updatedAt
+                }
+            }
+        `;
+    }
+
+    constructDeleteProjectMutation() {
+        return `
+            mutation DeleteProject($projectId: ID!) {
+                deleteProject(id: $projectId)
+            }
+        `;
+    }
+
+    constructCreateTimeEntryMutation() {
+        return `
+            mutation CreateTimeEntry($description: String!, $startTime: String!, $endTime: String!, $userId: ID!, $projectId: ID!) {
+                createTimeEntry(description: $description, startTime: $startTime, endTime: $endTime, userId: $userId, projectId: $projectId) {
+                    id
+                    description
+                    startTime
+                    endTime
+                    createdAt
+                    updatedAt
+                    user {
+                        id
+                        username
+                    }
+                    project {
+                        id
+                        name
+                    }
+                }
+            }
+        `;
+    }
+
+    constructUpdateTimeEntryMutation() {
+        return `
+            mutation UpdateTimeEntry($timeEntryId: ID!, $description: String, $startTime: String, $endTime: String, $userId: ID, $projectId: ID) {
+                updateTimeEntry(id: $timeEntryId, description: $description, startTime: $startTime, endTime: $endTime, userId: $userId, projectId: $projectId) {
+                    id
+                    description
+                    startTime
+                    endTime
+                    createdAt
+                    updatedAt
+                    user {
+                        id
+                        username
+                    }
+                    project {
+                        id
+                        name
+                    }
+                }
+            }
+        `;
+    }
+
+    constructDeleteTimeEntryMutation() {
+        return `
+            mutation DeleteTimeEntry($timeEntryId: ID!) {
+                deleteTimeEntry(id: $timeEntryId)
+            }
+        `;
     }
 
     configureFetchOptions(query, variables) {
@@ -101,6 +235,9 @@ class STApi {
         try {
             const response = await fetch(this.QL_URL, fetchOptions)
             const data = await response.json()
+            if (data.errors) {
+                throw new Error(data.errors[0].message)
+            }
             return data
         } catch (error) {
             console.error('Error fetching query: ', error)
@@ -108,13 +245,15 @@ class STApi {
         }
     }
 
+    // get data from server
+
     async getAllProjects(withTimeEntries = false) {
         const query = this.constructProjectQuery(withTimeEntries);
         return await this.executeQuery(query, null)
     }
 
     async getUser(userId, withTimeEntries = false) {
-        const query = this.constructUserQuery(userId, withTimeEntries);
+        const query = this.constructUserQuery(withTimeEntries);
         const variables = { userId };
         return await this.executeQuery(query, variables)
     }
@@ -123,6 +262,62 @@ class STApi {
         const query = this.constructUserTimeEntryQuery();
         const variables = { userId };
         return await this.executeQuery(query, variables)
+    }
+
+    // post data to server
+
+    async createUser(username, email, password, service, role = 'user') {
+        const mutation = this.constructCreateUserMutation();
+        const variables = { username, email, password, service, role };
+        return await this.executeQuery(mutation, variables);
+    }
+
+    async deleteUser(userId) {
+        const mutation = this.constructDeleteUserMutation();
+        const variables = { userId };
+        return await this.executeQuery(mutation, variables);
+    }
+
+    async updateUser(userId, username, email, service, role) {
+        const mutation = this.constructUpdateUserMutation();
+        const variables = { userId, username, email, service, role };
+        return await this.executeQuery(mutation, variables);
+    }
+
+    async createProject(name, description) {
+        const mutation = this.constructCreateProjectMutation();
+        const variables = { name, description };
+        return await this.executeQuery(mutation, variables);
+    }
+
+    async updateProject(projectId, name, description) {
+        const mutation = this.constructUpdateProjectMutation();
+        const variables = { projectId, name, description };
+        return await this.executeQuery(mutation, variables);
+    }
+
+    async deleteProject(projectId) {
+        const mutation = this.constructDeleteProjectMutation();
+        const variables = { projectId };
+        return await this.executeQuery(mutation, variables);
+    }
+
+    async createTimeEntry(description, startTime, endTime, userId, projectId) {
+        const mutation = this.constructCreateTimeEntryMutation();
+        const variables = { description, startTime, endTime, userId, projectId };
+        return await this.executeQuery(mutation, variables);
+    }
+
+    async updateTimeEntry(timeEntryId, description, startTime, endTime, userId, projectId) {
+        const mutation = this.constructUpdateTimeEntryMutation();
+        const variables = { timeEntryId, description, startTime, endTime, userId, projectId };
+        return await this.executeQuery(mutation, variables);
+    }
+
+    async deleteTimeEntry(timeEntryId) {
+        const mutation = this.constructDeleteTimeEntryMutation();
+        const variables = { timeEntryId };
+        return await this.executeQuery(mutation, variables);
     }
 
 }
