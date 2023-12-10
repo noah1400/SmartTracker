@@ -126,15 +126,12 @@ class STAuth {
     }
 
     async login(username, password) {
-        console.log("Logging in");
         const isSameUser = this.isSameUser(username);
         if (!isSameUser && isSameUser !== null) {
-            console.log("Logging out because user is different");
             this.logout();
         }
         if (this.isLoggedin()) {
             const pingResponse = await this.protectedPing();
-            console.log("Ping response:", pingResponse)
             if (pingResponse.success) {
                 return { success: true, error: "Already logged in" };
             }
@@ -185,7 +182,6 @@ class STAuth {
     }
 
     clearAuthData() {
-        console.log("Clearing auth data");
         this.TOKEN = null;
         this.AUTH_TYPE = null;
         this.LOGIN_DATA = null;
