@@ -1,19 +1,24 @@
-// src/DeviceInfo.tsx
+// SerialComp.tsx
 import React, { useState, useEffect } from 'react';
+import { ipcRenderer } from 'electron';
 
-const SerialComp: React.FC<{ usbVendorId?: number; usbProductId?: number }> = ({  }) => {
-  const [deviceList, setDeviceList] = useState<string[]>([]);
-  const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
-  const [serialPort, setSerialPort] = useState<SerialPort | null>(null);
+interface DeviceInfo {
+  usbVendorId: any;
+  usbProductId: any;
+}
+
+const SerialComp: React.FC = () => {
+  const [deviceList, setDeviceList] = useState<DeviceInfo[]>([]);
+  const [selectedDevice, setSelectedDevice] = useState<DeviceInfo | null>(null);
+  const [serialPort, setSerialPort] = useState<any>(null);
+
   const listDevices = async () => {
-
     try {
-      const ports = await navigator.serial.requestPort();
-      const portInfo= ports.getInfo(); 
-      const deviceInfo = `vendorId: ${portInfo.usbVendorId} | productId: ${portInfo.usbProductId}`;
-      setDeviceList([deviceInfo]);
+      // Use ipcRenderer.invoke to request serial ports from the main process
+      const ports = await ipcRenderer.invoke('get-serial-ports');
+      setDeviceList(ports);
     } catch (ex) {
-      console.error("Error listing serial ports:", ex);
+      console.error('Error listing serial ports:', ex);
       setDeviceList([]);
     }
   };
@@ -21,50 +26,43 @@ const SerialComp: React.FC<{ usbVendorId?: number; usbProductId?: number }> = ({
   const connectToDevice = async () => {
     if (selectedDevice) {
       try {
-        //logic
-        const ports = await navigator.serial.requestPort();
-        const selectedPort = (ports as any).find((port: SerialPort) => {
-          const portInfo = port.getInfo();
-          return `vendorId: ${portInfo.usbVendorId} | productId: ${portInfo.usbProductId}` === selectedDevice;
-        });
-
-        if (selectedPort) {
-          // Open the selected port
-          await selectedPort.open();
-
-          // Save the reference to the open port
-          setSerialPort(selectedPort);
-
-          // Your logic to start communication goes here
-          selectedPort.addEventListener('data', (data:any) => {
-          console.log('Received data:', data);
-          });
-
-       
-        }
-        console.log('Connected to device:', selectedDevice);
+        // Send selected device information to the main process
+        ipcRenderer.send('connect-to-device', selectedDevice);
       } catch (ex) {
-        console.error("Error connecting to serial port:", ex);
+        console.error('Error sending connect-to-device message:', ex);
       }
     }
   };
 
   useEffect(() => {
     listDevices();
-  }, []); 
+  }, []);
 
   return (
     <div>
       <h1>Device Information</h1>
       <button onClick={listDevices}>List Connected Devices</button>
 
-      <ul>
-        {deviceList.map((device, index) => (
-          <li key={index} onClick={() => setSelectedDevice(device)}>
-            {device}
-          </li>
-        ))}
-      </ul>
+      <table>
+        <thead>
+          <tr>
+            <th>Vendor ID</th>
+            <th>Product ID</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {deviceList.map((device, index) => (
+            <tr key={index}>
+              <td>{device.usbVendorId}</td>
+              <td>{device.usbProductId}</td>
+              <td>
+                <button onClick={() => setSelectedDevice(device)}>Connect</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
       <button onClick={connectToDevice} disabled={!selectedDevice}>
         Connect to Selected Device

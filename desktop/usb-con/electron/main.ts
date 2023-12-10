@@ -1,6 +1,6 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import path from 'node:path'
-import { setMainWindow } from './eGlobal'
+
 // The built directory structure
 //
 // ├─┬─┬ dist
@@ -99,10 +99,25 @@ app.on('activate', () => {
 
 app.whenReady().then(() => {
   createWindow();
-  setMainWindow(win);
 }); 
 
-ipcMain.on('serial-data', (event, data) => {
-  console.log("Received data:", data); 
+ipcMain.handle('get-serial-ports', async () => {
+  try {
+    const ports = await (navigator as any).serial.getPorts();
+    const portInfoArray = ports.map((port: { getInfo: () => { (): any; new(): any; usbVendorId: any; usbProductId: any } }) => ({
+      usbVendorId: port.getInfo().usbVendorId,
+      usbProductId: port.getInfo().usbProductId,
+    }));
+    return portInfoArray;
+  } catch (ex) {
+    console.error('Error getting serial ports:', ex);
+    return [];
+  }
+});
 
-}); 
+ipcMain.on('connect-to-device', (event, selectedDevice) => {
+  // Perform actions in the main process based on the selected device
+  // For example, initiate communication with the serial port
+  console.log('Connecting to device in the main process:', selectedDevice);
+  // ... (your logic here)
+});
