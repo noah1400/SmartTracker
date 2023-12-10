@@ -125,5 +125,13 @@ window.onmessage = ev => {
 setTimeout(removeLoading, 4999)
 
 contextBridge.exposeInMainWorld('ipcAPI', {
-  getDevices: (devices: any) => ipcRenderer.send(GET_DEVICES, devices), 
+  getUSBDeviceList: () => {
+    // Call the function to get the USB device list from ipchandler.ts
+    ipcRenderer.invoke(GET_DEVICES).then((usbDeviceList) => {
+      // Send the USB device list to the renderer process
+      window.dispatchEvent(new CustomEvent('usbDeviceList', { detail: usbDeviceList }));
+    }).catch((error) => {
+      console.error('Error getting USB device list:', error);
+    });
+  } 
 });

@@ -1,8 +1,8 @@
 //access functions in renderer
 const {
-    getDevices
+    getUSBDeviceList
 } = window["ipcAPI"]; 
 
 export{
-    getDevices
+    getUSBDeviceList
 }; 

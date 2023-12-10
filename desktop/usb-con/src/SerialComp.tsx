@@ -1,6 +1,5 @@
 // SerialComp.tsx
 import React, { useState, useEffect } from 'react';
-import { getDevices } from './IPCMessages';
 
 interface DeviceInfo {
   usbVendorId: any;
@@ -13,11 +12,37 @@ const SerialComp: React.FC = () => {
   const [serialPort, setSerialPort] = useState<any>(null);
 
   
+const listDevices = async () => {
+  try {
+    // Use ipcRenderer.invoke to request serial ports from the main process
+    const ports = await ipcRenderer.invoke('get-serial-ports');
+    setDeviceList(ports);
+  } catch (ex) {
+    console.error('Error listing serial ports:', ex);
+    setDeviceList([]);
+  }
+};
+
+const connectToDevice = async () => {
+  if (selectedDevice) {
+    try {
+      // Send selected device information to the main process
+      ipcRenderer.send('connect-to-device', selectedDevice);
+    } catch (ex) {
+      console.error('Error sending connect-to-device message:', ex);
+    }
+  }
+};
+
+useEffect(() => {
+  listDevices();
+}, []);
+
+
 
   return (
     <div>
       <h1>Device Information</h1>
-      <button onClick={() => getDevices()}> test </button>
       <button onClick={listDevices}>List Connected Devices</button>
       <table>
         <thead>
