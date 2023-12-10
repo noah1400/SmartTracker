@@ -27,7 +27,7 @@ class STAuth {
 
     readAuthData() {
         const fileData = this.readFromDisk(this.AUTH_FILE_PATH);
-        if (!fileData || !fileData.length) {
+        if (!fileData?.length) {
             return;
         }
 
