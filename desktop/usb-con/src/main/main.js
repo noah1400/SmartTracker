@@ -19,7 +19,7 @@ const showDevices = async (win) => {
   }
 };
 
-const createWindow = () => {
+const createWindow = async () => {
   // Create window
   win = new BrowserWindow({
     width: 800,
@@ -34,7 +34,6 @@ const createWindow = () => {
   win.loadFile("index.html");
 
   win.webContents.openDevTools();
-
 };
 
 app.whenReady().then(async () => {

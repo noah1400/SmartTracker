@@ -27,13 +27,16 @@ class STAuth {
 
     readAuthData() {
         const fileData = this.readFromDisk(this.AUTH_FILE_PATH);
-        if (!fileData) {
+        if (!fileData?.length) {
             return;
         }
 
         let dataString;
         try {
-            dataString = this.isEncryptionAvailable() ? this.decryptData(fileData) : Buffer.from(fileData, 'base64').toString();
+            if (this.isEncryptionAvailable()) {
+                dataString = this.decryptData(fileData);
+            }
+            dataString = Buffer.from(dataString, 'base64').toString();
             const data = JSON.parse(dataString);
             this.assignAuthData(data);
         } catch (error) {
@@ -123,15 +126,21 @@ class STAuth {
     }
 
     async login(username, password) {
-        if (!this.isSameUser(username)) {
+        const isSameUser = this.isSameUser(username);
+        if (!isSameUser && isSameUser !== null) {
             this.logout();
         }
         if (this.isLoggedin()) {
-            return { success: true, error: "Already logged in" };
+            const pingResponse = await this.protectedPing();
+            if (pingResponse.success) {
+                return { success: true, error: "Already logged in" };
+            }
+        } else {
+            this.clearAuthData();
         }
 
         const response = await this.makeLoginRequest(username, password);
-        return this.handleLoginResponse(response);
+        return await this.handleLoginResponse(response);
     }
 
     async makeLoginRequest(username, password) {
@@ -179,12 +188,16 @@ class STAuth {
     }
 
     logout() {
+        if (!this.isLoggedin()) {
+            return;
+        }
+
         this.clearAuthData();
         this.saveToDisk(this.AUTH_FILE_PATH, '');
     }
 
     isLoggedin() {
-        return this.TOKEN && this.AUTH_TYPE && !this.isTokenExpired();
+        return this.TOKEN && this.AUTH_TYPE && this.LOGIN_DATA && !this.isTokenExpired();
     }
 
     getTokenClaims() {
