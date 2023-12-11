@@ -1,6 +1,7 @@
-const { app, safeStorage } = require('electron');
-const fs = require('fs');
-const jose = require('jose');
+import { app, safeStorage } from 'electron';
+import fs from 'fs';
+import * as jose from 'jose';
+import { Buffer } from 'node:buffer';
 
 class STAuth {
     constructor(baseurl = 'http://127.0.0.1:8000') {
@@ -231,4 +232,4 @@ class STAuth {
     }
 }
 
-module.exports = { STAuth };
+export default STAuth;
