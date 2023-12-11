@@ -1,10 +1,6 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import path from 'node:path'
 import { registerIPCHandlers } from './ipchandler'
-import STAuth from 'stauth';
-import STApi from 'stapi';
-const stAuthInstance = new STAuth();
-const stApiInstance = new STApi();
 
 // The built directory structure
 //
