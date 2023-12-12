@@ -12,7 +12,7 @@ window.electron.ipcRenderer.once('ipc-example', (arg) => {
   console.log(arg);
 });
 
-window.electron.ipcRenderer.once('serial-port-data', (arg) => {
+window.electron.ipcRenderer.on('serial-port-data', (arg) => {
   console.log(arg);
 });
 
