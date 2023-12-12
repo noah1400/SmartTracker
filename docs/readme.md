@@ -1,4 +1,7 @@
 # Smart Tracker
 
 ## Documentation
-[https://overleaf.marcpanse.de/8341825346dmbvkvwgwdty](https://overleaf.marcpanse.de/7634254297gvpdbtkrrpbh)
+The documentation for this project can be found here:
+
+https://overleaf.marcpanse.de/7634254297gvpdbtkrrpbh#adee21
+
