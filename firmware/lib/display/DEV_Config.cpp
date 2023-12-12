@@ -30,6 +30,8 @@
 #
 ******************************************************************************/
 #include "DEV_Config.h"
+#include <Arduino.h>
+
 
 void GPIO_Init()
 {
@@ -46,17 +48,16 @@ void GPIO_Init()
 
   GPIO_Init();
   
-  //Serial
-  Serial.begin(115200);
-  
   //spi
   SPI.setDataMode(SPI_MODE3);
-  SPI.setBitOrder(MSBFIRST);
+  SPI.setBitOrder(1);
   SPI.setClockDivider(SPI_CLOCK_DIV2);
-  SPI.begin();
+  //MISO can be switch with  TPSCL (12/22)
+  //MOSI can be switch with  TP_INT (13/23)
+   SPI.begin(33, 22, 14, 23);
 
   //i2c
-  Wire.begin();
+  Wire.begin(21,12);
 
   }
 

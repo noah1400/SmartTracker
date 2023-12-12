@@ -12,6 +12,8 @@
 *
 ******************************************************************************/
 #include "Touch_Driver.h"
+#include <Arduino.h>
+
 
 Touch_1IN28_XY XY;
 /******************************************************************************
@@ -20,7 +22,7 @@ parameter:  CST816T : 0xB5
 ******************************************************************************/
 UBYTE Touch_1IN28_WhoAmI()
 {
-    if (DEV_I2C_Read_Byte(address,0xA7) == 0xB5)   
+    if (DEV_I2C_Read_Byte(touch_address,0xA7) == 0xB5)   
         return true;
     else
         return false;
@@ -44,7 +46,7 @@ parameter:
 ******************************************************************************/
 UBYTE Touch_1IN28_Read_Revision()
 {
-    return DEV_I2C_Read_Byte(address,0xA9);
+    return DEV_I2C_Read_Byte(touch_address,0xA9);
 }
 
 /******************************************************************************
@@ -53,7 +55,7 @@ parameter:
 ******************************************************************************/
 void Touch_1IN28_Stop_Sleep()
 {
-    DEV_I2C_Write_Byte(address,DisAutoSleep,0x01);
+    DEV_I2C_Write_Byte(touch_address,DisAutoSleep,0x01);
 }
 
 /******************************************************************************
@@ -67,18 +69,18 @@ void Touch_1IN28_Set_Mode(UBYTE mode)
 {
     if (mode == 1)
     {
-        DEV_I2C_Write_Byte(address,IrqCtl,0X41);
-        DEV_I2C_Write_Byte(address,NorScanPer,0X01);//Normal fast detection cycle unit 10ms
-        DEV_I2C_Write_Byte(address,IrqPluseWidth,0x0f); //Interrupt low pulse output width 1.5MS
+        DEV_I2C_Write_Byte(touch_address,IrqCtl,0X41);
+        DEV_I2C_Write_Byte(touch_address,NorScanPer,0X01);//Normal fast detection cycle unit 10ms
+        DEV_I2C_Write_Byte(touch_address,IrqPluseWidth,0x0f); //Interrupt low pulse output width 1.5MS
     }       
     else if(mode == 2)
-        DEV_I2C_Write_Byte(address,IrqCtl,0X71);
+        DEV_I2C_Write_Byte(touch_address,IrqCtl,0X71);
     else
         {
-            DEV_I2C_Write_Byte(address,IrqCtl,0X11);
-            DEV_I2C_Write_Byte(address,NorScanPer,0X01);
-            DEV_I2C_Write_Byte(address,IrqPluseWidth,0x01);//Interrupt low pulse output width 1.5MS
-            DEV_I2C_Write_Byte(address,MotionMask,EnDClick);//Enable double-tap mode
+            DEV_I2C_Write_Byte(touch_address,IrqCtl,0X11);
+            DEV_I2C_Write_Byte(touch_address,NorScanPer,0X01);
+            DEV_I2C_Write_Byte(touch_address,IrqPluseWidth,0x01);//Interrupt low pulse output width 1.5MS
+            DEV_I2C_Write_Byte(touch_address,MotionMask,EnDClick);//Enable double-tap mode
         }
 
 }
@@ -93,7 +95,7 @@ void Touch_1IN28_Wake_up()
     DEV_Delay_ms(10);
     DEV_Digital_Write(TP_RST_PIN, 1);
     DEV_Delay_ms(50);
-    DEV_I2C_Write_Byte(address,0xFE,0x01);
+    DEV_I2C_Write_Byte(touch_address,0xFE,0x01);
 }
 
 
@@ -135,7 +137,7 @@ parameter:
 Touch_1IN28_XY Touch_1IN28_Get_Point()
 {
     UBYTE data[4];
-    DEV_I2C_Read_nByte(address, 0x03, data, 4);
+    DEV_I2C_Read_nByte(touch_address, 0x03, data, 4);
     
     XY.x_point = ((data[0] & 0x0f)<<8) + data[1];
     XY.y_point = ((data[2] & 0x0f)<<8) + data[3];
