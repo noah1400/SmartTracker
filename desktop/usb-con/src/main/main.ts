@@ -14,7 +14,7 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
-import {SerialPort} from 'serialport';
+import { SerialPort } from 'serialport';
 
 class AppUpdater {
   constructor() {
@@ -30,14 +30,6 @@ ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
   console.log(msgTemplate(arg));
   event.reply('ipc-example', msgTemplate('pong'));
-});
-
-ipcMain.on('serial-data', _event => {
-  const port = new SerialPort({path: 'COM4', baudRate: 9600 });
-  port.on('data', (data) => {
-    console.log('Data:', data.toString());
-    mainWindow?.webContents.send('serial-data', data.toString());
-  });
 });
 
 if (process.env.NODE_ENV === 'production') {
@@ -87,16 +79,14 @@ const createWindow = async () => {
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
         : path.join(__dirname, '../../.erb/dll/preload.js'),
-        nodeIntegration: true,
+      nodeIntegration: true,
     },
   });
-
   const dev = new SerialPort({path: 'COM4', baudRate: 9600 });
   dev.on('data', (data) => {
     console.log('Data:', data.toString());
   });
   
-
   mainWindow.loadURL(resolveHtmlPath('index.html'));
 
   mainWindow.on('ready-to-show', () => {
@@ -144,6 +134,7 @@ app
   .whenReady()
   .then(() => {
     createWindow();
+
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
       // dock icon is clicked and there are no other windows open.

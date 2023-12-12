@@ -1,0 +1,30 @@
+
+.project-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    background-color: rgb(27, 27, 27);
+    padding: 12px;
+    border-radius: 16px;
+  }
+  
+  .project-bar button {
+    display: flex;
+  justify-content: space-around; /* Adjust as needed */
+  align-items: center; /* Adjust as needed */
+    margin: 0 10px;
+    padding: 8px 16px;
+    border: none;
+    cursor: pointer;
+    border-radius: 16px;
+    color: #ffffff;
+    transition: background-color 0.3s ease;
+    font-size: small;
+  }
+  
+  .project-bar button.active {
+    background-color: #3498db;
+    color: white;
+    font-size: large;
+  }
+  

@@ -1,44 +1,27 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import icon from '../../assets/icon.svg';
-import './App.css';
-
-function Hello() {
-  return (
-    <div>
-      <div className="Hello">
-        <img width="200" alt="icon" src={icon} />
-      </div>
-      <h1>electron-react-boilerplate</h1>
-      <div className="Hello">
-        <a
-          href="https://electron-react-boilerplate.js.org/"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <button type="button">
-            <span role="img" aria-label="books">
-              📚
-            </span>
-            Read our docs
-          </button>
-        </a>
-        <a
-          href="https://github.com/sponsors/electron-react-boilerplate"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <button type="button">
-            <span role="img" aria-label="folded hands">
-              🙏
-            </span>
-            Donate
-          </button>
-        </a>
-      </div>
-    </div>
-  );
-}
+//import './App.css';
+import Timer from './Timer';
+import ProjectBar from './ProjectBar';
+import { Project } from './types';
 
 export default function App() {
-  return <Hello />;
+  const projects: Project[] = [
+    { id: 1, name: 'Pep.Digital', color: '#FF5733' },
+    { id: 2, name: 'HS Esslingen', color: '#33FF57' },
+    { id: 3, name: 'Projekt SWTM', color: '#5733FF' },
+    { id: 4, name: 'Weihnachtsmarkt', color: '#FF33A1' },
+    { id: 5, name: '2024', color: '#11F3AF' },
+  ];
+
+  const [activeColor, setActiveColor] = useState<string | null>(null);
+
+
+  return (
+
+    <div className='App'>
+      <ProjectBar projects={projects} setActiveColor={setActiveColor} />
+      <Timer />
+    </div>
+  );
 }
