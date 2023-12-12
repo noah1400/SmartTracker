@@ -8,6 +8,12 @@ interface ProjectBarProps {
   setActiveColor: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
+window.electron.ipcRenderer.on('serial-port-data', (arg) => {
+  console.log("testWelt");
+  console.log(arg);
+
+});
+
 const ProjectBar: React.FC<ProjectBarProps> = ({
   projects,
   setActiveColor,
@@ -50,6 +56,10 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
       setActiveColor(null);
     }
   }, [activeProject, projects, setActiveColor]);
+
+
+  window.electron.ipcRenderer.on('serial-port-data', serialPortDataListener);
+
 
   //color of background
   useEffect(() => {

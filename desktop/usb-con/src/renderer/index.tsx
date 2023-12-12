@@ -12,9 +12,5 @@ window.electron.ipcRenderer.once('ipc-example', (arg) => {
   console.log(arg);
 });
 
-window.electron.ipcRenderer.on('serial-port-data', (arg) => {
-  console.log(arg);
-});
-
 //this fires the ipcRenderer event to get the pong in the window
 window.electron.ipcRenderer.sendMessage('ipc-example', ['ping']);
