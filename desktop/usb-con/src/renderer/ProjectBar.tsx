@@ -58,9 +58,6 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
   }, [activeProject, projects, setActiveColor]);
 
 
-  window.electron.ipcRenderer.on('serial-port-data', serialPortDataListener);
-
-
   //color of background
   useEffect(() => {
     if (activeProject !== null) {
