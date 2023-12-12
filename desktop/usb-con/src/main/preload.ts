@@ -1,5 +1,5 @@
-// Disable no-unused-vars, broken for spread args
-/* eslint no-unused-vars: off */
+// preload.ts
+
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
 export type Channels = 'ipc-example' | 'data';
@@ -23,6 +23,10 @@ const electronHandler = {
     },
   },
 };
+
+ipcRenderer.on('data', (event, data) => {
+  console.log('Received data in renderer process:', data);
+});
 
 contextBridge.exposeInMainWorld('electron', electronHandler);
 

@@ -32,6 +32,13 @@ ipcMain.on('ipc-example', async (event, arg) => {
   event.reply('ipc-example', msgTemplate('pong'));
 });
 
+const dev = new SerialPort({path: 'COM3', baudRate: 9600 });
+dev.on('data', (data) => {
+  const receivedData = data.toString();
+  console.log('Received data from serial port:', receivedData);
+  mainWindow?.webContents.send('serial-port-data', receivedData);
+});
+
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
   sourceMapSupport.install();
@@ -82,10 +89,12 @@ const createWindow = async () => {
       nodeIntegration: true,
     },
   });
-  const dev = new SerialPort({path: 'COM4', baudRate: 9600 });
-  dev.on('data', (data) => {
-    console.log('Data:', data.toString());
-  });
+
+  //const dev = new SerialPort({path: 'COM3', baudRate: 9600 });
+  //dev.on('data', (data) => {
+  //  console.log('Data:', data.toString());
+  //});
+
 
   mainWindow.loadURL(resolveHtmlPath('index.html'));
 
