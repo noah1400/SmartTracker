@@ -6,7 +6,7 @@ void setup()
     initDisplay();
     testDisplay();
     Serial.begin(9600);
-    delay(10000);
+    delay(1000);
     Serial.println("testscript");
         delay(10000);
     Serial.println("testscript2");
