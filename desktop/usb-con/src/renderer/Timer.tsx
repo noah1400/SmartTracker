@@ -32,9 +32,9 @@ const Timer = () => {
   
     return()=>{
       clearInterval(intervalId);
-    }
+    };
 
-  }, []); // Empty dependency array to run the effect only once on mount
+  }, []); 
 
   const formatTime = (timeObject:any) => {
     const { hours, minutes, seconds } = timeObject;

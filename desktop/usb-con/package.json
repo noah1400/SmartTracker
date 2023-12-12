@@ -105,7 +105,9 @@
     "path-browserify": "^1.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.16.0"
+    "react-router-dom": "^6.16.0",
+    "stapi": "file:src/modules/STApi",
+    "stauth": "file:src/modules/STAuth"
   },
   "devDependencies": {
     "@electron/notarize": "^2.1.0",

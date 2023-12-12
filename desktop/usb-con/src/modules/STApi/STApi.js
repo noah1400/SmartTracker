@@ -322,4 +322,4 @@ class STApi {
 
 }
 
-module.exports = { STApi }
+export default STApi
