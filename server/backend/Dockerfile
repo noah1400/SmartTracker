@@ -35,4 +35,4 @@ EOF
 # install Docker tools (cli, buildx, compose)
 COPY --from=gloursdocker/docker / /
 
-CMD ["flask", "run"]
+CMD ["gunicorn", "-b", "0.0.0.0:8000", "smarttracker.app:app"]

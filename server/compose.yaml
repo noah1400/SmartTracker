@@ -30,8 +30,6 @@ services:
     restart: always
     secrets:
       - db-password
-    ports:
-      - 8000:8000
     networks:
       - backnet
       - frontnet
@@ -44,6 +42,7 @@ services:
     restart: always
     ports:
       - 80:80
+      - 443:443 
     depends_on:
       - backend
     networks:
