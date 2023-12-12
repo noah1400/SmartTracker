@@ -13,6 +13,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "serialport": "^12.0.0",
+    "stapi": "file:src/modules/STApi",
+    "stauth": "file:src/modules/STAuth",
     "vite-tsconfig-paths": "^4.2.2"
   },
   "devDependencies": {
