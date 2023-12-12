@@ -8,18 +8,20 @@ interface ProjectBarProps {
   setActiveColor: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
-window.electron.ipcRenderer.on('serial-port-data', (arg) => {
-  console.log("testWelt");
-  console.log(arg);
+//window.electron.ipcRenderer.on('serial-port-data', (arg) => {
+//  console.log("testWelt");
+//  console.log(arg);
 
-});
+//});
 
 const ProjectBar: React.FC<ProjectBarProps> = ({
   projects,
   setActiveColor,
 }) => {
   const [activeProject, setActiveProject] = useState<number | null>(null);
+  let counter = 0; 
   const handleKeyPress = (event: React.KeyboardEvent) => {
+    console.log("keypress function");
     if (
       event.key === 'ArrowLeft' &&
       activeProject !== null &&
@@ -47,6 +49,27 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
       );
     };
   }, [activeProject]);
+
+  useEffect(() => {
+    const handleIpcRendererEvent = (event: any, arg: any) => {
+      console.log("testWeltUseEffect");
+      if(counter==5)
+      {
+        counter=0;
+      }
+      console.log(counter);
+      setActiveProject(counter);
+      counter++;
+
+    };
+  
+    window.electron.ipcRenderer.on('serial-port-data', handleIpcRendererEvent);
+  
+    return () => {
+    };
+  }, [activeProject]);
+
+  
 
   //color of button
   useEffect(() => {
