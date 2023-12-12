@@ -1,3 +1,3 @@
-import STApi from './STApi';
+import STApi from './STApi.js';
 
 export default STApi;

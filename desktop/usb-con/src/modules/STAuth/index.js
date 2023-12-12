@@ -1,3 +1,3 @@
-import STAuth from "./STAuth";
+import STAuth from "./STAuth.js";
 
 export default STAuth;
