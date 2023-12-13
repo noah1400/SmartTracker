@@ -15,6 +15,9 @@ import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import { SerialPort } from 'serialport';
+const { STAuth } = require("stauth");
+const { STApi } = require("stapi");
+const stAuthInstance = new STAuth();
 
 class AppUpdater {
   constructor() {
@@ -141,8 +144,22 @@ app.on('window-all-closed', () => {
 
 app
   .whenReady()
-  .then(() => {
+  .then(async () => {
     createWindow();
+
+    // test API
+    await stAuthInstance.login('admin', 'admin')
+    .then(async (result) => {
+      console.log(result);
+      const stApiInstance = new STApi();
+      stApiInstance.token = result.data.token;
+
+      const projects = await stApiInstance.getTimeEntryForUser("3");
+      console.log(JSON.stringify(projects, null, 2));
+    })
+    .catch((err) => {
+      console.log(err);
+    })
 
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the

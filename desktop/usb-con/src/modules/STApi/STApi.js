@@ -231,7 +231,7 @@ class STApi {
 
     async executeQuery(query, variables) {
         const fetchOptions = this.configureFetchOptions(query, variables);
-    
+
         try {
             const response = await fetch(this.QL_URL, fetchOptions)
             const data = await response.json()
@@ -322,4 +322,4 @@ class STApi {
 
 }
 
-export default STApi
+module.exports = { STApi }

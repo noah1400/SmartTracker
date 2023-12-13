@@ -1,3 +1,2 @@
-import STAuth from "./STAuth.js";
 
-export default STAuth;
+module.exports = require('./STAuth')

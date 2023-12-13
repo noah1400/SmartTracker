@@ -7,6 +7,5 @@
       "test": "echo \"Error: no test specified\" && exit 1"
     },
     "author": "Noah Scholz",
-    "license": "MIT",
-    "type": "module"
+    "license": "MIT"
   }
