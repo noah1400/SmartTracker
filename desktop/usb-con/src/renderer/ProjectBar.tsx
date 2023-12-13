@@ -19,7 +19,7 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
   setActiveColor,
 }) => {
   const [activeProject, setActiveProject] = useState<number | null>(null);
-  let counter = 0; 
+  let counter = 0;
   const handleKeyPress = (event: React.KeyboardEvent) => {
     console.log("keypress function");
     if (
@@ -51,7 +51,7 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
   }, [activeProject]);
 
   useEffect(() => {
-    const handleIpcRendererEvent = (event: any, arg: any) => {
+    let handleIpcRendererEvent = (event: any, arg: any) => {
       console.log("testWeltUseEffect");
       if(counter==5)
       {
@@ -60,10 +60,8 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
       console.log(counter);
       setActiveProject(counter);
       counter++;
-
     };
-  
-    window.electron.ipcRenderer.on('serial-port-data', handleIpcRendererEvent);
+      window.electron.ipcRenderer.on('serial-port-data', handleIpcRendererEvent);
   
     return () => {
     };
