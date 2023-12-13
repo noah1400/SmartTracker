@@ -8,12 +8,21 @@ interface ProjectBarProps {
   setActiveColor: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
+//window.electron.ipcRenderer.on('serial-port-data', (arg) => {
+//  console.log("testWelt");
+//  console.log(arg);
+
+//});
+
 const ProjectBar: React.FC<ProjectBarProps> = ({
   projects,
   setActiveColor,
 }) => {
   const [activeProject, setActiveProject] = useState<number | null>(null);
+  let counter = 0;
+  let isListenerAdded = false;
   const handleKeyPress = (event: React.KeyboardEvent) => {
+    console.log("keypress function");
     if (
       event.key === 'ArrowLeft' &&
       activeProject !== null &&
@@ -42,6 +51,30 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
     };
   }, [activeProject]);
 
+  useEffect(() => {
+    let handleIpcRendererEvent = (event: any, arg: any) => {
+      console.log("testWeltUseEffect");
+      if(counter==5)
+      {
+        counter=0;
+      }
+      console.log(counter);
+      setActiveProject(counter);
+      counter++;
+    };
+    if (!isListenerAdded) {
+      window.electron.ipcRenderer.on('serial-port-data', handleIpcRendererEvent);
+      console.log("hinzugefügt");
+      console.log(isListenerAdded);
+      isListenerAdded = true;
+    }
+  
+    return () => {
+    };
+  }, []);
+
+  
+
   //color of button
   useEffect(() => {
     if (activeProject !== null) {
@@ -50,6 +83,7 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
       setActiveColor(null);
     }
   }, [activeProject, projects, setActiveColor]);
+
 
   //color of background
   useEffect(() => {
