@@ -20,6 +20,7 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
 }) => {
   const [activeProject, setActiveProject] = useState<number | null>(null);
   let counter = 0;
+  let isListenerAdded = false;
   const handleKeyPress = (event: React.KeyboardEvent) => {
     console.log("keypress function");
     if (
@@ -61,11 +62,16 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
       setActiveProject(counter);
       counter++;
     };
+    if (!isListenerAdded) {
       window.electron.ipcRenderer.on('serial-port-data', handleIpcRendererEvent);
+      console.log("hinzugefügt");
+      console.log(isListenerAdded);
+      isListenerAdded = true;
+    }
   
     return () => {
     };
-  }, [activeProject]);
+  }, []);
 
   
 
