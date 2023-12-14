@@ -48,4 +48,4 @@ jobs:
       shell: bash
         
     - name: Build the Docker image
-      run: (cd server;docker compose build)
+      run: (cd server;docker compose build --build-arg="KEYSTORE_PASSWORD=12345678!")
