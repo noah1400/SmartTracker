@@ -51,23 +51,23 @@ jobs:
       run: (cd server;docker compose build --build-arg="KEYSTORE_PASSWORD=12345678!")
     
     - name: Run the Docker image
-      run: (cd server;docker compose up --detach --wait --wait-timeout 30 --verbose)
+      run: (cd server;docker compose up --detach --wait --wait-timeout 30)
     
     - name: Log Docker Compose Services Status
       if: failure()
-      run: docker compose ps
+      run: (cd server;docker compose ps)
     
     - name: Log DB Service Logs
       if: failure()
-      run: docker compose logs db
+      run: (cd server;docker compose logs db)
     
     - name: Log Backend Service Logs
       if: failure()
-      run: docker compose logs backend
+      run: (cd server;docker compose logs backend)
     
     - name: Log Proxy Service Logs
       if: failure()
-      run: docker compose logs proxy
+      run: (cd server;docker compose logs proxy)
 
     - name: List DB Secret File
       if: failure()
