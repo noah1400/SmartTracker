@@ -1,0 +1,51 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Create .env File
+      env:
+        SECRET_KEY: "thisisverysecretandhidden1234!"
+        DB_HOST: "db"
+        DB_USER: "root"
+        DB_PASSWORD: "abcdefg1234!"
+        DB_NAME: "example"
+        DB_PORT: 3306
+        DB_DRIVER: "mysql"
+      run: |
+        echo "Creating .env file"
+        touch "server\backend\smarttracker\.env"
+        echo SECRET_KEY=$SECRET_KEY >> "server\backend\smarttracker\.env" 
+        echo DB_HOST=$DB_HOST >> "server\backend\smarttracker\.env"
+        echo DB_PASSWORD=$DB_PASSWORD >> "server\backend\smarttracker\.env"
+        echo DB_USER=$DB_USER >> "server\backend\smarttracker\.env"
+        echo DB_NAME=$DB_NAME >> "server\backend\smarttracker\.env"
+        echo DB_PORT=$DB_PORT >> "server\backend\smarttracker\.env"
+        echo DB_DRIVER=$DB_DRIVER >> "server\backend\smarttracker\.env"
+        echo "ls -a 'server\backend\smarttracker'"
+        ls -a "server\backend\smarttracker"
+      shell: bash
+    - name: Create password.txt file
+      env:
+        PW: "abcdefg1234!"
+      run: |
+        echo "Creating password.txt file"
+        touch "server\db\password.txt"
+        echo $PW
+        echo "ls -a server\db\password.txt"
+        ls -a server\db\password.txt
+      shell: bash
+        
+    - name: Build the Docker image
+      run: (cd server;docker compose build)
