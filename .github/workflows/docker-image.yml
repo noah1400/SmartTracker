@@ -34,7 +34,7 @@ jobs:
         echo DB_PORT=$DB_PORT >> "server\backend\smarttracker\.env"
         echo DB_DRIVER=$DB_DRIVER >> "server\backend\smarttracker\.env"
         echo "ls -a 'server\backend\smarttracker'"
-        ls -a "server\backend\smarttracker"
+        ls -a 
       shell: bash
     - name: Create password.txt file
       env:
