@@ -61,6 +61,8 @@ services:
     restart: always
     ports:
       - 8180:8080
+    healthcheck:
+      test: exit 0
     environment:
       PROXY_ADDRESS_FORWARDING: "true"
       DB_VENDOR: "mariadb"
