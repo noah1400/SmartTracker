@@ -42,7 +42,7 @@ jobs:
       run: |
         echo "Creating password.txt file"
         touch "server/db/password.txt"
-        echo $PW
+        echo $PW >> "server/db/password.txt"
         echo "ls -a server/db"
         ls -a server/db
       shell: bash
