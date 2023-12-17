@@ -56,7 +56,7 @@ jobs:
       
     - uses: GuillaumeFalourd/wait-sleep-action@v1
       with:
-        time: '90' # for 60 seconds
+        time: '60' # for 60 seconds
 
     - name: Ping keycloak server
       run: curl --head -fsS http://localhost:8180/health/ready || exit 1
