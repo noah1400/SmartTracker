@@ -49,17 +49,18 @@ jobs:
         
     - name: Build the Docker image
       run: (cd server;docker compose build --build-arg="KEYSTORE_PASSWORD=password")
+    
+    - name: Run the Docker image
+      run: (cd server;docker compose up --detach --wait)
 
+      
     - uses: GuillaumeFalourd/wait-sleep-action@v1
       with:
         time: '90' # for 60 seconds
 
     - name: Ping keycloak server
       run: curl --head -fsS http://localhost:8080/health/ready || exit 1
-    
-    - name: Run the Docker image
-      run: (cd server;docker compose up --detach --wait)
-    
+      
     - name: Log Docker Compose Services Status
       if: failure()
       run: (cd server;docker compose ps)
