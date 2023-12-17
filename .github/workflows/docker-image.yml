@@ -59,7 +59,7 @@ jobs:
         time: '90' # for 60 seconds
 
     - name: Ping keycloak server
-      run: curl --head -fsS http://localhost:8080/health/ready || exit 1
+      run: curl --head -fsS http://localhost:8180/health/ready || exit 1
       
     - name: Log Docker Compose Services Status
       if: failure()
