@@ -61,8 +61,6 @@ typedef struct _tFont
   
 } sFONT;
 
-
-//GB2312
 typedef struct                                          
 {
   unsigned char index[3];                              

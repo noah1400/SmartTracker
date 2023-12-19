@@ -43,21 +43,13 @@ void GPIO_Init()
 
  void Config_Init()
  {
-
   GPIO_Init();
-  
-  //Serial
   Serial.begin(115200);
-  
-  //spi
   SPI.setDataMode(SPI_MODE3);
   SPI.setBitOrder(MSBFIRST);
   SPI.setClockDivider(SPI_CLOCK_DIV2);
   SPI.begin();
-
-  //i2c
   Wire.begin();
-
   }
 
 UBYTE DEV_I2C_Read_Byte(UBYTE DevAddr, UBYTE RegAddr)
@@ -79,7 +71,6 @@ void DEV_I2C_Read_nByte(UBYTE DevAddr,UBYTE Cmd, UBYTE *data, UBYTE num)
 
 	Wire.beginTransmission(DevAddr);
 	Wire.write(Cmd);
-	// Wire.endTransmission();
 	Wire.requestFrom(DevAddr, num);
 
 	UBYTE i = 0;

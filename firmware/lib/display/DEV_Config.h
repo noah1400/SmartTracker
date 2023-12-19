@@ -45,9 +45,6 @@
 #define UWORD   uint16_t
 #define UDOUBLE uint32_t
 
-/**
- * GPIO config
-**/
 #define DEV_CS_PIN  10
 #define DEV_DC_PIN  7
 #define DEV_RST_PIN 8
@@ -56,29 +53,15 @@
 #define TP_RST_PIN 4
 #define TP_INT_PIN 3
 
-/**
- * GPIO read and write
-**/
 #define DEV_Digital_Write(_pin, _value) digitalWrite(_pin, _value == 0? LOW:HIGH)
 #define DEV_Digital_Read(_pin) digitalRead(_pin)
 
-
-/**
- * SPI
-**/
 #define DEV_SPI_WRITE(_dat)   SPI.transfer(_dat)
 
-/**
- * delay x ms
-**/
 #define DEV_Delay_ms(__xms)    delay(__xms)
 
-/**
- * PWM_BL
-**/
- #define  DEV_Set_BL(_Pin, _Value)  analogWrite(_Pin, _Value)
+#define  DEV_Set_BL(_Pin, _Value)  analogWrite(_Pin, _Value)
 
-/*-----------------------------------------------------------------------------*/
 void Config_Init();
 uint8_t DEV_I2C_Read_Byte(uint8_t DevAddr, uint8_t RegAddr);
 void DEV_I2C_Write_Byte(uint8_t DevAddr, uint8_t RegAddr, uint8_t value);
