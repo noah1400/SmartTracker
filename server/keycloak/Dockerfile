@@ -17,4 +17,4 @@ RUN keytool -genkeypair -storepass "$KEYSTORE_PASSWORD" -storetype PKCS12 -keyal
 RUN /opt/keycloak/bin/kc.sh build
 
 # Default entrypoint
-ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start-dev"]
+ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start-dev", "--health-enabled=true"]

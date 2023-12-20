@@ -30,6 +30,8 @@
 #
 ******************************************************************************/
 #include "DEV_Config.h"
+#include <Arduino.h>
+
 
 void GPIO_Init()
 {
@@ -44,9 +46,9 @@ void GPIO_Init()
  void Config_Init()
  {
   GPIO_Init();
-  Serial.begin(115200);
+  Serial.begin(115200)
   SPI.setDataMode(SPI_MODE3);
-  SPI.setBitOrder(MSBFIRST);
+  SPI.setBitOrder(1);
   SPI.setClockDivider(SPI_CLOCK_DIV2);
   SPI.begin();
   Wire.begin();

@@ -37,7 +37,12 @@
 #include <SPI.h>
 #include <Wire.h>
 #include "Debug.h"
-#include <avr/pgmspace.h>
+
+#if (defined(__AVR__))
+#include <avr\pgmspace.h>
+#else
+#include <pgmspace.h>
+#endif
 
 
 
@@ -45,13 +50,16 @@
 #define UWORD   uint16_t
 #define UDOUBLE uint32_t
 
-#define DEV_CS_PIN  10
-#define DEV_DC_PIN  7
-#define DEV_RST_PIN 8
-#define DEV_BL_PIN  9
+/**
+ * GPIO config
+**/
+#define DEV_CS_PIN  33
+#define DEV_DC_PIN  25
+#define DEV_RST_PIN 16 //27/16
+#define DEV_BL_PIN  19
 
-#define TP_RST_PIN 4
-#define TP_INT_PIN 3
+#define TP_RST_PIN 27
+#define TP_INT_PIN 13
 
 #define DEV_Digital_Write(_pin, _value) digitalWrite(_pin, _value == 0? LOW:HIGH)
 #define DEV_Digital_Read(_pin) digitalRead(_pin)

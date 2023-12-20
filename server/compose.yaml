@@ -28,6 +28,9 @@ services:
       context: backend
       target: builder
     restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "wget -O /dev/null http://localhost:8000/ping || exit 1"]
+      timeout: 10s
     secrets:
       - db-password
     ports:
@@ -44,8 +47,12 @@ services:
     restart: always
     ports:
       - 80:80
+    healthcheck:
+      test: ["CMD-SHELL", "wget -O /dev/null http://localhost/ping || exit 1"]
+      timeout: 10s
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     networks:
       - frontnet
 

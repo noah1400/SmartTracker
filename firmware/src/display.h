@@ -4,3 +4,4 @@
 #include "image.h"
 
 void initDisplay();
+void testDisplay();

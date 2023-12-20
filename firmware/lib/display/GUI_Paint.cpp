@@ -37,6 +37,8 @@
 #include <stdlib.h>
 #include <string.h> //memset()
 #include <math.h>
+#include <Arduino.h>
+
 
 volatile PAINT Paint;
 
