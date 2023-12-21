@@ -23,8 +23,10 @@ class STLocalStorage {
         this.stAuthInstance = STAuth;
     }
 
-    init() {
-        this.sequelize.sync();
+    async init() {
+        await this.sequelize.sync();
+        // For now!!!
+        this.LastMerged = new Date(0); // TODO: change this ( get from disk ) -> and save to disk if changed
     }
 
     addProject(name: string, description: string) {
@@ -41,6 +43,16 @@ class STLocalStorage {
             description: description,
             projectId: projectId
         });
+    }
+
+    async dumpDatabase() {
+        const projects = await this.Project.findAll()
+        const timeEntries = await this.TimeEntry.findAll()
+        console.log('dumpDatabase')
+        console.log("Projects: ")
+        console.log(projects);
+        console.log("TimeEntries: ")
+        console.log(timeEntries);
     }
 
 
@@ -76,6 +88,83 @@ class STLocalStorage {
             console.error(error);
         }
     }
+
+    async fetchUpdatesFromServer(lastMerged: Date) {
+        let timestamp = lastMerged.toISOString();
+        try {
+            let response = await this.stApiInstance.get('/fetch-updates', {
+                'last-merged': timestamp
+            });
+    
+            // Extract the projects and time entries from the server response
+            // const { projects, timeEntries } = response.data;
+            const projects = response.projects;
+            const timeEntries = response.timeEntries;
+    
+            // Update local projects database
+            for (const project of projects) {
+                await this.mergeProjectWithLocalDB(project);
+            }
+    
+            // Update local time entries database
+            for (const entry of timeEntries) {
+                await this.mergeTimeEntryWithLocalDB(entry);
+            }
+    
+            // Update the lastMerged timestamp in your local storage
+            // Assuming you have a method like this
+            await this.updateLastMergedTimestamp(new Date());
+    
+            console.log('Updates fetched and merged successfully.');
+    
+        } catch (error) {
+            console.error("Error while fetching updates: ", error);
+        }
+    }
+
+    async mergeProjectWithLocalDB(project: any) {
+        try {
+            // Use 'id' from the server as 'serverID' in the local database
+            const existingProject = await this.Project.findOne({ where: { serverID: project.id } });
+    
+            if (existingProject) {
+                // Update the existing project
+                await existingProject.update(project);
+            } else {
+                // Create a new project with the serverID
+                await this.Project.create({ ...project, serverID: project.id });
+            }
+    
+            console.log(`Project '${project.name}' merged successfully.`);
+        } catch (error) {
+            console.error(`Error merging project '${project.name}':`, error);
+        }
+    }
+
+    async mergeTimeEntryWithLocalDB(entry: any) {
+        try {
+            // Use 'id' from the server as 'serverID' in the local database
+            const existingEntry = await this.TimeEntry.findOne({ where: { serverID: entry.id } });
+    
+            if (existingEntry) {
+                // Update the existing entry
+                await existingEntry.update(entry);
+            } else {
+                // Create a new time entry with the serverID
+                await this.TimeEntry.create({ ...entry, serverID: entry.id });
+            }
+    
+            console.log(`Time Entry merged successfully.`);
+        } catch (error) {
+            console.error(`Error merging time entry:`, error);
+        }
+    }
+
+    async updateLastMergedTimestamp(timestamp: Date) {
+        this.LastMerged = timestamp;
+    }
+    
+    
 
     deserialize() {
         // TODO: get data ( last merge date ) from disk

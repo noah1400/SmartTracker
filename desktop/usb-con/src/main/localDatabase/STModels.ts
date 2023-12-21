@@ -12,6 +12,18 @@ class ModelProvider {
 
     createModels() {
         const Project = this.sequelize.define('project', {
+            localID: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+                unique: true,
+                primaryKey: true,
+                autoIncrement: true,
+            },
+            serverID: {
+                type: DataTypes.INTEGER,
+                allowNull: true,
+                unique: true,
+            },
             name: {
                 type: DataTypes.STRING,
                 allowNull: false,
@@ -37,6 +49,18 @@ class ModelProvider {
 
         // TimeEntry Model
         const TimeEntry = this.sequelize.define('timeEntry', {
+            localID: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+                unique: true,
+                primaryKey: true,
+                autoIncrement: true,
+            },
+            serverID: {
+                type: DataTypes.INTEGER,
+                allowNull: true,
+                unique: true,
+            },
             startTime: {
                 type: DataTypes.DATE,
                 allowNull: false,

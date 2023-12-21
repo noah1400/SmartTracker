@@ -23,7 +23,7 @@ const stApiInstance = new STApi();
 // import STLocalStorage out of STLocalStorage.ts
 import { STLocalStorage } from './localDatabase/STLocalStorage';
 const stLocalStorageInstance = new STLocalStorage(stAuthInstance, stApiInstance);
-stLocalStorageInstance.init();
+
 
 class AppUpdater {
   constructor() {
@@ -153,6 +153,10 @@ app
   .then(async () => {
     createWindow();
 
+
+    await stLocalStorageInstance.init();
+    await stLocalStorageInstance.dumpDatabase();
+
     // test API
     await stAuthInstance.login('admin', 'admin')
       .then(async (result) => {
@@ -161,9 +165,15 @@ app
         
         stApiInstance.token = result.data.token;
 
-        await stLocalStorageInstance.syncWithServer();
-        const projects = await stApiInstance.getTimeEntryForUser("3");
-        console.log(JSON.stringify(projects, null, 2));
+        // await stLocalStorageInstance.syncWithServer();
+        // console.log('syncWithServer done - dumpDatabase: ');
+        // await stLocalStorageInstance.dumpDatabase();
+        console.log('fetchUpdatesFromServer');
+        await stLocalStorageInstance.fetchUpdatesFromServer(stLocalStorageInstance.LastMerged);
+        console.log('fetchUpdatesFromServer done - dumpDatabase: ');
+        await stLocalStorageInstance.dumpDatabase();
+        // const projects = await stApiInstance.getTimeEntryForUser(stAuthInstance.user.id);
+        // console.log(JSON.stringify(projects, null, 2));
       })
       .catch((err) => {
         console.log(err);

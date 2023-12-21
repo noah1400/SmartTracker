@@ -119,6 +119,19 @@ def create_fake_data(app, num_users=10, num_projects=5, entries_per_user=5):
         try:
             admin = User.create_with_role('admin', 'admin@example.com', 'admin', 'internal', 'admin')
             user = User.create_with_role('user', 'user@example.com', 'user', 'internal', 'user')
+            # add time entries for admin
+            for i in range(5):
+                project = projects[fake.random_int(0, len(projects)-1)]
+                time_entry = create_fake_time_entry(admin, project)
+                time_entries.append(time_entry)
+                db.session.add(time_entry)
+            # add time entries for user
+            for i in range(5):
+                project = projects[fake.random_int(0, len(projects)-1)]
+                time_entry = create_fake_time_entry(user, project)
+                time_entries.append(time_entry)
+                db.session.add(time_entry)
+            db.session.commit()
         except:
             pass
         return users, projects, time_entries

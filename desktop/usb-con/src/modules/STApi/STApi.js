@@ -243,6 +243,26 @@ class STApi {
         };
     }
 
+    getFetchURLForGet(data) {
+        // resturn params part of url
+        // using key=value&key=value of data
+        let params = "";
+        for (const key in data) {
+            params += `${key}=${data[key]}&`;
+        }
+        // remove last &
+        params = params.slice(0, -1);
+        return {
+            options: {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${this._TOKEN}`
+                }
+            },
+            params: params
+        };
+    }
+
     async executeQuery(query, variables) {
         const fetchOptions = this.configureFetchOptions(query, variables);
 
@@ -341,7 +361,24 @@ class STApi {
             const response = await fetch(this.BASE_URL + endpoint, fetchOptions)
             const data = await response.json()
             if (data.errors) {
-                throw new Error(data.errors[0].message)
+                throw new Error('Error in response: ', data.errors[0].message)
+            }
+            return data
+        } catch (error) {
+            console.error('Error fetching query: ', error)
+            throw error
+        }
+    }
+
+    async get(endpoint, data) {
+        console.log("get data: ", data);
+        let fetchOptions = this.getFetchURLForGet(data);
+
+        try {
+            const response = await fetch(this.BASE_URL + endpoint + "?" + fetchOptions.params, fetchOptions.options)
+            const data = await response.json()
+            if (data.errors) {
+                throw new Error('Error in response: ', data.errors[0].message)
             }
             return data
         } catch (error) {
