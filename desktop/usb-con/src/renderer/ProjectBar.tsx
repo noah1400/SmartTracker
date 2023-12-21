@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import './ProjectBar.css';
 import { Project } from './types';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
 
 interface ProjectBarProps {
   projects: Project[];
@@ -19,22 +21,33 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
   setActiveColor,
 }) => {
   const [activeProject, setActiveProject] = useState<number | null>(null);
+
+  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    if (newValue >= projects.length) {
+      setActiveProject(0); //loop
+      console.log('back to null');
+    } else {
+      setActiveProject(newValue);
+      console.log('set active project: ', newValue);
+    }
+  };
+  const tabIndicatorColor =
+    activeProject !== null ? projects[activeProject].color : 'defaultColor';
+
   let counter = 0;
   let isListenerAdded = false;
   const handleKeyPress = (event: React.KeyboardEvent) => {
-    console.log("keypress function");
-    if (
-      event.key === 'ArrowLeft' &&
-      activeProject !== null &&
-      activeProject > 0
-    ) {
-      setActiveProject(activeProject - 1);
-    } else if (
-      event.key === 'ArrowRight' &&
-      activeProject !== null &&
-      activeProject < projects.length - 1
-    ) {
-      setActiveProject(activeProject + 1);
+    console.log('keypress function');
+    if (activeProject !== null) {
+      if (event.key === 'ArrowLeft') {
+        setActiveProject(
+          activeProject > 0 ? activeProject - 1 : projects.length - 1,
+        );
+      } else if (event.key === 'ArrowRight') {
+        setActiveProject(
+          activeProject < projects.length - 1 ? activeProject + 1 : 0,
+        );
+      }
     }
   };
   //keyboard selection
@@ -51,29 +64,29 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
     };
   }, [activeProject]);
 
+  //tracker input
   useEffect(() => {
     let handleIpcRendererEvent = (event: any, arg: any) => {
-      console.log("testWeltUseEffect");
-      if(counter==5)
-      {
-        counter=0;
+      console.log('testWeltUseEffect');
+      if (counter == 5) {
+        counter = 0;
       }
       console.log(counter);
       setActiveProject(counter);
       counter++;
     };
     if (!isListenerAdded) {
-      window.electron.ipcRenderer.on('serial-port-data', handleIpcRendererEvent);
-      console.log("hinzugefügt");
+      window.electron.ipcRenderer.on(
+        'serial-port-data',
+        handleIpcRendererEvent,
+      );
+      console.log('hinzugefügt');
       console.log(isListenerAdded);
       isListenerAdded = true;
     }
-  
-    return () => {
-    };
-  }, []);
 
-  
+    return () => {};
+  }, []);
 
   //color of button
   useEffect(() => {
@@ -84,24 +97,24 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
     }
   }, [activeProject, projects, setActiveColor]);
 
-
   //color of background
   useEffect(() => {
     if (activeProject !== null) {
       const activeColor = projects[activeProject].color;
       setActiveColor(activeColor);
-      document.body.style.transition = 'background-color 0.5s ease'; 
-      document.body.style.backgroundColor = activeColor ? `${activeColor}65` : 'grey'; 
-    
+      document.body.style.transition = 'background-color 0.5s ease';
+      document.body.style.backgroundColor = activeColor
+        ? `${activeColor}60`
+        : 'black';
     } else {
       setActiveColor(null);
-      document.body.style.transition = 'background-color 0.5s ease'; 
+      document.body.style.transition = 'background-color 0.5s ease';
       document.body.style.backgroundColor = 'white';
     }
 
     // Cleanup the transition after it completes
     const transitionEndListener = () => {
-      document.body.style.transition = 'none'; 
+      document.body.style.transition = 'none';
     };
 
     document.body.addEventListener('transitionend', transitionEndListener);
@@ -110,23 +123,40 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
       document.body.removeEventListener('transitionend', transitionEndListener);
     };
   }, [activeProject, projects, setActiveColor]);
-  
-  return (  
+
+  return (
     <div className="project-bar">
-      {projects.map((project, index) => (
-        <button
-          key={project.id}
-          className={index === activeProject ? 'active' : ''}
-          onClick={() => setActiveProject(index)}
-          style={{
-            backgroundColor:
-              index === activeProject ? project.color + '70' : 'transparent',
-            borderRadius: '8px',
-          }}
-        >
-          {project.name}
-        </button>
-      ))}
+      <Tabs
+        value={activeProject}
+        onChange={handleChange}
+        aria-label="Project tabs"
+        variant="scrollable"
+        allowScrollButtonsMobile
+        scrollButtons="auto"
+        TabIndicatorProps={{ style: { backgroundColor: tabIndicatorColor } }}
+        sx={{
+          '& .MuiTabs-scrollButtons': {
+            color: 'white',
+          },
+        }}
+      >
+        {projects.map((project, index) => (
+          <Tab
+            key={project.id}
+            label={project.name}
+            sx={{
+              color: 'white',
+              borderRadius: '8px',
+              fontSize: activeProject === index ? '1rem' : '0.5rem',
+              '&.Mui-selected': {
+                fontSize: '1rem',
+                color: 'white',
+              },
+              '& .MuiTouchRipple-root': { display: 'none' },
+            }}
+          />
+        ))}
+      </Tabs>
     </div>
   );
 };
