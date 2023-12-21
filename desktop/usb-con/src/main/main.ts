@@ -18,9 +18,11 @@ import { SerialPort } from 'serialport';
 const { STAuth } = require("stauth");
 const { STApi } = require("stapi");
 const stAuthInstance = new STAuth();
+const stApiInstance = new STApi();
 
 // import STLocalStorage out of STLocalStorage.ts
-import { STLocalStorage } from './STLocalStorage';
+import { STLocalStorage } from './localDatabase/STLocalStorage';
+const stLocalStorageInstance = new STLocalStorage(stAuthInstance, stApiInstance);
 
 class AppUpdater {
   constructor() {
@@ -154,7 +156,6 @@ app
     await stAuthInstance.login('admin', 'admin')
     .then(async (result) => {
       console.log(result);
-      const stApiInstance = new STApi();
       stApiInstance.token = result.data.token;
 
       const projects = await stApiInstance.getTimeEntryForUser("3");

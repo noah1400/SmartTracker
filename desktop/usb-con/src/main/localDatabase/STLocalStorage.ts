@@ -1,4 +1,4 @@
-import { Sequelize } from "sequelize";
+import { Sequelize, Op } from "sequelize";
 import { ModelProvider } from "./STModels";
 
 
@@ -7,28 +7,73 @@ class STLocalStorage {
     Project: any;
     TimeEntry: any;
     LastMerged: any;
+    stAuthInstance: any;
+    stApiInstance: any;
 
-    constructor() {
+    constructor( STAuth: any, STApi: any ) {
         this.sequelize = new Sequelize({
             dialect: 'sqlite',
             storage: 'database.sqlite'
         });
         const modelProvider = new ModelProvider(this.sequelize);
         modelProvider.createModels();
-        this.Project = modelProvider.Project;
-        this.TimeEntry = modelProvider.TimeEntry;
+        this.Project = modelProvider.getProjectModel();
+        this.TimeEntry = modelProvider.getTimeEntryModel();
+        this.stApiInstance = STApi;
+        this.stAuthInstance = STAuth;
     }
 
     init() {
         this.sequelize.sync();
     }
 
+    addProject(name: string, description: string) {
+        this.Project.create({
+            name: name,
+            description: description
+        });
+    }
 
-    serialize() {
-        // TODO: send data to server
-        //       which was created after the last merge
-        //       projects first, then time entries (with project id)
-        //       send data in chunks ( 100 projects, 100 time entries ) to avoid timeouts and reduce server load
+    addTimeEntry(startTime: Date, endTime: Date, description: string, projectId: number) {
+        this.TimeEntry.create({
+            startTime: startTime,
+            endTime: endTime,
+            description: description,
+            projectId: projectId
+        });
+    }
+
+
+    async syncWithServer() {
+        const updatedProjects = await this.Project.findAll({
+            where: {
+                updatedAt: {
+                    [Op.gt]: this.LastMerged
+                }
+            }
+        });
+
+        const updatedTimeEntries = await this.TimeEntry.findAll({
+            where: {
+                updatedAt: {
+                    [Op.gt]: this.LastMerged
+                }
+            }
+        });
+
+        const dataToMerge = {
+            projects: updatedProjects,
+            timeEntries: updatedTimeEntries
+        };
+        
+        try {
+            let response = await this.stApiInstance.post('/merge', dataToMerge);
+            if ( response.status === 200 ) {
+                this.LastMerged = new Date();
+            }
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     deserialize() {

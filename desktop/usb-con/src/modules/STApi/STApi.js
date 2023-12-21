@@ -229,6 +229,20 @@ class STApi {
         };
     }
 
+    configureFetchOptionsForPost(data) {
+        if (this._TOKEN === null || this._TOKEN === undefined) {
+            throw new Error("No token set");
+        }
+        return {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${this._TOKEN}`
+            },
+            body: JSON.stringify(data)
+        };
+    }
+
     async executeQuery(query, variables) {
         const fetchOptions = this.configureFetchOptions(query, variables);
 
@@ -318,6 +332,22 @@ class STApi {
         const mutation = this.constructDeleteTimeEntryMutation();
         const variables = { timeEntryId };
         return await this.executeQuery(mutation, variables);
+    }
+
+    async post(endpoint, data) {
+        fetchOptions = this.configureFetchOptionsForPost(data);
+
+        try {
+            const response = await fetch(this.BASE_URL + endpoint, fetchOptions)
+            const data = await response.json()
+            if (data.errors) {
+                throw new Error(data.errors[0].message)
+            }
+            return data
+        } catch (error) {
+            console.error('Error fetching query: ', error)
+            throw error
+        }
     }
 
 }

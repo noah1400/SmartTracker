@@ -10,3 +10,8 @@ def ping():
 @auth.auth_authenticated
 def protected_ping(username):
     return jsonify('protected pong')
+
+@bp.route('/merge', methods=['POST'])
+@auth.auth_authenticated
+def merge(username):
+    return jsonify('merge')
