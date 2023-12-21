@@ -335,7 +335,7 @@ class STApi {
     }
 
     async post(endpoint, data) {
-        fetchOptions = this.configureFetchOptionsForPost(data);
+        let fetchOptions = this.configureFetchOptionsForPost(data);
 
         try {
             const response = await fetch(this.BASE_URL + endpoint, fetchOptions)

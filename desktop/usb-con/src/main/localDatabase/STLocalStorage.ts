@@ -68,6 +68,7 @@ class STLocalStorage {
         
         try {
             let response = await this.stApiInstance.post('/merge', dataToMerge);
+            console.log(response);
             if ( response.status === 200 ) {
                 this.LastMerged = new Date();
             }

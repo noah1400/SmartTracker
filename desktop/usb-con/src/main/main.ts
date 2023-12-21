@@ -23,6 +23,7 @@ const stApiInstance = new STApi();
 // import STLocalStorage out of STLocalStorage.ts
 import { STLocalStorage } from './localDatabase/STLocalStorage';
 const stLocalStorageInstance = new STLocalStorage(stAuthInstance, stApiInstance);
+stLocalStorageInstance.init();
 
 class AppUpdater {
   constructor() {
@@ -40,7 +41,7 @@ ipcMain.on('ipc-example', async (event, arg) => {
   event.reply('ipc-example', msgTemplate('pong'));
 });
 
-const dev = new SerialPort({path: 'COM3', baudRate: 9600 });
+const dev = new SerialPort({ path: 'COM3', baudRate: 9600 });
 dev.on('data', (data) => {
   const receivedData = data.toString();
   console.log('Received data from serial port:', receivedData);
@@ -154,16 +155,19 @@ app
 
     // test API
     await stAuthInstance.login('admin', 'admin')
-    .then(async (result) => {
-      console.log(result);
-      stApiInstance.token = result.data.token;
+      .then(async (result) => {
+        console.log(result);
 
-      const projects = await stApiInstance.getTimeEntryForUser("3");
-      console.log(JSON.stringify(projects, null, 2));
-    })
-    .catch((err) => {
-      console.log(err);
-    })
+        
+        stApiInstance.token = result.data.token;
+
+        await stLocalStorageInstance.syncWithServer();
+        const projects = await stApiInstance.getTimeEntryForUser("3");
+        console.log(JSON.stringify(projects, null, 2));
+      })
+      .catch((err) => {
+        console.log(err);
+      })
 
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
