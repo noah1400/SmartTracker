@@ -2,3 +2,4 @@ firmware\.vscode
 firmware\.vscode\extensions.json
 firmware/README.md
 firmware/.vscode/extensions.json
+node_modules

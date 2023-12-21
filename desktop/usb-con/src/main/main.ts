@@ -19,6 +19,9 @@ const { STAuth } = require("stauth");
 const { STApi } = require("stapi");
 const stAuthInstance = new STAuth();
 
+// import STLocalStorage out of STLocalStorage.ts
+import { STLocalStorage } from './STLocalStorage';
+
 class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
