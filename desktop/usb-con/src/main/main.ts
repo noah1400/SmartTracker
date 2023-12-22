@@ -156,13 +156,14 @@ app
 
     await stLocalStorageInstance.init();
     await stLocalStorageInstance.dumpDatabase();
+    // await stLocalStorageInstance.databaseSize();
 
     // test API
     await stAuthInstance.login('admin', 'admin')
       .then(async (result) => {
         console.log(result);
 
-        
+
         stApiInstance.token = result.data.token;
 
         // await stLocalStorageInstance.syncWithServer();
@@ -172,6 +173,7 @@ app
         await stLocalStorageInstance.fetchUpdatesFromServer(stLocalStorageInstance.LastMerged);
         console.log('fetchUpdatesFromServer done - dumpDatabase: ');
         await stLocalStorageInstance.dumpDatabase();
+        // await stLocalStorageInstance.databaseSize();
         // const projects = await stApiInstance.getTimeEntryForUser(stAuthInstance.user.id);
         // console.log(JSON.stringify(projects, null, 2));
       })

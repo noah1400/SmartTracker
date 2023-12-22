@@ -84,6 +84,14 @@ class ModelProvider {
                 allowNull: false,
                 defaultValue: DataTypes.NOW,
             },
+            projectID: {
+                type: DataTypes.INTEGER,
+                allowNull: true,
+            },
+            serverProjectID: {
+                type: DataTypes.INTEGER,
+                allowNull: true,
+            },
         });
 
         Project.hasMany(TimeEntry, { as: 'timeEntries' });
