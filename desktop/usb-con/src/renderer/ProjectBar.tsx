@@ -4,6 +4,7 @@ import './ProjectBar.css';
 import { Project } from './types';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
+import Box from '@mui/material/Box';
 
 interface ProjectBarProps {
   projects: Project[];
@@ -126,6 +127,7 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
 
   return (
     <div className="project-bar">
+      <Box sx={{width: '100%'}}>
       <Tabs
         value={activeProject}
         onChange={handleChange}
@@ -138,6 +140,7 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
           '& .MuiTabs-scrollButtons': {
             color: 'white',
           },
+          width: '100%',
         }}
       >
         {projects.map((project, index) => (
@@ -157,6 +160,7 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
           />
         ))}
       </Tabs>
+      </Box>
     </div>
   );
 };

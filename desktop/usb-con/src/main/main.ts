@@ -100,6 +100,7 @@ const createWindow = async () => {
         ? path.join(__dirname, 'preload.js')
         : path.join(__dirname, '../../.erb/dll/preload.js'),
       nodeIntegration: true,
+      scrollBounce: false,
     },
   });
 
@@ -159,7 +160,7 @@ app
     // test API
     await stAuthInstance
       .login('admin', 'admin')
-      .then(async (result) => {
+      .then(async (result:any) => {
         console.log(result);
         const stApiInstance = new STApi();
         stApiInstance.token = result.data.token;
@@ -167,7 +168,7 @@ app
         const projects = await stApiInstance.getTimeEntryForUser('3');
         console.log(JSON.stringify(projects, null, 2));
       })
-      .catch((err) => {
+      .catch((err:any) => {
         console.log(err);
       });
 
