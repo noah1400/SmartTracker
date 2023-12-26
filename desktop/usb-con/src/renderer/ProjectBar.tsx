@@ -8,7 +8,7 @@ import Box from '@mui/material/Box';
 
 interface ProjectBarProps {
   projects: Project[];
-  setActiveColor: React.Dispatch<React.SetStateAction<string | null>>;
+  setActiveProject: React.Dispatch<React.SetStateAction<Project | null>>;
 }
 
 //window.electron.ipcRenderer.on('serial-port-data', (arg) => {
@@ -19,37 +19,36 @@ interface ProjectBarProps {
 
 const ProjectBar: React.FC<ProjectBarProps> = ({
   projects,
-  setActiveColor,
+  setActiveProject
 }) => {
-  const [activeProject, setActiveProject] = useState<number | null>(null);
+  const [activeProjectIndex, setActiveProjectIndex] = useState<number | null>(null);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    if (newValue >= projects.length) {
-      setActiveProject(0); //loop
-      console.log('back to null');
-    } else {
-      setActiveProject(newValue);
-      console.log('set active project: ', newValue);
-    }
+    const newActiveProject = projects[newValue] || null;
+    setActiveProjectIndex(newValue);
+    setActiveProject(newActiveProject);
   };
+
   const tabIndicatorColor =
-    activeProject !== null ? projects[activeProject].color : 'defaultColor';
+    activeProjectIndex  !== null ? projects[activeProjectIndex].color : 'defaultColor';
 
   let counter = 0;
   let isListenerAdded = false;
   const handleKeyPress = (event: React.KeyboardEvent) => {
     console.log('keypress function');
-    if (activeProject !== null) {
-      if (event.key === 'ArrowLeft') {
-        setActiveProject(
-          activeProject > 0 ? activeProject - 1 : projects.length - 1,
-        );
-      } else if (event.key === 'ArrowRight') {
-        setActiveProject(
-          activeProject < projects.length - 1 ? activeProject + 1 : 0,
-        );
-      }
+  if (activeProjectIndex !== null) {
+    let newActiveProjectIndex;
+    if (event.key === 'ArrowLeft') {
+      newActiveProjectIndex = activeProjectIndex > 0 ? activeProjectIndex - 1 : projects.length - 1;
+    } else if (event.key === 'ArrowRight') {
+      newActiveProjectIndex = activeProjectIndex < projects.length - 1 ? activeProjectIndex + 1 : 0;
     }
+
+    if (newActiveProjectIndex !== undefined) {
+      setActiveProjectIndex(newActiveProjectIndex);
+      setActiveProject(projects[newActiveProjectIndex]);
+    }
+  }
   };
   //keyboard selection
   useEffect(() => {
@@ -63,7 +62,7 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
         handleKeyPress as unknown as EventListenerOrEventListenerObject,
       );
     };
-  }, [activeProject]);
+  }, [activeProjectIndex, projects, setActiveProject]);
 
   //tracker input
   useEffect(() => {
@@ -89,26 +88,15 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
     return () => {};
   }, []);
 
-  //color of button
-  useEffect(() => {
-    if (activeProject !== null) {
-      setActiveColor(projects[activeProject].color);
-    } else {
-      setActiveColor(null);
-    }
-  }, [activeProject, projects, setActiveColor]);
-
   //color of background
   useEffect(() => {
-    if (activeProject !== null) {
-      const activeColor = projects[activeProject].color;
-      setActiveColor(activeColor);
+    if (activeProjectIndex !== null) {
+      const activeColor = projects[activeProjectIndex].color;
       document.body.style.transition = 'background-color 0.5s ease';
       document.body.style.backgroundColor = activeColor
         ? `${activeColor}60`
         : 'black';
     } else {
-      setActiveColor(null);
       document.body.style.transition = 'background-color 0.5s ease';
       document.body.style.backgroundColor = 'white';
     }
@@ -123,13 +111,13 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
     return () => {
       document.body.removeEventListener('transitionend', transitionEndListener);
     };
-  }, [activeProject, projects, setActiveColor]);
+  }, [activeProjectIndex, projects]);
 
   return (
     <div className="project-bar">
       <Box sx={{width: '100%'}}>
       <Tabs
-        value={activeProject}
+        value={activeProjectIndex}
         onChange={handleChange}
         aria-label="Project tabs"
         variant="scrollable"
@@ -150,7 +138,7 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
             sx={{
               color: 'white',
               borderRadius: '8px',
-              fontSize: activeProject === index ? '1rem' : '0.5rem',
+              fontSize: activeProjectIndex === index ? '1rem' : '0.5rem',
               '&.Mui-selected': {
                 fontSize: '1rem',
                 color: 'white',
