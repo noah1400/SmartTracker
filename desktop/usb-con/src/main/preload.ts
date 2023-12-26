@@ -2,7 +2,7 @@
 
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
-export type Channels = 'ipc-example' | 'data';
+export type Channels = 'ipc-example' | 'data' | 'serial-port-data';
 
 const electronHandler = {
   ipcRenderer: {
