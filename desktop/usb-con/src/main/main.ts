@@ -18,6 +18,12 @@ import { SerialPort } from 'serialport';
 const { STAuth } = require('stauth');
 const { STApi } = require('stapi');
 const stAuthInstance = new STAuth();
+const stApiInstance = new STApi();
+
+// import STLocalStorage out of STLocalStorage.ts
+import { STLocalStorage } from './localDatabase/STLocalStorage';
+const stLocalStorageInstance = new STLocalStorage(stAuthInstance, stApiInstance);
+
 
 class AppUpdater {
   constructor() {
@@ -157,6 +163,11 @@ app
   .then(async () => {
     createWindow();
 
+
+    await stLocalStorageInstance.init();
+    await stLocalStorageInstance.dumpDatabase();
+    // await stLocalStorageInstance.databaseSize();
+
     // test API
     await stAuthInstance
       .login('admin', 'admin')
@@ -171,6 +182,27 @@ app
       .catch((err:any) => {
         console.log(err);
       });
+    // await stAuthInstance.login('admin', 'admin')
+    //   .then(async (result) => {
+    //     console.log(result);
+
+
+    //     stApiInstance.token = result.data.token;
+
+    //     // await stLocalStorageInstance.syncWithServer();
+    //     // console.log('syncWithServer done - dumpDatabase: ');
+    //     // await stLocalStorageInstance.dumpDatabase();
+    //     console.log('fetchUpdatesFromServer');
+    //     await stLocalStorageInstance.fetchUpdatesFromServer(stLocalStorageInstance.LastMerged);
+    //     console.log('fetchUpdatesFromServer done - dumpDatabase: ');
+    //     await stLocalStorageInstance.dumpDatabase();
+    //     // await stLocalStorageInstance.databaseSize();
+    //     // const projects = await stApiInstance.getTimeEntryForUser(stAuthInstance.user.id);
+    //     // console.log(JSON.stringify(projects, null, 2));
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //   })
 
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the

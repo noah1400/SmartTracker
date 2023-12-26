@@ -60,6 +60,8 @@ class Auth:
                 return f(self._user, *args, **kwargs)
             except Exception as e:
                 logging.error(f'Authentication error: {e}')
+                # log traceback
+                logging.error(e, exc_info=True)
                 return {'error': str(e)}, 401
 
         return decorated
@@ -171,7 +173,7 @@ class Auth:
         if user:
             self._user = user
             token = self.generate_jwt(user.username)
-            return {'username': user.username, 'token': token}
+            return {'username': user.username, 'id': user.id, 'token': token}
         raise InvalidCredentials('Invalid credentials')
 
     @property

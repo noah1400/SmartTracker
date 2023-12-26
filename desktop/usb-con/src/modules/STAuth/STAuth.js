@@ -16,6 +16,10 @@ class STAuth {
         this.AUTH_TYPE = null;
         this.TOKEN = null;
         this.LOGIN_DATA = null;
+        this.user = {
+            id: null,
+            username: null,
+        }
     }
 
     init() {
@@ -133,6 +137,8 @@ class STAuth {
         if (this.isLoggedin()) {
             const pingResponse = await this.protectedPing();
             if (pingResponse.success) {
+                this.user = this.LOGIN_DATA.id || null;
+                this.user.username = this.LOGIN_DATA.username || null;
                 return { success: true, error: "Already logged in" };
             }
         } else {
@@ -171,6 +177,8 @@ class STAuth {
         }
 
         this.processLoginSuccess(data);
+        this.user.id = data.id || null;
+        this.user.username = data.username || null;
         return { success: true, error: null, data };
     }
 
