@@ -159,27 +159,40 @@ app
     // await stLocalStorageInstance.databaseSize();
 
     // test API
-    await stAuthInstance.login('admin', 'admin')
-      .then(async (result) => {
+    await stAuthInstance
+      .login('admin', 'admin')
+      .then(async (result:any) => {
         console.log(result);
-
-
+        const stApiInstance = new STApi();
         stApiInstance.token = result.data.token;
 
-        // await stLocalStorageInstance.syncWithServer();
-        // console.log('syncWithServer done - dumpDatabase: ');
-        // await stLocalStorageInstance.dumpDatabase();
-        console.log('fetchUpdatesFromServer');
-        await stLocalStorageInstance.fetchUpdatesFromServer(stLocalStorageInstance.LastMerged);
-        console.log('fetchUpdatesFromServer done - dumpDatabase: ');
-        await stLocalStorageInstance.dumpDatabase();
-        // await stLocalStorageInstance.databaseSize();
-        // const projects = await stApiInstance.getTimeEntryForUser(stAuthInstance.user.id);
-        // console.log(JSON.stringify(projects, null, 2));
+        const projects = await stApiInstance.getTimeEntryForUser('3');
+        console.log(JSON.stringify(projects, null, 2));
       })
-      .catch((err) => {
+      .catch((err:any) => {
         console.log(err);
-      })
+      });
+    // await stAuthInstance.login('admin', 'admin')
+    //   .then(async (result) => {
+    //     console.log(result);
+
+
+    //     stApiInstance.token = result.data.token;
+
+    //     // await stLocalStorageInstance.syncWithServer();
+    //     // console.log('syncWithServer done - dumpDatabase: ');
+    //     // await stLocalStorageInstance.dumpDatabase();
+    //     console.log('fetchUpdatesFromServer');
+    //     await stLocalStorageInstance.fetchUpdatesFromServer(stLocalStorageInstance.LastMerged);
+    //     console.log('fetchUpdatesFromServer done - dumpDatabase: ');
+    //     await stLocalStorageInstance.dumpDatabase();
+    //     // await stLocalStorageInstance.databaseSize();
+    //     // const projects = await stApiInstance.getTimeEntryForUser(stAuthInstance.user.id);
+    //     // console.log(JSON.stringify(projects, null, 2));
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //   })
 
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
