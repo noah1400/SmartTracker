@@ -9,14 +9,14 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, screen } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import { SerialPort } from 'serialport';
-const { STAuth } = require("stauth");
-const { STApi } = require("stapi");
+const { STAuth } = require('stauth');
+const { STApi } = require('stapi');
 const stAuthInstance = new STAuth();
 const stApiInstance = new STApi();
 
@@ -86,16 +86,27 @@ const createWindow = async () => {
     return path.join(RESOURCES_PATH, ...paths);
   };
 
+  //dynamic window size
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const screenSize = primaryDisplay.workAreaSize;
+  let windowWidth = screenSize.width;
+  let windowHeight = (3 / 4) * windowWidth;
+  //check
+  if (windowHeight > screenSize.height) {
+    windowHeight = screenSize.height;
+    windowWidth = (4 / 3) * windowHeight;
+  }
   mainWindow = new BrowserWindow({
     show: false,
-    width: 1024,
-    height: 728,
+    width: windowWidth,
+    height: windowHeight,
     icon: getAssetPath('icon.png'),
     webPreferences: {
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
         : path.join(__dirname, '../../.erb/dll/preload.js'),
       nodeIntegration: true,
+      scrollBounce: false,
     },
   });
 
@@ -103,7 +114,6 @@ const createWindow = async () => {
   //dev.on('data', (data) => {
   //  console.log('Data:', data.toString());
   //});
-
 
   mainWindow.loadURL(resolveHtmlPath('index.html'));
 
