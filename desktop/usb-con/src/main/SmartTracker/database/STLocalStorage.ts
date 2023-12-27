@@ -40,7 +40,7 @@ class STLocalStorage {
       await this.sequelize.sync();
       const filePathMerged = path.join(
         app.getPath('userData'),
-        'lastMergedTimestamp.txt',
+        'last-merged.txt',
       );
       let timestampStrMerged = await fs.readFile(filePathMerged, 'utf8');
       this.LastMerged = new Date(timestampStrMerged);
@@ -56,7 +56,7 @@ class STLocalStorage {
     try {
       const filePathPushed = path.join(
         app.getPath('userData'),
-        'lastPushedTimestamp.txt',
+        'last-pushed.txt',
       );
       let timestampStrPushed = await fs.readFile(filePathPushed, 'utf8');
       this.LastPushed = new Date(timestampStrPushed);
@@ -240,7 +240,7 @@ class STLocalStorage {
     try {
       let response = await this.stApiInstance.post('/merge', dataToMerge);
       console.log(response);
-      if (response.status === 200) {
+      if (response.status === 'success') {
         this.updateLastPushedTimestamp(new Date());
       }
     } catch (error) {

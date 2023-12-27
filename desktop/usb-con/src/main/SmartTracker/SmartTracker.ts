@@ -30,18 +30,18 @@ class SmartTracker {
         this.authInit();
         this.stApiInstance = new STApi();
         this.localStorage = new STLocalStorage(this.stAuthInstance, this.stApiInstance);
+        this.localStorage.init();
     }
 
-    async authInit() {
+    private async authInit() {
+        // wait for app to be ready
         await app.whenReady();
         this.stAuthInstance.init();
     }
 
-
-
-
     // connect to server:
     connect(username: string, password: string) {
+        console.log("Connecting to server...");
         if (this.stAuthInstance.isLoggedin()) {
             this.token = this.stAuthInstance.TOKEN;
             if (this.token) {
@@ -103,6 +103,7 @@ class SmartTracker {
     
         if (this.auto_update) {
             this.autoUpdateTimeout = setTimeout(() => {
+                console.log("auto update");
                 this.update();
                 this.startAutoUpdate();
             }, this.auto_update_interval);

@@ -178,6 +178,8 @@ app
     //   });
     
     ST.connect('admin', 'admin');
+    ST.autoUpdate = true;
+    ST.autoUpdateInterval = 1000;
 
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
