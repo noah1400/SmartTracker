@@ -9,6 +9,7 @@ class STLocalStorage {
   Project: any;
   TimeEntry: any;
   LastMerged: any;
+  LastPushed: any;
   stAuthInstance: any;
   stApiInstance: any;
 
@@ -26,15 +27,23 @@ class STLocalStorage {
     this.stAuthInstance = STAuth;
   }
 
+  set authInstance(stAuthInstance: any) {
+    this.stAuthInstance = stAuthInstance;
+  }
+
+  set apiInstance(stApiInstance: any) {
+    this.stApiInstance = stApiInstance;
+  }
+
   async init() {
     try {
       await this.sequelize.sync();
-      const filePath = path.join(
+      const filePathMerged = path.join(
         app.getPath('userData'),
         'lastMergedTimestamp.txt',
       );
-      let timestampStr = await fs.readFile(filePath, 'utf8');
-      this.LastMerged = new Date(timestampStr);
+      let timestampStrMerged = await fs.readFile(filePathMerged, 'utf8');
+      this.LastMerged = new Date(timestampStrMerged);
       console.log('Last merged timestamp loaded from disk.');
     } catch (error) {
       console.warn(
@@ -43,9 +52,31 @@ class STLocalStorage {
       );
       this.LastMerged = new Date(0);
     }
+
+    try {
+      const filePathPushed = path.join(
+        app.getPath('userData'),
+        'lastPushedTimestamp.txt',
+      );
+      let timestampStrPushed = await fs.readFile(filePathPushed, 'utf8');
+      this.LastPushed = new Date(timestampStrPushed);
+      console.log('Last pushed timestamp loaded from disk.');
+    } catch (error) {
+      console.warn(
+        'Error loading last pushed timestamp from disk or file not found. Defaulting to new Date(0).',
+        error,
+      );
+      this.LastPushed = new Date(0);
+    }
   }
 
   addProject(name: string, description: string) {
+
+    // validate input
+    if (!name) {
+      throw new Error('Project name is required.');
+    }
+
     this.Project.create({
       name: name,
       description: description,
@@ -58,12 +89,91 @@ class STLocalStorage {
     description: string,
     projectId: number,
   ) {
+
+    // validate input
+    if (!startTime) {
+      throw new Error('Start time is required.');
+    }
+    // check if startTime is date ( try to convert to date from string or number)
+    if (isNaN(startTime.getTime())) {
+      throw new Error('Start time is not a valid date.');
+    }
+    if (!endTime) {
+      throw new Error('End time is required.');
+    }
+    // check if endTime is date ( try to convert to date from string or number)
+    if (isNaN(endTime.getTime())) {
+      throw new Error('End time is not a valid date.');
+    }
+    if (startTime > endTime) {
+      throw new Error('Start time must be before end time.');
+    }
+    if (!projectId) {
+      throw new Error('Project ID is required.');
+    }
+
+
     this.TimeEntry.create({
       startTime: startTime,
       endTime: endTime,
       description: description,
       projectId: projectId,
     });
+  }
+
+  async getProjects() {
+    const projects = await this.Project.findAll();
+    return projects;
+  }
+
+  async getTimeEntries() {
+    const timeEntries = await this.TimeEntry.findAll();
+    return timeEntries;
+  }
+
+  async getProjectTimeEntries(projectID: number) {
+    const timeEntries = await this.TimeEntry.findAll({
+      where: {
+        projectID: projectID,
+      },
+    });
+    return timeEntries;
+  }
+
+  async getProjectTimeEntriesByServerID(serverProjectID: number) {
+    const timeEntries = await this.TimeEntry.findAll({
+      where: {
+        serverProjectID: serverProjectID,
+      },
+    });
+    return timeEntries;
+  }
+
+  async getProjectByID(projectID: number) {
+    const project = await this.Project.findOne({
+      where: {
+        localID: projectID,
+      },
+    });
+    return project;
+  }
+
+  async getProjectByServerID(serverProjectID: number) {
+    const project = await this.Project.findOne({
+      where: {
+        serverID: serverProjectID,
+      },
+    });
+    return project;
+  }
+
+  async getTimeEntryByID(timeEntryID: number) {
+    const timeEntry = await this.TimeEntry.findOne({
+      where: {
+        localID: timeEntryID,
+      },
+    });
+    return timeEntry;
   }
 
   async dumpDatabase() {
@@ -131,7 +241,7 @@ class STLocalStorage {
       let response = await this.stApiInstance.post('/merge', dataToMerge);
       console.log(response);
       if (response.status === 200) {
-        this.LastMerged = new Date();
+        this.updateLastPushedTimestamp(new Date());
       }
     } catch (error) {
       console.error(error);
@@ -223,6 +333,17 @@ class STLocalStorage {
       console.log('Last merged timestamp updated successfully.');
     } catch (error) {
       console.error('Error updating last merged timestamp:', error);
+    }
+  }
+
+  async updateLastPushedTimestamp(timestamp: Date) {
+    try {
+      this.LastPushed = timestamp;
+      const filePath = path.join(app.getPath('userData'), 'last-pushed.txt');
+      await fs.writeFile(filePath, timestamp.toISOString());
+      console.log('Last pushed timestamp updated successfully.');
+    } catch (error) {
+      console.error('Error updating last pushed timestamp:', error);
     }
   }
 }
