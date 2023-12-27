@@ -75,6 +75,13 @@ class SmartTracker {
         this.stAuthInstance.logout();
         this.token = null;
         this.stApiInstance.token = '';
+        // TODO: clear last merged and last pushed from local storage
+        if ( this.autoUpdateTimeout ) {
+            clearTimeout(this.autoUpdateTimeout);
+        }
+        this.autoUpdateTimeout = null;
+        this.autoUpdate = false;
+        this.autoUpdateInterval = 1000 * 60 * 5; // 5 minutes
     }
 
     set autoUpdate(value: boolean) {
