@@ -66,7 +66,7 @@ const CH_CN Font12CN_Table[] =
 0xE0,0xE0,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00},
 };
 
-cFONT Font12CN = {
+const cFONT Font12CN = {
   Font12CN_Table,
   sizeof(Font12CN_Table)/sizeof(CH_CN),
   11,
