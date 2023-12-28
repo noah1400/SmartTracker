@@ -15,7 +15,7 @@ class SmartTracker {
     auto_update: boolean = false;
     auto_update_interval: number = 1000 * 60 * 5; // 5 minutes
     private autoUpdateTimeout: NodeJS.Timeout | null = null;
-    
+
     private static instance: SmartTracker;
 
     static getInstance() {
@@ -39,9 +39,15 @@ class SmartTracker {
         this.stAuthInstance.init();
     }
 
+    private async ping() {
+        let response = await this.stAuthInstance.ping()
+        return response.success;
+    }
+
     // connect to server:
     connect(username: string, password: string) {
         console.log("Connecting to server...");
+
         if (this.stAuthInstance.isLoggedin()) {
             this.token = this.stAuthInstance.TOKEN;
             if (this.token) {
@@ -76,7 +82,8 @@ class SmartTracker {
         this.token = null;
         this.stApiInstance.token = '';
         // TODO: clear last merged and last pushed from local storage
-        if ( this.autoUpdateTimeout ) {
+        //      delete all local data?!
+        if (this.autoUpdateTimeout) {
             clearTimeout(this.autoUpdateTimeout);
         }
         this.autoUpdateTimeout = null;
@@ -107,7 +114,7 @@ class SmartTracker {
         if (this.autoUpdateTimeout) {
             clearTimeout(this.autoUpdateTimeout);
         }
-    
+
         if (this.auto_update) {
             this.autoUpdateTimeout = setTimeout(() => {
                 console.log("auto update");
@@ -131,8 +138,12 @@ class SmartTracker {
 
     // update local database from server
     private async update() {
+        if (await this.ping() === false) {
+            console.error("Server not reachable, cannot update");
+            return;
+        }
         if (!this.stAuthInstance.isLoggedin()) {
-            // console.error("Not logged in, cannot update");
+            console.error("Not logged in, cannot update");
             return;
         }
         await this.localStorage.fetchUpdatesFromServer(this.localStorage.LastMerged)
@@ -145,7 +156,37 @@ class SmartTracker {
         await this.localStorage.syncWithServer();
     }
 
+    get currentUser() {
+        return this.stAuthInstance.user;
+    }
 
+    get projects() {
+        return this.localStorage.getProjects();
+    }
+
+    get timeEntries() {
+        return this.localStorage.getTimeEntries();
+    }
+
+    getProject(id: number) {
+        return this.localStorage.getProjectByID(id);
+    }
+
+    getTimeEntry(id: number) {
+        return this.localStorage.getTimeEntryByID(id);
+    }
+
+    getTimeEntriesByProject(projectId: number) {
+        return this.localStorage.getProjectTimeEntries(projectId);
+    }
+
+    addProject(name: string, description: string) {
+        return this.localStorage.addProject(name, description);
+    }
+
+    addTimeEntry(projectId: number, description: string, startTime: Date, endTime: Date) {
+        return this.localStorage.addTimeEntry(startTime, endTime, description, projectId);
+    }
 
 }
 
