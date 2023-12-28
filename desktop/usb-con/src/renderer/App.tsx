@@ -1,11 +1,10 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import Timer from './Timer';
 import ProjectBar from './ProjectBar';
-import './Menu.css'
+import './Menu.css';
 import './App.css';
 import { Project } from './types';
 import ProjectOptions from './ProjectSettings';
-import { time } from 'console';
 
 export default function App() {
   const projects: Project[] = [
@@ -18,26 +17,22 @@ export default function App() {
   ];
 
   const [activeProject, setActiveProject] = useState<Project | null>(null);
-  const [timeRecords, setTimeRecords] = useState({}); 
-  
-  const handleTimerToggle = (time: {hours: any, minutes: any, seconds: any}) => {
-      if(activeProject){
-        //setTimeRecords({...timeRecords, [activeProject.id]: time}); 
-        console.log('time: ', time, 'spend on project: ', activeProject); 
-      }
-  }; 
+  const [timeRecords, setTimeRecords] = useState({});
 
- 
+  const handleTimerToggle = (time: any) => {
+    if (activeProject) {
+      //setTimeRecords({...timeRecords, [activeProject.id]: time});
+      console.log('time: ', time, 'spend on project: ', activeProject.name);
+    }
+  };
 
   return (
-
-    <div className='App'>
+    <div className="App">
       <ProjectBar projects={projects} setActiveProject={setActiveProject} />
-      <div className='Menu'>
-        <Timer onTimeToggle={handleTimerToggle}/>
+      <div className="Menu">
+        <Timer onTimeToggle={handleTimerToggle} activeProject={activeProject} />
         <ProjectOptions activeProject={activeProject} />
       </div>
-      
     </div>
   );
 }
