@@ -5,6 +5,7 @@ import './Menu.css'
 import './App.css';
 import { Project } from './types';
 import ProjectOptions from './ProjectSettings';
+import { time } from 'console';
 
 export default function App() {
   const projects: Project[] = [
@@ -17,14 +18,23 @@ export default function App() {
   ];
 
   const [activeProject, setActiveProject] = useState<Project | null>(null);
+  const [timeRecords, setTimeRecords] = useState({}); 
+  
+  const handleTimerToggle = (time: {hours: any, minutes: any, seconds: any}) => {
+      if(activeProject){
+        //setTimeRecords({...timeRecords, [activeProject.id]: time}); 
+        console.log('time: ', time, 'spend on project: ', activeProject); 
+      }
+  }; 
 
+ 
 
   return (
 
     <div className='App'>
       <ProjectBar projects={projects} setActiveProject={setActiveProject} />
       <div className='Menu'>
-        <Timer />
+        <Timer onTimeToggle={handleTimerToggle}/>
         <ProjectOptions activeProject={activeProject} />
       </div>
       
