@@ -3,6 +3,16 @@ const fs = require('fs');
 const jose = require('jose');
 
 class STAuth {
+    BASE_URL: string;
+    PING_URL: string;
+    PROTECTED_PING_URL: string;
+    LOGIN_URL: string;
+    AUTH_FILE_PATH: string;
+    loginTypes: { OAUTH: string; INTERNAL: string; };
+    AUTH_TYPE: null;
+    TOKEN: null;
+    LOGIN_DATA: null;
+    user: { id: null; username: null; };
     constructor(baseurl = 'http://127.0.0.1:8000') {
         this.BASE_URL = baseurl;
         this.PING_URL = `${this.BASE_URL}/ping`;
@@ -40,6 +50,9 @@ class STAuth {
             if (this.isEncryptionAvailable()) {
                 dataString = this.decryptData(fileData);
             }
+            if (!dataString) {
+                dataString = fileData.toString();
+            }
             dataString = Buffer.from(dataString, 'base64').toString();
             const data = JSON.parse(dataString);
             this.assignAuthData(data);
@@ -49,7 +62,7 @@ class STAuth {
         }
     }
 
-    assignAuthData(data) {
+    assignAuthData(data: { authType: null; token: null; loginData: null; }) {
         if (data.authType && data.token && data.loginData) {
             this.AUTH_TYPE = data.authType;
             this.TOKEN = data.token;
@@ -63,12 +76,12 @@ class STAuth {
         return safeStorage.isEncryptionAvailable();
     }
 
-    prepareAuthDataForStorage(authType, token, loginData) {
+    prepareAuthDataForStorage(authType: any, token: any, loginData: any) {
         const data = { authType, token, loginData };
         return Buffer.from(JSON.stringify(data)).toString('base64');
     }
 
-    saveToDisk(filePath, data) {
+    saveToDisk(filePath: string, data: string | Buffer) {
         try {
             fs.writeFileSync(filePath, data);
         } catch (error) {
@@ -76,13 +89,13 @@ class STAuth {
         }
     }
 
-    saveAuthData(authType, token, loginData) {
+    saveAuthData(authType: null, token: null, loginData: null) {
         const base64String = this.prepareAuthDataForStorage(authType, token, loginData);
         const encryptedData = this.isEncryptionAvailable() ? safeStorage.encryptString(base64String) : base64String;
         this.saveToDisk(this.AUTH_FILE_PATH, encryptedData);
     }
 
-    readFromDisk(filePath) {
+    readFromDisk(filePath: string) {
         try {
             return fs.existsSync(filePath) ? fs.readFileSync(filePath) : null;
         } catch (error) {
@@ -91,7 +104,7 @@ class STAuth {
         }
     }
 
-    decryptData(fileData) {
+    decryptData(fileData: Buffer) {
         try {
             return safeStorage.decryptString(fileData);
         } catch (error) {
@@ -105,7 +118,7 @@ class STAuth {
             const response = await fetch(this.PING_URL);
             const data = await response.json();
             return { success: data === 'pong', error: data === 'pong' ? null : "Unexpected response" };
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
             return { success: false, error: error.message };
         }
@@ -123,13 +136,13 @@ class STAuth {
             });
             const data = await response.json();
             return { success: data === 'protected pong', error: data === 'protected pong' ? null : "Unexpected response" };
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
             return { success: false, error: error.message };
         }
     }
 
-    async login(username, password) {
+    async login(username: any, password: any) {
         const isSameUser = this.isSameUser(username);
         if (!isSameUser && isSameUser !== null) {
             this.logout();
@@ -137,9 +150,11 @@ class STAuth {
         if (this.isLoggedin()) {
             const pingResponse = await this.protectedPing();
             if (pingResponse.success) {
-                this.user = this.LOGIN_DATA.id || null;
+                // @ts-ignore
+                this.user.id = this.LOGIN_DATA.id || null; 
+                // @ts-ignore
                 this.user.username = this.LOGIN_DATA.username || null;
-                return { success: true, error: "Already logged in" };
+                return { success: true, error: "Already logged in", data: this.LOGIN_DATA };
             }
         } else {
             this.clearAuthData();
@@ -149,7 +164,7 @@ class STAuth {
         return await this.handleLoginResponse(response);
     }
 
-    async makeLoginRequest(username, password) {
+    async makeLoginRequest(username: any, password: any) {
         try {
             return await fetch(this.LOGIN_URL, {
                 method: 'POST',
@@ -162,7 +177,7 @@ class STAuth {
         }
     }
 
-    async handleLoginResponse(response) {
+    async handleLoginResponse(response: Response | null) {
         if (!response) {
             return { success: false, error: "Login request failed", data: null };
         }
@@ -182,9 +197,14 @@ class STAuth {
         return { success: true, error: null, data };
     }
 
-    processLoginSuccess(data) {
+    processLoginSuccess(data: { token: null; } | null) {
+        if (!data) {
+            return;
+        }
         this.TOKEN = data.token;
+        // @ts-ignore
         this.AUTH_TYPE = this.loginTypes.INTERNAL;
+        // @ts-ignore
         this.LOGIN_DATA = data;
         this.saveAuthData(this.AUTH_TYPE, this.TOKEN, this.LOGIN_DATA);
     }
@@ -229,7 +249,7 @@ class STAuth {
         return claims.exp < now;
     }
 
-    isSameUser(username) {
+    isSameUser(username: any) {
         const claims = this.getTokenClaims();
         return claims && claims.sub === username;
     }
@@ -239,4 +259,4 @@ class STAuth {
     }
 }
 
-module.exports = { STAuth };
+export { STAuth }

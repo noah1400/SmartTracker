@@ -4,14 +4,24 @@ class STApi {
     BASE_URL = 'http://127.0.0.1:8000'
     QL_URL = this.BASE_URL + '/graphql'
 
-    _TOKEN = null
+    _TOKEN: string | null = null
+    config: {
+        baseurl: string; glURL: string //127.0.0.1:8000'
+            
+    }
 
-    set token(token) {
+    set token(token: string) {
         this._TOKEN = token
     }
 
-    constructor(baseurl = this.BASE_URL,
-        glURL = this.QL_URL) {
+    constructor(baseurl = '',
+        glURL = '') {
+        if (baseurl === null || baseurl === undefined || baseurl === '') {
+            baseurl = this.BASE_URL;
+        }
+        if (glURL === null || glURL === undefined || glURL === '') {
+            glURL = this.QL_URL;
+        }
         this.config = {
             baseurl: baseurl,
             glURL: glURL
@@ -215,8 +225,8 @@ class STApi {
         `;
     }
 
-    configureFetchOptions(query, variables) {
-        if (this._TOKEN === null || this._TOKEN === undefined) {
+    configureFetchOptions(query: string, variables: any) {
+        if (this._TOKEN === null || this._TOKEN === undefined || this._TOKEN === '') {
             throw new Error("No token set");
         }
         return {
@@ -229,7 +239,7 @@ class STApi {
         };
     }
 
-    configureFetchOptionsForPost(data) {
+    configureFetchOptionsForPost(data: any) {
         if (this._TOKEN === null || this._TOKEN === undefined) {
             throw new Error("No token set");
         }
@@ -243,7 +253,7 @@ class STApi {
         };
     }
 
-    getFetchURLForGet(data) {
+    getFetchURLForGet(data: any) {
         // resturn params part of url
         // using key=value&key=value of data
         let params = "";
@@ -263,7 +273,7 @@ class STApi {
         };
     }
 
-    async executeQuery(query, variables) {
+    async executeQuery(query: any, variables: any) {
         const fetchOptions = this.configureFetchOptions(query, variables);
 
         try {
@@ -286,13 +296,13 @@ class STApi {
         return await this.executeQuery(query, null)
     }
 
-    async getUser(userId, withTimeEntries = false) {
+    async getUser(userId: any, withTimeEntries = false) {
         const query = this.constructUserQuery(withTimeEntries);
         const variables = { userId };
         return await this.executeQuery(query, variables)
     }
 
-    async getTimeEntryForUser(userId) {
+    async getTimeEntryForUser(userId: any) {
         const query = this.constructUserTimeEntryQuery();
         const variables = { userId };
         return await this.executeQuery(query, variables)
@@ -300,61 +310,61 @@ class STApi {
 
     // post data to server
 
-    async createUser(username, email, password, service, role = 'user') {
+    async createUser(username: any, email: any, password: any, service: any, role = 'user') {
         const mutation = this.constructCreateUserMutation();
         const variables = { username, email, password, service, role };
         return await this.executeQuery(mutation, variables);
     }
 
-    async deleteUser(userId) {
+    async deleteUser(userId: any) {
         const mutation = this.constructDeleteUserMutation();
         const variables = { userId };
         return await this.executeQuery(mutation, variables);
     }
 
-    async updateUser(userId, username, email, service, role) {
+    async updateUser(userId: any, username: any, email: any, service: any, role: any) {
         const mutation = this.constructUpdateUserMutation();
         const variables = { userId, username, email, service, role };
         return await this.executeQuery(mutation, variables);
     }
 
-    async createProject(name, description) {
+    async createProject(name: any, description: any) {
         const mutation = this.constructCreateProjectMutation();
         const variables = { name, description };
         return await this.executeQuery(mutation, variables);
     }
 
-    async updateProject(projectId, name, description) {
+    async updateProject(projectId: any, name: any, description: any) {
         const mutation = this.constructUpdateProjectMutation();
         const variables = { projectId, name, description };
         return await this.executeQuery(mutation, variables);
     }
 
-    async deleteProject(projectId) {
+    async deleteProject(projectId: any) {
         const mutation = this.constructDeleteProjectMutation();
         const variables = { projectId };
         return await this.executeQuery(mutation, variables);
     }
 
-    async createTimeEntry(description, startTime, endTime, userId, projectId) {
+    async createTimeEntry(description: any, startTime: any, endTime: any, userId: any, projectId: any) {
         const mutation = this.constructCreateTimeEntryMutation();
         const variables = { description, startTime, endTime, userId, projectId };
         return await this.executeQuery(mutation, variables);
     }
 
-    async updateTimeEntry(timeEntryId, description, startTime, endTime, userId, projectId) {
+    async updateTimeEntry(timeEntryId: any, description: any, startTime: any, endTime: any, userId: any, projectId: any) {
         const mutation = this.constructUpdateTimeEntryMutation();
         const variables = { timeEntryId, description, startTime, endTime, userId, projectId };
         return await this.executeQuery(mutation, variables);
     }
 
-    async deleteTimeEntry(timeEntryId) {
+    async deleteTimeEntry(timeEntryId: any) {
         const mutation = this.constructDeleteTimeEntryMutation();
         const variables = { timeEntryId };
         return await this.executeQuery(mutation, variables);
     }
 
-    async post(endpoint, data) {
+    async post(endpoint: any, data: any) {
         let fetchOptions = this.configureFetchOptionsForPost(data);
 
         try {
@@ -370,7 +380,7 @@ class STApi {
         }
     }
 
-    async get(endpoint, data) {
+    async get(endpoint: any, data: any) {
         console.log("get data: ", data);
         let fetchOptions = this.getFetchURLForGet(data);
 
@@ -389,4 +399,4 @@ class STApi {
 
 }
 
-module.exports = { STApi }
+export { STApi }
