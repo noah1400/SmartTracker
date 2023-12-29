@@ -28,19 +28,20 @@ export default function ProjectOptions({
   activeProject,
 }: Readonly<ProjectOptionsProps>) {
   return (
-    <Box sx={{ height: 320, transform: 'translateZ(0px)', flexGrow: 1 }}>
+    <Box sx={{ height: 70, transform: 'translateZ(0px)', flexGrow: 1 }}>
       <SpeedDial
         ariaLabel="Edit Project"
+        direction='up'
         sx={{
           position: 'absolute',
           bottom: 16,
-          right: 16,
+          left: 16,
           '& .MuiFab-root': {
             backgroundColor: 'white',
           },
           '& .MuiFab-root:hover': {
             backgroundColor: activeProject
-              ? `${activeProject.color}70`
+              ? `${activeProject.color}`
               : 'defaultColor',
           },
         }}

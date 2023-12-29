@@ -1,10 +1,10 @@
 .timer-container {
   text-align: center;
-  padding: 20px;
-  font-family: 'Arial Rounded MT Bold', sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 .timer-display {
   font-size: 2em;
   margin: 0;
+  color: white; 
 }

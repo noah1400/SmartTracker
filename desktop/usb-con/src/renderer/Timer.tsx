@@ -4,6 +4,7 @@ import { IconButton } from '@mui/material';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import PauseCircleIcon from '@mui/icons-material/PauseCircle';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
+import { act } from 'react-test-renderer';
 
 interface TimerProps {
   onTimeToggle: (time: {
@@ -18,6 +19,8 @@ const Timer: React.FC<TimerProps> = ({ onTimeToggle, activeProject }) => {
   const [isRunning, setIsRunning] = useState(false);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [totalElapsedSeconds, setTotalElapsedSeconds] = useState(0); //track total
+  const [lastActiveProj, setLastActiveProj] = useState(activeProject);
+  const [prevProj, setPrevProj] = useState(null);
 
   useEffect(() => {
     let intervalId: any;
@@ -35,16 +38,19 @@ const Timer: React.FC<TimerProps> = ({ onTimeToggle, activeProject }) => {
     return () => clearInterval(intervalId);
   }, [isRunning, activeProject, totalElapsedSeconds]);
 
-  const toggleTimer = () => {
-    if (isRunning) {
-      // Timer is running and will be stopped
-      setStartTime(null);
-      onTimeToggle(time);
-    } else {
-      // Timer is stopped and will be started
-      if (startTime === null) {
-        setStartTime(new Date().getTime());
+  useEffect(() => {
+    if (activeProject !== lastActiveProj) {
+      if (totalElapsedSeconds > 0) {
+        onTimeToggle(time);
       }
+      resetTimer();
+      setLastActiveProj(activeProject);
+    }
+  }, [activeProject]);
+
+  const toggleTimer = () => {
+    if (!isRunning) {
+      setLastActiveProj(activeProject);
     }
     setIsRunning(!isRunning);
   };
@@ -52,6 +58,7 @@ const Timer: React.FC<TimerProps> = ({ onTimeToggle, activeProject }) => {
   const resetTimer = () => {
     onTimeToggle(time);
     setTime({ hours: 0, minutes: 0, seconds: 0 });
+    setTotalElapsedSeconds(0);
     setIsRunning(false);
     setStartTime(null);
     console.log('reset done');
@@ -68,14 +75,32 @@ const Timer: React.FC<TimerProps> = ({ onTimeToggle, activeProject }) => {
     )} : ${String(seconds).padStart(2, '0')}`;
   };
 
+  const iconButtonStyle = {
+    color: activeProject ? activeProject.color : 'white',
+  };
+  const isButtonDisabled = !activeProject;
+  const disabledButtonStyle = isButtonDisabled ? { color: 'grey', cursor: 'no active project' } : {};
+
   return (
     <div className="timer-container">
       <p className="timer-display">{formatTime(time)}</p>
-      <IconButton onClick={toggleTimer} size="large">
-        {isRunning ? <PauseCircleIcon /> : <PlayCircleIcon />}
+      <IconButton
+        onClick={toggleTimer}
+        style={{ ...iconButtonStyle, ...disabledButtonStyle }}
+        disabled={!activeProject}
+      >
+        {isRunning ? (
+          <PauseCircleIcon fontSize="large" />
+        ) : (
+          <PlayCircleIcon fontSize="large" />
+        )}
       </IconButton>
-      <IconButton onClick={resetTimer}>
-        <StopCircleIcon />
+      <IconButton
+        onClick={resetTimer}
+        style={{...iconButtonStyle, ...disabledButtonStyle }}
+        disabled={!activeProject}
+      >
+        <StopCircleIcon fontSize="large" />
       </IconButton>
     </div>
   );
