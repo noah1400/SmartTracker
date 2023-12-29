@@ -1,6 +1,7 @@
 // preload.ts
 
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
+import { SmartTracker } from './SmartTracker/SmartTracker';
 
 export type Channels = 'ipc-example' | 'data' | 'serial-port-data';
 
@@ -27,7 +28,23 @@ const electronHandler = {
 ipcRenderer.on('data', (event, data) => {
   console.log('Received data in renderer process:', data);
 });
-
 contextBridge.exposeInMainWorld('electron', electronHandler);
 
+const stHandler = {
+  connect(username: string, password: string) {
+    ipcRenderer.invoke('connect', username, password);
+  },
+  disconnect() {
+    ipcRenderer.invoke('disconnect');
+  },
+  autoUpdate(autoUpdate: boolean) {
+    ipcRenderer.invoke('autoUpdate', autoUpdate);
+  },
+  autoUpdateInterval(autoUpdateInterval: number) {
+    ipcRenderer.invoke('autoUpdateInterval', autoUpdateInterval);
+  },
+}
+contextBridge.exposeInMainWorld('smarttracker', stHandler);
+
+export type SmartTrackerHandler = typeof stHandler;
 export type ElectronHandler = typeof electronHandler;

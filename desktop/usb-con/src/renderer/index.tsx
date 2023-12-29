@@ -4,6 +4,11 @@ import Timer from './Timer';
 
 const container = document.getElementById('root') as HTMLElement;
 const root = createRoot(container);
+const st = window.smarttracker
+st.connect('admin', 'admin');
+st.autoUpdate(true);
+st.autoUpdateInterval(1000);
+
 root.render(<App />);
 
 // calling IPC exposed from preload script
