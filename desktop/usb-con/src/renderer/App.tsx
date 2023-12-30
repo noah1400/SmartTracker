@@ -30,7 +30,7 @@ export default function App() {
     seconds: number;
   }) => {
     if (activeProject) {
-      console.log('time: ', time, 'spent on project: ', activeProject.name);
+      console.log('time: ', time, 'spent on project: ', activeProject.dataValues.name);
     }
   };
 

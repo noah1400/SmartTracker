@@ -119,7 +119,7 @@ const onReset = () => {
         onClose={() => setFormOpen(false)}
         onSubmit={handleNewProject}
         resetForm={resetForm}
-        onReset={() => setResetForm(false)}
+        onReset={onReset}
       />
     </Box>
   );
