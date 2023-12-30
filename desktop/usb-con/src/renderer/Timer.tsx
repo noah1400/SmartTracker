@@ -1,49 +1,97 @@
 import React, { useState, useEffect } from 'react';
+import { useStopwatch } from 'react-timer-hook';
 import './Timer.css';
+import { IconButton } from '@mui/material';
+import PlayCircleIcon from '@mui/icons-material/PlayCircle';
+import PauseCircleIcon from '@mui/icons-material/PauseCircle';
+import StopCircleIcon from '@mui/icons-material/StopCircle';
 
-const Timer = () => {
-  const [time, setTime] = useState({ hours: 0, minutes: 0, seconds: 0 });
+interface Project {
+  id: number;
+  name: string;
+  color: string;
+  totalTime: { hours: number; minutes: number; seconds: number };
+}
+
+interface TimeEntry {
+  projectId: string;
+  startTime: Date;
+  endTime: Date;
+}
+
+interface TimerProps {
+  activeProject: Project | null;
+  onTimeToggle: (time: {
+    hours: number;
+    minutes: number;
+    seconds: number;
+  }) => void;
+}
+
+const Timer: React.FC<TimerProps> = ({ activeProject, onTimeToggle }) => {
+  const { seconds, minutes, hours, isRunning, start, pause, reset } =
+    useStopwatch({ autoStart: false });
+  const [timeEntry, setTimeEntry] = useState<TimeEntry[]>(() => {
+    const savedLogs = localStorage.getItem('timeLogs');
+    return savedLogs ? JSON.parse(savedLogs) : [];
+  });
 
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      setTime((prevTime) => {
-        const newTime = {
-          hours: prevTime.hours,
-          minutes: prevTime.minutes,
-          seconds: prevTime.seconds + 1,
-        };
+    localStorage.setItem('timeEntryogs', JSON.stringify(timeEntry));
+  }, [timeEntry]);
 
-        // Update minutes and reset seconds when reaching 60 seconds
-        if (newTime.seconds === 60) {
-          newTime.minutes += 1;
-          newTime.seconds = 0;
-        }
+  useEffect(() => {
+    if (activeProject) {
+      resetStopwatch();
+    }
+  }, [activeProject]);
 
-        // Update hours and reset minutes when reaching 60 minutes
-        if (newTime.minutes === 60) {
-          newTime.hours += 1;
-          newTime.minutes = 0;
-        }
-
-        return newTime;
-      });
-    }, 1000);
-
-  
-    return()=>{
-      clearInterval(intervalId);
-    };
-
-  }, []); 
-
-  const formatTime = (timeObject:any) => {
-    const { hours, minutes, seconds } = timeObject;
-    return `${String(hours).padStart(2, '0')} : ${String(minutes).padStart(2, '0')} : ${String(seconds).padStart(2, '0')}`;
+  const toggleTimer = () => {
+    if (!isRunning) {
+      start();
+      //timeLogs.push({ projectId: activeProject ? activeProject.id : '', startTime: new Date(), endTime: new Date() });
+    } else {
+      pause();
+      onTimeToggle({ hours, minutes, seconds });
+    }
   };
+
+  const resetStopwatch = () => {
+    reset(new Date(0), false);
+  };
+
+  const formatTime = () =>
+    `${String(hours).padStart(2, '0')} : ${String(minutes).padStart(
+      2,
+      '0',
+    )} : ${String(seconds).padStart(2, '0')}`;
+
+  const iconButtonStyle = {
+    color: activeProject ? activeProject.color : 'white',
+  };
+  const isButtonDisabled = !activeProject;
 
   return (
     <div className="timer-container">
-      <p className="timer-display">{formatTime(time)}</p>
+      <p className="timer-display">{formatTime()}</p>
+      <IconButton
+        onClick={toggleTimer}
+        style={iconButtonStyle}
+        disabled={isButtonDisabled}
+      >
+        {isRunning ? (
+          <PauseCircleIcon fontSize="large" />
+        ) : (
+          <PlayCircleIcon fontSize="large" />
+        )}
+      </IconButton>
+      <IconButton
+        onClick={resetStopwatch}
+        style={iconButtonStyle}
+        disabled={isButtonDisabled}
+      >
+        <StopCircleIcon fontSize="large" />
+      </IconButton>
     </div>
   );
 };
