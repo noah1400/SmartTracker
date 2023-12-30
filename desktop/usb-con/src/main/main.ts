@@ -76,6 +76,14 @@ ipcMain.handle('autoUpdateInterval', async (event, autoUpdateInterval: number) =
   }
 });
 
+ipcMain.handle('getProjects', async () => {
+  return await ST.projects; 
+});
+
+ipcMain.handle('getTimeEntries', async () => {
+  return await ST.timeEntries;
+});
+
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
   console.log(msgTemplate(arg));

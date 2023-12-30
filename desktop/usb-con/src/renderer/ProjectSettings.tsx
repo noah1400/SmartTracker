@@ -6,6 +6,7 @@ import SpeedDialAction from '@mui/material/SpeedDialAction';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteForeverRoundedIcon from '@mui/icons-material/DeleteForeverRounded';
 import EditIcon from '@mui/icons-material/Edit';
+import InfoIcon from '@mui/icons-material/Info';
 import { useState } from 'react';
 import { Project } from './types';
 import { SpeedDialIcon } from '@mui/material';
@@ -13,6 +14,14 @@ import { SpeedDialIcon } from '@mui/material';
 interface ProjectOptionsProps {
   activeProject: Project | null;
 }
+const fetchProjects = async () => {
+  try {
+    const projects = await window.smarttracker.getProjects();
+    console.log(projects);
+  } catch (error) {
+    console.error('Failed to fetch projects:', error);
+  }
+};
 
 const handleEdit = () => {
   console.log('Edit');
@@ -31,7 +40,7 @@ export default function ProjectOptions({
     <Box sx={{ height: 70, transform: 'translateZ(0px)', flexGrow: 1 }}>
       <SpeedDial
         ariaLabel="Edit Project"
-        direction='up'
+        direction="up"
         sx={{
           position: 'absolute',
           bottom: 16,
@@ -85,6 +94,16 @@ export default function ProjectOptions({
           icon={<DeleteForeverRoundedIcon sx={{ color: '#282a2c' }} />}
           onClick={handleDelete}
           tooltipTitle="Delete"
+          sx={{
+            '& .MuiSvgIcon-root:hover': {
+              color: 'white',
+            },
+          }}
+        />
+         <SpeedDialAction
+          icon={<InfoIcon sx={{ color: '#282a2c' }} />}
+          onClick={fetchProjects}
+          tooltipTitle="Fetch Projects"
           sx={{
             '& .MuiSvgIcon-root:hover': {
               color: 'white',
