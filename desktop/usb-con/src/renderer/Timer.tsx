@@ -13,7 +13,7 @@ interface Project {
   totalTime: { hours: number; minutes: number; seconds: number };
 }
 
-interface TimeLog {
+interface TimeEntry {
   projectId: string;
   startTime: Date;
   endTime: Date;
@@ -21,20 +21,24 @@ interface TimeLog {
 
 interface TimerProps {
   activeProject: Project | null;
-  onTimeToggle: (time: { hours: number; minutes: number; seconds: number }) => void;
-
+  onTimeToggle: (time: {
+    hours: number;
+    minutes: number;
+    seconds: number;
+  }) => void;
 }
 
 const Timer: React.FC<TimerProps> = ({ activeProject, onTimeToggle }) => {
-  const { seconds, minutes, hours, isRunning, start, pause, reset } = useStopwatch({ autoStart: false });
-  const [timeLogs, setTimeLogs] = useState<TimeLog[]>(() => {
+  const { seconds, minutes, hours, isRunning, start, pause, reset } =
+    useStopwatch({ autoStart: false });
+  const [timeEntry, setTimeEntry] = useState<TimeEntry[]>(() => {
     const savedLogs = localStorage.getItem('timeLogs');
     return savedLogs ? JSON.parse(savedLogs) : [];
   });
 
   useEffect(() => {
-    localStorage.setItem('timeLogs', JSON.stringify(timeLogs));
-  }, [timeLogs]);
+    localStorage.setItem('timeEntryogs', JSON.stringify(timeEntry));
+  }, [timeEntry]);
 
   useEffect(() => {
     if (activeProject) {
@@ -56,7 +60,11 @@ const Timer: React.FC<TimerProps> = ({ activeProject, onTimeToggle }) => {
     reset(new Date(0), false);
   };
 
-  const formatTime = () => `${String(hours).padStart(2, '0')} : ${String(minutes).padStart(2, '0')} : ${String(seconds).padStart(2, '0')}`;
+  const formatTime = () =>
+    `${String(hours).padStart(2, '0')} : ${String(minutes).padStart(
+      2,
+      '0',
+    )} : ${String(seconds).padStart(2, '0')}`;
 
   const iconButtonStyle = {
     color: activeProject ? activeProject.color : 'white',
@@ -71,7 +79,11 @@ const Timer: React.FC<TimerProps> = ({ activeProject, onTimeToggle }) => {
         style={iconButtonStyle}
         disabled={isButtonDisabled}
       >
-        {isRunning ? <PauseCircleIcon fontSize="large" /> : <PlayCircleIcon fontSize="large" />}
+        {isRunning ? (
+          <PauseCircleIcon fontSize="large" />
+        ) : (
+          <PlayCircleIcon fontSize="large" />
+        )}
       </IconButton>
       <IconButton
         onClick={resetStopwatch}
