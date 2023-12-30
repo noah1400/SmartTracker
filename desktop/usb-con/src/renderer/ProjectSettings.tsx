@@ -10,32 +10,39 @@ import InfoIcon from '@mui/icons-material/Info';
 import { useState } from 'react';
 import { Project } from './types';
 import { SpeedDialIcon } from '@mui/material';
+import ProjectForm from './ProjectForm';
 
 interface ProjectOptionsProps {
   activeProject: Project | null;
 }
-const fetchProjects = async () => {
-  try {
-    const projects = await window.smarttracker.getProjects();
-    console.log(projects);
-  } catch (error) {
-    console.error('Failed to fetch projects:', error);
-  }
-};
-
-const handleEdit = () => {
-  console.log('Edit');
-};
-const handleNewProject = () => {
-  console.log('New Project');
-};
-const handleDelete = () => {
-  console.log('Delete');
-};
 
 export default function ProjectOptions({
   activeProject,
 }: Readonly<ProjectOptionsProps>) {
+  const [formOpen, setFormOpen] = useState(false);
+  const handleOpenForm = () => {
+    setFormOpen(true);
+  };
+
+  const handleEdit = () => {
+    console.log('Edit');
+  };
+  const handleNewProject = async (name: string, description: string) => {
+    try {
+      const response = await window.smarttracker.addProject(name, description);
+      if (response.success) {
+        console.log('Project added');
+      } else {
+        console.log('Failed to add project', response.error);
+      }
+    } catch (error) {
+      console.error('Error adding project:', error);
+    }
+  };
+
+  const handleDelete = () => {
+    console.log('Delete');
+  };
   return (
     <Box sx={{ height: 70, transform: 'translateZ(0px)', flexGrow: 1 }}>
       <SpeedDial
@@ -82,7 +89,7 @@ export default function ProjectOptions({
         />
         <SpeedDialAction
           icon={<AddIcon sx={{ color: '#282a2c' }} />}
-          onClick={handleNewProject}
+          onClick={handleOpenForm}
           tooltipTitle="New"
           sx={{
             '& .MuiSvgIcon-root:hover': {
@@ -100,17 +107,12 @@ export default function ProjectOptions({
             },
           }}
         />
-         <SpeedDialAction
-          icon={<InfoIcon sx={{ color: '#282a2c' }} />}
-          onClick={fetchProjects}
-          tooltipTitle="Fetch Projects"
-          sx={{
-            '& .MuiSvgIcon-root:hover': {
-              color: 'white',
-            },
-          }}
-        />
       </SpeedDial>
+      <ProjectForm
+        open={formOpen}
+        onClose={() => setFormOpen(false)}
+        onSubmit={handleNewProject}
+      />
     </Box>
   );
 }

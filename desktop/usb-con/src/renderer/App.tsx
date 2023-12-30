@@ -18,7 +18,6 @@ export default function App() {
   ]);
 
   const [activeProject, setActiveProject] = useState<Project | null>(null);
-  const [timeRecords, setTimeRecords] = useState({});
 
   const handleTimerToggle = (time: { hours: number; minutes: number; seconds: number }) => {
     if (activeProject) {

@@ -49,6 +49,9 @@ const stHandler = {
   getTimeEntries: async () => {
     return ipcRenderer.invoke('getTimeEntries');
   },
+  addProject: async (name: string, description: string) => {
+    return ipcRenderer.invoke('addProject', name, description);
+  },
 };
 contextBridge.exposeInMainWorld('smarttracker', stHandler);
 
