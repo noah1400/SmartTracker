@@ -45,20 +45,13 @@ void GPIO_Init()
 
  void Config_Init()
  {
-
   GPIO_Init();
-  
-  //spi
+  Serial.begin(115200)
   SPI.setDataMode(SPI_MODE3);
   SPI.setBitOrder(1);
   SPI.setClockDivider(SPI_CLOCK_DIV2);
-  //MISO can be switch with  TPSCL (12/22)
-  //MOSI can be switch with  TP_INT (13/23)
-   SPI.begin(33, 22, 14, 23);
-
-  //i2c
-  Wire.begin(21,12);
-
+  SPI.begin();
+  Wire.begin();
   }
 
 UBYTE DEV_I2C_Read_Byte(UBYTE DevAddr, UBYTE RegAddr)
@@ -80,7 +73,6 @@ void DEV_I2C_Read_nByte(UBYTE DevAddr,UBYTE Cmd, UBYTE *data, UBYTE num)
 
 	Wire.beginTransmission(DevAddr);
 	Wire.write(Cmd);
-	// Wire.endTransmission();
 	Wire.requestFrom(DevAddr, num);
 
 	UBYTE i = 0;
