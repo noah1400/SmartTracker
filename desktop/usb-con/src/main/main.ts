@@ -29,6 +29,53 @@ class AppUpdater {
 
 let mainWindow: BrowserWindow | null = null;
 
+// SmartTracker API
+
+// connect(string, string)
+// disconnect()
+// ST.autoUpdate = true;
+// ST.autoUpdateInterval = 1000;
+ipcMain.handle('connect', async (event, username, password) => {
+  console.log('Connecting to server...');
+  try {
+    await ST.connect(username, password);
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+});
+ipcMain.handle('disconnect', async (event) => {
+  console.log('Disconnecting from server...');
+  try {
+    await ST.disconnect();
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+});
+ipcMain.handle('autoUpdate', async (event, autoUpdate: boolean) => {
+  console.log('Setting autoUpdate to:', autoUpdate);
+  try {
+    ST.autoUpdate = autoUpdate;
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+});
+ipcMain.handle('autoUpdateInterval', async (event, autoUpdateInterval: number) => {
+  console.log('Setting autoUpdateInterval to:', autoUpdateInterval);
+  try {
+    ST.autoUpdateInterval = autoUpdateInterval;
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+});
+
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
   console.log(msgTemplate(arg));
@@ -177,9 +224,9 @@ app
     //     console.log(err);
     //   });
     
-    ST.connect('admin', 'admin');
-    ST.autoUpdate = true;
-    ST.autoUpdateInterval = 1000;
+    // ST.connect('admin', 'admin');
+    // ST.autoUpdate = true;
+    // ST.autoUpdateInterval = 1000;
 
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
