@@ -19,11 +19,16 @@ interface ProjectOptionsProps {
 export default function ProjectOptions({
   activeProject,
 }: Readonly<ProjectOptionsProps>) {
+
   const [formOpen, setFormOpen] = useState(false);
+  const [resetForm, setResetForm] = useState(false);
+
   const handleOpenForm = () => {
     setFormOpen(true);
   };
-
+const onReset = () => {
+  setResetForm(false);
+}; 
   const handleEdit = () => {
     console.log('Edit');
   };
@@ -32,6 +37,7 @@ export default function ProjectOptions({
       const response = await window.smarttracker.addProject(name, description);
       if (response.success) {
         console.log('Project added');
+        setResetForm(true);
       } else {
         console.log('Failed to add project', response.error);
       }
@@ -112,6 +118,8 @@ export default function ProjectOptions({
         open={formOpen}
         onClose={() => setFormOpen(false)}
         onSubmit={handleNewProject}
+        resetForm={resetForm}
+        onReset={() => setResetForm(false)}
       />
     </Box>
   );

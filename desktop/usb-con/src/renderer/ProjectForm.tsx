@@ -1,8 +1,13 @@
 // ProjectForm.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button } from '@mui/material';
 
-function ProjectForm({ open, onClose, onSubmit }: { open: boolean, onClose: () => void, onSubmit: (name: string, description: string) => void }) {
+function ProjectForm({ open, onClose, onSubmit, resetForm, onReset }: 
+  { open: boolean, onClose: () => void, 
+    onSubmit: (name: string, description: string) => void,
+    resetForm: boolean, 
+    onReset: () => void  }) {
+
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
 
@@ -10,10 +15,17 @@ function ProjectForm({ open, onClose, onSubmit }: { open: boolean, onClose: () =
     onSubmit(name, description);
     onClose();
   };
+  useEffect(() => {
+    if (resetForm) {
+      setName('');
+      setDescription('');
+      onReset();
+    }
+  }, [resetForm, onReset]);
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Add New Project</DialogTitle>
+      <DialogTitle>Create a new project </DialogTitle>
       <DialogContent>
         <TextField
           autoFocus
