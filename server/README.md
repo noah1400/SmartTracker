@@ -6,8 +6,6 @@
 
 The database comprises four main tables:
 
-Test workflow
-
 1. **Users**: Stores user information and credentials.
 2. **Projects**: Stores data related to projects on which users are working.
 3. **Time Entries**: Logs individual user's time entries for various projects.
