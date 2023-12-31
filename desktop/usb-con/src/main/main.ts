@@ -88,6 +88,16 @@ dev.on('data', (data) => {
   console.log('Received data from serial port:', receivedData);
   mainWindow?.webContents.send('serial-port-data', receivedData);
 });
+function sendDataOverSerial(data) {
+  dev.write(data + '\n', (err) => {
+    if (err) {
+      console.error('Error writing to serial port:', err);
+    } else {
+      console.log('Data sent to serial port:', data);
+    }
+  });
+}
+sendDataOverSerial('rgb(20,20,20)');
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
