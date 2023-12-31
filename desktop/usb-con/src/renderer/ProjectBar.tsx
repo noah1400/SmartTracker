@@ -5,17 +5,12 @@ import { Project } from './types';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
+const { hexToRgb } = require('./helper');
 
 interface ProjectBarProps {
   projects: Project[];
   setActiveProject: React.Dispatch<React.SetStateAction<Project | null>>;
 }
-
-//window.electron.ipcRenderer.on('serial-port-data', (arg) => {
-//  console.log("testWelt");
-//  console.log(arg);
-
-//});
 
 const ProjectBar: React.FC<ProjectBarProps> = ({
   projects,
@@ -45,6 +40,9 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
     }
 
     if (newActiveProjectIndex !== undefined) {
+      const hexColor = projects[newActiveProjectIndex].color;
+      const rgbColor = hexToRgb(hexColor,0.25);
+      window.electron.ipcRenderer.sendMessage('send-to-device', `rgb(${rgbColor.r},${rgbColor.g},${rgbColor.b})`);
       setActiveProjectIndex(newActiveProjectIndex);
       setActiveProject(projects[newActiveProjectIndex]);
     }

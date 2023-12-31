@@ -99,6 +99,11 @@ function sendDataOverSerial(data) {
 }
 sendDataOverSerial('rgb(20,20,20)');
 
+ipcMain.on('send-to-device', (event, data) => {
+  console.log("send to device");
+  sendDataOverSerial(data);
+});
+
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
   sourceMapSupport.install();
