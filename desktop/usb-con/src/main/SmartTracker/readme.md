@@ -19,8 +19,6 @@ This method establishes a connection to the server using the provided credential
 ST.connect('admin', 'admin');
 ```
 
-check workflow
-
 
 ### SmartTracker.disconnect()
 
