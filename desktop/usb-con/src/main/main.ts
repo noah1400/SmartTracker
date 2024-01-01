@@ -82,6 +82,18 @@ ipcMain.on('ipc-example', async (event, arg) => {
   event.reply('ipc-example', msgTemplate('pong'));
 });
 
+
+
+SerialPort.list().then((ports) => {
+  console.log('available devices:');
+  ports.forEach((port) => {
+    console.log(`- ${port.path}`);
+  });
+}).catch((err) => {
+  console.error('error during handling com devices:', err);
+});
+
+
 const dev = new SerialPort({ path: 'COM3', baudRate: 9600 });
 dev.on('data', (data) => {
   const receivedData = data.toString();
