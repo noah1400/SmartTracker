@@ -85,6 +85,23 @@ ipcMain.on('ipc-example', async (event, arg) => {
 });
 
 
+function sendDataOverSerial(data) {
+  dev.write(data + '\n', (err) => {
+    if (err) {
+      console.error('Error writing to serial port:', err);
+    } else {
+      console.log('Data sent to serial port:', data);
+    }
+  });
+}
+
+sendDataOverSerial('rgb(20,20,20)');
+
+ipcMain.on('send-to-device', (event, data) => {
+  sendDataOverSerial(data);
+});
+
+
 updateAndConnect()
 setInterval(() => updateAndConnect(), 5000);
 
