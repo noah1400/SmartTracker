@@ -82,12 +82,6 @@ ipcMain.on('ipc-example', async (event, arg) => {
   event.reply('ipc-example', msgTemplate('pong'));
 });
 
-const dev = new SerialPort({ path: 'COM3', baudRate: 9600 });
-dev.on('data', (data) => {
-  const receivedData = data.toString();
-  console.log('Received data from serial port:', receivedData);
-  mainWindow?.webContents.send('serial-port-data', receivedData);
-});
 function sendDataOverSerial(data) {
   dev.write(data + '\n', (err) => {
     if (err) {
