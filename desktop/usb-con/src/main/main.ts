@@ -83,22 +83,32 @@ ipcMain.on('ipc-example', async (event, arg) => {
 });
 
 
+function findPortByManufacturer(ports, targetManufacturer) {
+  return ports.find(port => port.manufacturer === targetManufacturer);
+}
 
 SerialPort.list().then((ports) => {
   console.log('available devices:');
   ports.forEach((port) => {
-    console.log(`- ${port.path}`);
+    console.log(port.manufacturer);
   });
+  const targetManufacturer = 'wch.cn';
+  const selectedPort = findPortByManufacturer(ports, targetManufacturer);
+
+  if (selectedPort) {
+    console.log(`connect with ${selectedPort.path}`);
+    const dev = new SerialPort({ path: selectedPort.path, baudRate: 9600 });
+
+    dev.on('data', (data) => {
+      const receivedData = data.toString();
+      console.log('received data from serial port:', receivedData);
+      mainWindow?.webContents.send('serial-port-data', receivedData);
+    });
+  } else {
+    console.log(`Can not find COM-Port with ${targetManufacturer} `);
+  }
 }).catch((err) => {
-  console.error('error during handling com devices:', err);
-});
-
-
-const dev = new SerialPort({ path: 'COM3', baudRate: 9600 });
-dev.on('data', (data) => {
-  const receivedData = data.toString();
-  console.log('Received data from serial port:', receivedData);
-  mainWindow?.webContents.send('serial-port-data', receivedData);
+  console.error('error during connection:', err);
 });
 
 if (process.env.NODE_ENV === 'production') {
