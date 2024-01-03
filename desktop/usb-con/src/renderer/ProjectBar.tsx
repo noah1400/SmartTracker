@@ -21,7 +21,7 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
   );
   
   const [tabColor, setTabColor] = useState<string[]>([]);
-
+  // Using PRNG for random color generation as this is not a security-sensitive context
   const randomColor = () => {
     return '#' + ('000000' + Math.floor(Math.random() * 16777215).toString(16)).slice(-6);
   };
