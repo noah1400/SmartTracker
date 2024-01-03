@@ -52,7 +52,11 @@ const stHandler = {
   addProject: async (name: string, description: string) => {
     return ipcRenderer.invoke('addProject', name, description);
   },
+  addTimeEntry: (startTime: Date, endTime: Date, description: string, projectId: number) => {
+    return ipcRenderer.invoke('add-time-entry', startTime, endTime, description, projectId)
+  }, 
 };
+
 contextBridge.exposeInMainWorld('smarttracker', stHandler);
 
 export type SmartTrackerHandler = typeof stHandler;

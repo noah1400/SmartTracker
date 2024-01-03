@@ -8,62 +8,100 @@ import StopCircleIcon from '@mui/icons-material/StopCircle';
 import { Project } from './types';
 
 interface TimeEntry {
-  projectId: string;
+  localId: number | null;
   startTime: Date;
   endTime: Date | null;
+  description: string;
+  projectId: number;
 }
 
 interface TimerProps {
   activeProject: Project | null;
-  activeColor: string; 
+  activeColor: string;
   activeLocalID: number | null;
-  onTimeToggle: (time: { hours: number; minutes: number; seconds: number; }) => void;
+  onTimeToggle: (time: {
+    hours: number;
+    minutes: number;
+    seconds: number;
+  }) => void;
 }
 
-const Timer: React.FC<TimerProps> = ({ activeProject, activeColor, activeLocalID, onTimeToggle }) => {
+const Timer: React.FC<TimerProps> = ({
+  activeProject,
+  activeColor,
+  activeLocalID,
+  onTimeToggle,
+}) => {
   const { seconds, minutes, hours, isRunning, start, pause, reset } =
     useStopwatch({ autoStart: false });
-    const [timeEntry, setTimeEntry] = useState<TimeEntry[]>([]);
-
-  useEffect(() => {
-    console.log(timeEntry);
-  }, [timeEntry]);  
+  const [timeEntry, setTimeEntry] = useState<TimeEntry[]>([]);
+  const [startTime, setStartTime] = useState<Date | null>(null);
+  const [description, setDescription] = useState('');
 
   useEffect(() => {
     if (activeProject) {
       resetStopwatch();
     }
   }, [activeProject]);
-  //test color: 
-  useEffect(() => {
-    console.log("Active Project Color:", activeColor); // Check the color value
-  }, [activeColor]);
 
   const toggleTimer = () => {
     if (!isRunning) {
+      const startTimestamp = new Date();
       start();
-      //timeLogs.push({ projectId: activeProject ? activeProject.id : '', startTime: new Date(), endTime: new Date() });
-      const newEntry: TimeEntry = {
-        projectId: activeProject ? activeProject.dataValues.localID.toString() : '',
-        startTime: new Date(),
-        endTime: null
-      };
-      setTimeEntry([...timeEntry, newEntry]);
-      console.log('timeEntry: ', timeEntry);
-
+      setStartTime(startTimestamp);
+      console.log('start: ', startTimestamp);
     } else {
       pause();
+      const endTime = new Date();
       onTimeToggle({ hours, minutes, seconds });
-      const updatedEntries = timeEntry.map((entry, index) => 
-        index === timeEntry.length - 1 ? { ...entry, endTime: new Date() } : entry
-      );
-      setTimeEntry(updatedEntries);
-      console.log('timeEntry: ', timeEntry);
+      if (startTime) {
+        addTimeEntry(
+          startTime,
+          endTime,
+          'Test description',
+          activeProject ? activeProject.dataValues.localID : -1,
+        );
+      }
+      setStartTime(null);
+      console.log('end: ', endTime);
     }
   };
 
+  const addTimeEntry = async (
+    startTime: Date,
+    endTime: Date,
+    description: string,
+    projectId: number,
+  ) => {
+    try {
+      const response = await window.smarttracker.addTimeEntry(
+        startTime,
+        endTime,
+        description,
+        projectId,
+      );
+      if (response.success) {
+        console.log('Time entry added');
+      } else {
+        console.log('Failed to add time entry', response.error);
+      }
+    } catch (error) {
+      console.error('Error adding time entry:', error);
+    }
+  };
   const resetStopwatch = () => {
+    if (startTime) {
+      const endTime = new Date();
+      addTimeEntry(
+        startTime,
+        endTime,
+        'Test description 2',
+        activeProject ? activeProject.dataValues.localID : -1,
+      );
+    }
     reset(new Date(0), false);
+    pause();
+    setStartTime(null);
   };
 
   const formatTime = () =>
@@ -73,7 +111,7 @@ const Timer: React.FC<TimerProps> = ({ activeProject, activeColor, activeLocalID
     )} : ${String(seconds).padStart(2, '0')}`;
 
   const iconButtonStyle = {
-    color: activeColor ,
+    color: activeColor,
   };
   const isButtonDisabled = !activeProject;
 
