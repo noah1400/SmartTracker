@@ -388,6 +388,7 @@ class STApi {
             const response = await fetch(this.BASE_URL + endpoint + "?" + fetchOptions.params, fetchOptions.options)
             const data = await response.json()
             if (data.errors) {
+                console.log("Error in response: ", data.errors[0].message);
                 throw new Error('Error in response: ', data.errors[0].message)
             }
             return data

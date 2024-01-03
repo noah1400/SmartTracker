@@ -146,6 +146,7 @@ class SmartTracker {
             console.error("Not logged in, cannot update");
             return;
         }
+        await this.localStorage.syncWithServer();
         await this.localStorage.fetchUpdatesFromServer(this.localStorage.LastMerged)
             .then(() => {
                 console.log("update done");
@@ -153,7 +154,6 @@ class SmartTracker {
             .catch((err) => {
                 console.log(err);
             });
-        await this.localStorage.syncWithServer();
     }
 
     get currentUser() {

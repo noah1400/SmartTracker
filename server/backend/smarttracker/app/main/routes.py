@@ -41,7 +41,7 @@ def merge_data(username):
         else:
             update_project(project, client_project)
 
-        client_time_entries = client_project['timeEntries']
+        client_time_entries = client_data['timeEntries']
         for client_entry in client_time_entries:
             time_entry = match_or_create_time_entry(project, client_entry)
             if not client_entry.get('serverID'):
@@ -65,22 +65,29 @@ def update_project(existing_project, project_data):
     existing_project.description = project_data['description']
     db.session.commit()
 
+def convert_iso_to_mysql_format(iso_string):
+    dt = datetime.fromisoformat(iso_string.replace('Z', '+00:00'))
+    return dt.strftime('%Y-%m-%d %H:%M:%S')
+
 def match_or_create_time_entry(project, time_entry_data):
     server_time_entry_id = time_entry_data.get('serverID')
     existing_time_entry = TimeEntry.query.filter_by(id=server_time_entry_id).first() if server_time_entry_id else None
 
+    st = convert_iso_to_mysql_format(time_entry_data['startTime'])
+    et = convert_iso_to_mysql_format(time_entry_data['endTime'])
+
     if not existing_time_entry:
         new_time_entry = TimeEntry(
             project_id=project.id,
-            start_time=time_entry_data['startTime'],
-            end_time=time_entry_data['endTime'],
+            start_time=st,
+            end_time=et,
             description=time_entry_data['description']
         )
         db.session.add(new_time_entry)
         return new_time_entry
     else:
-        existing_time_entry.start_time = time_entry_data['startTime']
-        existing_time_entry.end_time = time_entry_data['endTime']
+        existing_time_entry.start_time = st
+        existing_time_entry.end_time = et
         existing_time_entry.description = time_entry_data['description']
         return existing_time_entry
     
