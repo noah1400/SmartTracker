@@ -140,10 +140,12 @@ class SmartTracker {
     private async update() {
         if (await this.ping() === false) {
             console.error("Server not reachable, cannot update");
+            throw new Error("Server not reachable, cannot update");
             return;
         }
         if (!this.stAuthInstance.isLoggedin()) {
             console.error("Not logged in, cannot update");
+            throw new Error("Not logged in, cannot update");
             return;
         }
         await this.localStorage.fetchUpdatesFromServer(this.localStorage.LastMerged)
