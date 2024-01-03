@@ -125,6 +125,12 @@ class SmartTracker {
     }
 
     public async manualUpdate() {
+
+        if (!this.stAuthInstance.isLoggedin()) {
+            console.error("Not logged in, cannot update");
+            throw new Error("Not logged in, cannot update");
+        }
+
         // clear auto update timeout
         if (this.autoUpdateTimeout) {
             clearTimeout(this.autoUpdateTimeout);
