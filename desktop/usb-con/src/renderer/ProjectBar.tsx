@@ -15,15 +15,17 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
   projects,
   setActiveProject,
 }) => {
-
   const [activeProjectIndex, setActiveProjectIndex] = useState<number | null>(
     null,
   );
-  
+
   const [tabColor, setTabColor] = useState<string[]>([]);
   // Using PRNG for random color generation as this is not a security-sensitive context
   const randomColor = () => {
-    return '#' + ('000000' + Math.floor(Math.random() * 16777215).toString(16)).slice(-6);
+    return (
+      '#' +
+      ('000000' + Math.floor(Math.random() * 16777215).toString(16)).slice(-6)
+    );
   };
 
   useEffect(() => {
@@ -43,12 +45,9 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
     setActiveProjectIndex(newValue);
     setActiveProject(newActiveProject, newColor);
   };
-  
 
   const tabIndicatorColor =
-    activeProjectIndex !== null
-      ? tabColor[activeProjectIndex]
-      : 'defaultColor';
+    activeProjectIndex !== null ? tabColor[activeProjectIndex] : 'defaultColor';
 
   let counter = 0;
   let isListenerAdded = false;
@@ -66,8 +65,11 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
 
       if (newActiveProjectIndex !== undefined) {
         const hexColor = projects[newActiveProjectIndex].color;
-        const rgbColor = hexToRgb(hexColor,0.25);
-        window.electron.ipcRenderer.sendMessage('send-to-device', `rgb(${rgbColor.r},${rgbColor.g},${rgbColor.b})`);
+        const rgbColor = hexToRgb(hexColor, 0.25);
+        window.electron.ipcRenderer.sendMessage(
+          'send-to-device',
+          `rgb(${rgbColor.r},${rgbColor.g},${rgbColor.b})`,
+        );
         setActiveProjectIndex(newActiveProjectIndex);
         setActiveProject(projects[newActiveProjectIndex]);
       }
@@ -152,7 +154,10 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
             },
             width: '100%',
             '& .MuiTabs-indicator': {
-              backgroundColor: activeProjectIndex !== null ? `#${tabColor[activeProjectIndex]}` : 'defaultColor',
+              backgroundColor:
+                activeProjectIndex !== null
+                  ? `#${tabColor[activeProjectIndex]}`
+                  : 'defaultColor',
             },
           }}
         >
@@ -164,8 +169,8 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
                 transition: 'font-size 0.3s ease',
                 color: 'white',
                 borderRadius: '8px',
-                fontSize: activeProjectIndex === index ? '1.1rem' : '0.5rem',               
-                 '&.Mui-selected': {
+                fontSize: activeProjectIndex === index ? '1.1rem' : '0.5rem',
+                '&.Mui-selected': {
                   fontSize: '1.1rem',
                   color: 'white',
                 },

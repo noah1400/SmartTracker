@@ -29,7 +29,7 @@ export default function App() {
     fetchProjects();
   }, []);
 
-  const handleSetActiveProject = (project: any, color: any) => {
+  const handleSetActiveProject = (project: Project | null , color: string) => {
     setActiveProject(project);
     setActiveProjectColor(color || 'defaultColor');
   };
