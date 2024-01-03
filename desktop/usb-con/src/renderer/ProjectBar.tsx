@@ -5,6 +5,7 @@ import { Project } from './types';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
+const { hexToRgb } = require('./helper');
 
 interface ProjectBarProps {
   projects: Project[];

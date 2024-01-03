@@ -16,6 +16,8 @@ import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import { SerialPort } from 'serialport';
 import { SmartTracker } from './SmartTracker/SmartTracker';
+import { updateAndConnect} from './SmartTracker/serialdata/serialPortManager';
+
 const ST = SmartTracker.getInstance();
 
 
@@ -98,12 +100,26 @@ ipcMain.on('ipc-example', async (event, arg) => {
   event.reply('ipc-example', msgTemplate('pong'));
 });
 
-const dev = new SerialPort({ path: 'COM3', baudRate: 9600 });
-dev.on('data', (data) => {
-  const receivedData = data.toString();
-  console.log('Received data from serial port:', receivedData);
-  mainWindow?.webContents.send('serial-port-data', receivedData);
+
+function sendDataOverSerial(data) {
+  dev.write(data + '\n', (err) => {
+    if (err) {
+      console.error('Error writing to serial port:', err);
+    } else {
+      console.log('Data sent to serial port:', data);
+    }
+  });
+}
+
+sendDataOverSerial('rgb(20,20,20)');
+
+ipcMain.on('send-to-device', (event, data) => {
+  sendDataOverSerial(data);
 });
+
+
+updateAndConnect()
+setInterval(() => updateAndConnect(), 5000);
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
