@@ -23,11 +23,12 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
   const [tabColor, setTabColor] = useState<string[]>([]);
   // Using PRNG for random color generation as this is not a security-sensitive context
   const randomColor = () => {
-    return (
-      '#' +
-      ('000000' + Math.floor(Math.random() * 16777215).toString(16)).slice(-6)
-    );
-  };
+    const buffer = new Uint8Array(3);
+    window.crypto.getRandomValues(buffer);
+    
+    const hexColor = Array.from(buffer).map(b => ('0' + b.toString(16)).slice(-2)).join('');
+    return `#${hexColor}`;
+  };  
 
   useEffect(() => {
     const colors = projects.map(() => randomColor());
