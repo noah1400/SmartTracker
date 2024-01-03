@@ -1,13 +1,27 @@
 // ProjectForm.js
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button } from '@mui/material';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
+} from '@mui/material';
 
-function ProjectForm({ open, onClose, onSubmit, resetForm, onReset }: 
-  { open: boolean, onClose: () => void, 
-    onSubmit: (name: string, description: string) => void,
-    resetForm: boolean, 
-    onReset: () => void  }) {
-
+function ProjectForm({
+  open,
+  onClose,
+  onSubmit,
+  resetForm,
+  onReset,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (name: string, description: string) => void;
+  resetForm: boolean;
+  onReset: () => void;
+}) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
 
@@ -32,7 +46,7 @@ function ProjectForm({ open, onClose, onSubmit, resetForm, onReset }:
           margin="dense"
           label="Project Name"
           fullWidth
-          variant="outlined"
+          variant="filled"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
@@ -42,14 +56,18 @@ function ProjectForm({ open, onClose, onSubmit, resetForm, onReset }:
           fullWidth
           multiline
           rows={4}
-          variant="outlined"
+          variant="filled"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={handleSubmit}>Add</Button>
+        <Button variant="outlined" onClick={onClose}>
+          Cancel
+        </Button>
+        <Button variant="contained" onClick={handleSubmit}>
+          Add
+        </Button>
       </DialogActions>
     </Dialog>
   );

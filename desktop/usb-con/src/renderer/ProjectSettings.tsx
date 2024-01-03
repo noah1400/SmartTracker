@@ -14,10 +14,11 @@ import ProjectForm from './ProjectForm';
 
 interface ProjectOptionsProps {
   activeProject: Project | null;
+  activeColor: string;
 }
 
 export default function ProjectOptions({
-  activeProject,
+  activeProject, activeColor
 }: Readonly<ProjectOptionsProps>) {
 
   const [formOpen, setFormOpen] = useState(false);
@@ -62,9 +63,7 @@ const onReset = () => {
             backgroundColor: 'white',
           },
           '& .MuiFab-root:hover': {
-            backgroundColor: activeProject
-              ? `${activeProject.color}`
-              : 'defaultColor',
+            backgroundColor: activeColor,
           },
         }}
         icon={

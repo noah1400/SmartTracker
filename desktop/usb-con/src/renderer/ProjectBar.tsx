@@ -8,47 +8,67 @@ import Box from '@mui/material/Box';
 
 interface ProjectBarProps {
   projects: Project[];
-  setActiveProject: React.Dispatch<React.SetStateAction<Project | null>>;
+  setActiveProject: (project: Project | null, color: string) => void;
 }
 
 const ProjectBar: React.FC<ProjectBarProps> = ({
   projects,
-  setActiveProject
+  setActiveProject,
 }) => {
-  const [activeProjectIndex, setActiveProjectIndex] = useState<number | null>(null);
+
+  const [activeProjectIndex, setActiveProjectIndex] = useState<number | null>(
+    null,
+  );
+  
+  const [tabColor, setTabColor] = useState<string[]>([]);
+
+  const randomColor = () => {
+    return '#' + ('000000' + Math.floor(Math.random() * 16777215).toString(16)).slice(-6);
+  };
+
+  useEffect(() => {
+    const colors = projects.map(() => randomColor());
+    setTabColor(colors);
+  }, [projects]);
 
   useEffect(() => {
     if (projects.length > 0) {
-      console.log("Example project:", projects[0].dataValues);
+      console.log('Example project:', projects[0].dataValues);
     }
   }, [projects]);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     const newActiveProject = projects[newValue] || null;
+    const newColor = tabColor[newValue];
     setActiveProjectIndex(newValue);
-    setActiveProject(newActiveProject);
+    setActiveProject(newActiveProject, newColor);
   };
+  
 
   const tabIndicatorColor =
-    activeProjectIndex  !== null ? projects[activeProjectIndex].color : 'defaultColor';
+    activeProjectIndex !== null
+      ? tabColor[activeProjectIndex]
+      : 'defaultColor';
 
   let counter = 0;
   let isListenerAdded = false;
   const handleKeyPress = (event: React.KeyboardEvent) => {
     console.log('keypress function');
-  if (activeProjectIndex !== null) {
-    let newActiveProjectIndex;
-    if (event.key === 'ArrowLeft') {
-      newActiveProjectIndex = activeProjectIndex > 0 ? activeProjectIndex - 1 : projects.length - 1;
-    } else if (event.key === 'ArrowRight') {
-      newActiveProjectIndex = activeProjectIndex < projects.length - 1 ? activeProjectIndex + 1 : 0;
-    }
+    if (activeProjectIndex !== null) {
+      let newActiveProjectIndex;
+      if (event.key === 'ArrowLeft') {
+        newActiveProjectIndex =
+          activeProjectIndex > 0 ? activeProjectIndex - 1 : projects.length - 1;
+      } else if (event.key === 'ArrowRight') {
+        newActiveProjectIndex =
+          activeProjectIndex < projects.length - 1 ? activeProjectIndex + 1 : 0;
+      }
 
-    if (newActiveProjectIndex !== undefined) {
-      setActiveProjectIndex(newActiveProjectIndex);
-      setActiveProject(projects[newActiveProjectIndex]);
+      if (newActiveProjectIndex !== undefined) {
+        setActiveProjectIndex(newActiveProjectIndex);
+        setActiveProject(projects[newActiveProjectIndex], tabColor[newActiveProjectIndex]);
+      }
     }
-  }
   };
   //keyboard selection
   useEffect(() => {
@@ -90,7 +110,7 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
   //color of background
   useEffect(() => {
     if (activeProjectIndex !== null) {
-      const activeColor = projects[activeProjectIndex].color;
+      const activeColor = tabColor[activeProjectIndex];
       document.body.style.transition = 'background-color 0.5s ease';
       document.body.style.backgroundColor = activeColor
         ? `${activeColor}60`
@@ -114,39 +134,43 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
 
   return (
     <div className="project-bar">
-      <Box sx={{width: '100%'}}>
-      <Tabs
-        value={activeProjectIndex}
-        onChange={handleChange}
-        aria-label="Project tabs"
-        variant="scrollable"
-        allowScrollButtonsMobile
-        scrollButtons="auto"
-        TabIndicatorProps={{ style: { backgroundColor: tabIndicatorColor } }}
-        sx={{
-          '& .MuiTabs-scrollButtons': {
-            color: 'white',
-          },
-          width: '100%',
-        }}
-      >
-        {projects.map((project, index) => (
-          <Tab
-            key={project.dataValues.localID}
-            label={project.dataValues.name}
-            sx={{
+      <Box sx={{ width: '100%' }}>
+        <Tabs
+          value={activeProjectIndex}
+          onChange={handleChange}
+          aria-label="Project tabs"
+          variant="scrollable"
+          allowScrollButtonsMobile
+          scrollButtons="auto"
+          TabIndicatorProps={{ style: { backgroundColor: tabIndicatorColor } }}
+          sx={{
+            '& .MuiTabs-scrollButtons': {
               color: 'white',
-              borderRadius: '8px',
-              fontSize: activeProjectIndex === index ? '1rem' : '0.5rem',
-              '&.Mui-selected': {
-                fontSize: '1rem',
+            },
+            width: '100%',
+            '& .MuiTabs-indicator': {
+              backgroundColor: activeProjectIndex !== null ? `#${tabColor[activeProjectIndex]}` : 'defaultColor',
+            },
+          }}
+        >
+          {projects.map((project, index) => (
+            <Tab
+              key={project.dataValues.localID}
+              label={project.dataValues.name}
+              sx={{
+                transition: 'font-size 0.3s ease',
                 color: 'white',
-              },
-              '& .MuiTouchRipple-root': { display: 'none' },
-            }}
-          />
-        ))}
-      </Tabs>
+                borderRadius: '8px',
+                fontSize: activeProjectIndex === index ? '1.1rem' : '0.5rem',               
+                 '&.Mui-selected': {
+                  fontSize: '1.1rem',
+                  color: 'white',
+                },
+                '& .MuiTouchRipple-root': { display: 'none' },
+              }}
+            />
+          ))}
+        </Tabs>
       </Box>
     </div>
   );
