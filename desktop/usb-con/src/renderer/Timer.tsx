@@ -23,9 +23,7 @@ interface TimerProps {
 const Timer: React.FC<TimerProps> = ({ activeProject, activeColor, activeLocalID, onTimeToggle }) => {
   const { seconds, minutes, hours, isRunning, start, pause, reset } =
     useStopwatch({ autoStart: false });
-  const [timeEntry, setTimeEntry] = useState<TimeEntry[]>(() => {
-   
-  });
+    const [timeEntry, setTimeEntry] = useState<TimeEntry[]>([]);
 
   useEffect(() => {
     console.log(timeEntry);
@@ -46,7 +44,7 @@ const Timer: React.FC<TimerProps> = ({ activeProject, activeColor, activeLocalID
       start();
       //timeLogs.push({ projectId: activeProject ? activeProject.id : '', startTime: new Date(), endTime: new Date() });
       const newEntry: TimeEntry = {
-        projectId: activeProject ? activeProject.id.toString() : '',
+        projectId: activeProject ? activeProject.dataValues.localID.toString() : '',
         startTime: new Date(),
         endTime: null
       };
