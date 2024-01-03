@@ -12,7 +12,9 @@ export default function App() {
   const [activeProject, setActiveProject] = useState<Project | null>(null);
   const [activeProjectColor, setActiveProjectColor] = useState('defaultColor');
 
-  const activeProjectLocalID = activeProject ? activeProject.dataValues.localID : null;
+  const activeProjectLocalID = activeProject
+    ? activeProject.dataValues.localID
+    : null;
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -38,7 +40,12 @@ export default function App() {
     seconds: number;
   }) => {
     if (activeProject) {
-      console.log('time: ', time, 'spent on project: ', activeProject.dataValues.name);
+      console.log(
+        'time: ',
+        time,
+        'spent on project: ',
+        activeProject.dataValues.name,
+      );
     }
   };
 
@@ -78,8 +85,8 @@ export default function App() {
             >
               <Timer
                 activeProject={activeProject}
-                activeColor={activeProjectColor} 
-                activeLocalID={activeProjectLocalID} 
+                activeColor={activeProjectColor}
+                activeLocalID={activeProjectLocalID}
                 onTimeToggle={handleTimerToggle}
               />
             </Box>
@@ -91,9 +98,10 @@ export default function App() {
                 padding: '10px',
               }}
             >
-              <ProjectOptions activeProject={activeProject}                          activeProject={activeProject}
-       activeColor={activeProjectColor} 
- />
+              <ProjectOptions
+                activeProject={activeProject}
+                activeColor={activeProjectColor}
+              />
             </Box>
           </Paper>
         </Grid>
