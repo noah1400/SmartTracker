@@ -65,12 +65,11 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
       }
 
       if (newActiveProjectIndex !== undefined) {
-        const hexColor = tabColor[newActiveProjectIndex];
+        const hexColor = projects[newActiveProjectIndex].color;
         const rgbColor = hexToRgb(hexColor,0.25);
         window.electron.ipcRenderer.sendMessage('send-to-device', `rgb(${rgbColor.r},${rgbColor.g},${rgbColor.b})`);
         setActiveProjectIndex(newActiveProjectIndex);
-        setActiveProjectIndex(newActiveProjectIndex);
-        setActiveProject(projects[newActiveProjectIndex], tabColor[newActiveProjectIndex]);
+        setActiveProject(projects[newActiveProjectIndex]);
       }
     }
   };
