@@ -1,20 +1,22 @@
 import { SerialPort } from 'serialport';
 
-let dev;
-let previousPorts = [];
+let dev: any;
+let previousPorts: any[] = [];
 
-function arePortsEqual(ports1, ports2) {
+function arePortsEqual(ports1: any, ports2: any) {
   if (ports1.length !== ports2.length) {
     return false;
   }
   const sortedPorts1 = ports1.slice().sort();
   const sortedPorts2 = ports2.slice().sort();
-  return sortedPorts1.every((port, index) => port.path === sortedPorts2[index].path);
+  return sortedPorts1.every((port: any, index: any) => port.path === sortedPorts2[index].path);
 }
 
-function connectToPort(portPath) {
+declare const mainWindow: any;
+
+function connectToPort(portPath: any) {
   dev = new SerialPort({ path: portPath, baudRate: 9600 });
-  dev.on('data', (data) => {
+  dev.on('data', (data: any) => {
     const receivedData = data.toString();
     console.log('Received data from serial port:', receivedData);
     mainWindow?.webContents.send('serial-port-data', receivedData);
@@ -55,4 +57,17 @@ export function updateAndConnect() {
   }).catch((err) => {
     console.error('Error during COM port operation', err);
   });
+}
+export function sendDataOverSerial(data: any) {
+  if (dev) {
+    dev.write(data + '\n', (err: any) => {
+      if (err) {
+        console.error('Error writing to serial port:', err);
+      } else {
+        console.log('Data sent to serial port:', data);
+      }
+    });
+  } else {
+    console.log('Serial port not connected');
+  }
 }

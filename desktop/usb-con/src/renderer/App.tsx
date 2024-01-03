@@ -8,33 +8,55 @@ import ProjectOptions from './ProjectSettings';
 import { Box, Container, Grid, Paper } from '@mui/material';
 
 export default function App() {
-  const [projects, setProjects] = useState<Project[]>([
-    { id: 1, name: 'Pep.Digital', color: '#FF5733', totalTime: { hours: 0, minutes: 0, seconds: 0 } },
-    { id: 2, name: 'HS Esslingen', color: '#33FF57', totalTime: { hours: 0, minutes: 0, seconds: 0 } },
-    { id: 3, name: 'Projekt SWTM', color: '#5733FF', totalTime: { hours: 0, minutes: 0, seconds: 0 } },
-    { id: 4, name: 'Weihnachtsmarkt', color: '#FF33A1', totalTime: { hours: 0, minutes: 0, seconds: 0 } },
-    { id: 5, name: '2024', color: '#11F3AF', totalTime: { hours: 0, minutes: 0, seconds: 0 } },
-    { id: 6, name: 'Silverster', color: '#008080', totalTime: { hours: 0, minutes: 0, seconds: 0 } },
-  ]);
-
+  const [projects, setProjects] = useState<Project[]>([]);
   const [activeProject, setActiveProject] = useState<Project | null>(null);
-  const [timeRecords, setTimeRecords] = useState({});
+  const [activeProjectColor, setActiveProjectColor] = useState('defaultColor');
 
-  const handleTimerToggle = (time: { hours: number; minutes: number; seconds: number }) => {
+  const activeProjectLocalID = activeProject
+    ? activeProject.dataValues.localID
+    : null;
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const fetchedProjects = await window.smarttracker.getProjects();
+        setProjects(fetchedProjects);
+        console.log('fetched projects: ', fetchedProjects);
+      } catch (error) {
+        console.error('Failed to fetch projects:', error);
+      }
+    };
+    fetchProjects();
+  }, []);
+
+  const handleSetActiveProject = (project: Project | null , color: string) => {
+    setActiveProject(project);
+    setActiveProjectColor(color || 'defaultColor');
+  };
+
+  const handleTimerToggle = (time: {
+    hours: number;
+    minutes: number;
+    seconds: number;
+  }) => {
     if (activeProject) {
-      console.log('time: ', time, 'spent on project: ', activeProject.name);
+      console.log(
+        'time: ',
+        time,
+        'spent on project: ',
+        activeProject.dataValues.name,
+      );
     }
   };
-  
 
   return (
     <Container maxWidth="lg">
-      <Grid container spacing={2} >
-        <Grid item xs={12} >
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
           <Box mb={2}>
             <ProjectBar
               projects={projects}
-              setActiveProject={setActiveProject}
+              setActiveProject={handleSetActiveProject}
             />
           </Box>
         </Grid>
@@ -63,11 +85,23 @@ export default function App() {
             >
               <Timer
                 activeProject={activeProject}
+                activeColor={activeProjectColor}
+                activeLocalID={activeProjectLocalID}
                 onTimeToggle={handleTimerToggle}
               />
             </Box>
-            <Box style={{ position: 'absolute', bottom: 0, left: 0, padding: '10px' }}>
-              <ProjectOptions activeProject={activeProject} />
+            <Box
+              style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                padding: '10px',
+              }}
+            >
+              <ProjectOptions
+                activeProject={activeProject}
+                activeColor={activeProjectColor}
+              />
             </Box>
           </Paper>
         </Grid>

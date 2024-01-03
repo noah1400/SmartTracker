@@ -9,29 +9,51 @@ import EditIcon from '@mui/icons-material/Edit';
 import { useState } from 'react';
 import { Project } from './types';
 import { SpeedDialIcon } from '@mui/material';
+import ProjectForm from './ProjectForm';
 
 interface ProjectOptionsProps {
   activeProject: Project | null;
+  activeColor: string;
 }
 
-const handleEdit = () => {
-  console.log('Edit');
-};
-const handleNewProject = () => {
-  console.log('New Project');
-};
-const handleDelete = () => {
-  console.log('Delete');
-};
-
 export default function ProjectOptions({
-  activeProject,
+  activeProject, activeColor
 }: Readonly<ProjectOptionsProps>) {
+
+  const [formOpen, setFormOpen] = useState(false);
+  const [resetForm, setResetForm] = useState(false);
+
+  const handleOpenForm = () => {
+    setFormOpen(true);
+  };
+const onReset = () => {
+  setResetForm(false);
+}; 
+  const handleEdit = () => {
+    console.log('Edit');
+  };
+  const handleNewProject = async (name: string, description: string) => {
+    try {
+      const response = await window.smarttracker.addProject(name, description);
+      if (response.success) {
+        console.log('Project added');
+        setResetForm(true);
+      } else {
+        console.log('Failed to add project', response.error);
+      }
+    } catch (error) {
+      console.error('Error adding project:', error);
+    }
+  };
+
+  const handleDelete = () => {
+    console.log('Delete');
+  };
   return (
     <Box sx={{ height: 70, transform: 'translateZ(0px)', flexGrow: 1 }}>
       <SpeedDial
         ariaLabel="Edit Project"
-        direction='up'
+        direction="up"
         sx={{
           position: 'absolute',
           bottom: 16,
@@ -40,9 +62,7 @@ export default function ProjectOptions({
             backgroundColor: 'white',
           },
           '& .MuiFab-root:hover': {
-            backgroundColor: activeProject
-              ? `${activeProject.color}`
-              : 'defaultColor',
+            backgroundColor: activeColor,
           },
         }}
         icon={
@@ -73,7 +93,7 @@ export default function ProjectOptions({
         />
         <SpeedDialAction
           icon={<AddIcon sx={{ color: '#282a2c' }} />}
-          onClick={handleNewProject}
+          onClick={handleOpenForm}
           tooltipTitle="New"
           sx={{
             '& .MuiSvgIcon-root:hover': {
@@ -92,6 +112,13 @@ export default function ProjectOptions({
           }}
         />
       </SpeedDial>
+      <ProjectForm
+        open={formOpen}
+        onClose={() => setFormOpen(false)}
+        onSubmit={handleNewProject}
+        resetForm={resetForm}
+        onReset={onReset}
+      />
     </Box>
   );
 }
