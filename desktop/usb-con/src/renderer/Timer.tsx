@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useStopwatch } from 'react-timer-hook';
 import './Timer.css';
-import { IconButton, TextField } from '@mui/material';
+import { CircularProgress, IconButton, TextField } from '@mui/material';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import PauseCircleIcon from '@mui/icons-material/PauseCircle';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
 import { Project } from './types';
+import { Translate } from '@mui/icons-material';
 
 interface TimeEntry {
   localId: number | null;
@@ -37,6 +38,7 @@ const Timer: React.FC<TimerProps> = ({
   const [timeEntry, setTimeEntry] = useState<TimeEntry[]>([]);
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [description, setDescription] = useState('');
+  const totalDuration = 60; // progress in seconds
 
   useEffect(() => {
     if (activeProject) {
@@ -66,7 +68,6 @@ const Timer: React.FC<TimerProps> = ({
       console.log('end: ', endTime);
     }
   };
-
   const addTimeEntry = async (
     startTime: Date,
     endTime: Date,
@@ -114,9 +115,25 @@ const Timer: React.FC<TimerProps> = ({
     color: activeColor,
   };
   const isButtonDisabled = !activeProject;
+  const elapsedTimeInSeconds = hours * 3600 + minutes * 60 + seconds;
+  const timeValue = ((elapsedTimeInSeconds % totalDuration)  / totalDuration) * 100;
 
   return (
     <div className="timer-container">
+      <CircularProgress
+        variant="determinate"
+        value={timeValue}
+         
+        className="circular-progress"
+        thickness={2.8}
+        size={300}
+        sx={{
+          color: activeColor,
+          '& .MuiCircularProgress-circle': {
+            strokeLinecap: 'round'
+          },
+        }}
+      />
       <p className="timer-display">{formatTime()}</p>
       <IconButton
         onClick={toggleTimer}
@@ -142,7 +159,7 @@ const Timer: React.FC<TimerProps> = ({
           variant="outlined"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          style={{ margin: '10px' }}
+          style={{ margin: '40px' }}
           sx={{
             input: { color: 'white' }, // Changes the text color
             '& label': { color: 'grey' }, // Changes the label color
@@ -151,6 +168,7 @@ const Timer: React.FC<TimerProps> = ({
               '& fieldset': { borderColor: 'white' }, // Changes the border color
               '&:hover fieldset': { borderColor: 'white' }, // Changes the border color on hover
               '&.Mui-focused fieldset': { borderColor: 'white' }, // Changes the border color when focused
+            marginTop: '40px',
             },
           }}
         />
