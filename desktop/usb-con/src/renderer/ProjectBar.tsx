@@ -5,6 +5,7 @@ import { Project } from './types';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
+const { hexToRgb } = require('./helper');
 
 interface ProjectBarProps {
   projects: Project[];
@@ -64,13 +65,13 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
           activeProjectIndex < projects.length - 1 ? activeProjectIndex + 1 : 0;
       }
 
-      if (newActiveProjectIndex !== undefined) {
-        const hexColor = projects[newActiveProjectIndex].color;
-        const rgbColor = hexToRgb(hexColor,0.25);
-        window.electron.ipcRenderer.sendMessage('send-to-device', `rgb(${rgbColor.r},${rgbColor.g},${rgbColor.b})`);
-        setActiveProjectIndex(newActiveProjectIndex);
-        setActiveProject(projects[newActiveProjectIndex]);
-      }
+    if (newActiveProjectIndex !== undefined) {
+      const hexColor = projects[newActiveProjectIndex].color;
+      const rgbColor = hexToRgb(hexColor,0.25);
+      window.electron.ipcRenderer.sendMessage('send-to-device', `rgb(${rgbColor.r},${rgbColor.g},${rgbColor.b})`);
+      setActiveProjectIndex(newActiveProjectIndex);
+      setActiveProject(projects[newActiveProjectIndex]);
+
     }
   };
   //keyboard selection
