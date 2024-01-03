@@ -138,6 +138,13 @@ class SmartTracker {
 
     // update local database from server
     private async update() {
+
+        if (!this.stAuthInstance.isLoggedin()) {
+            // no error, just return silently because this is called by auto update
+            console.error("Not logged in, cannot update");
+            return;
+        }
+
         if (await this.ping() === false) {
             console.error("Server not reachable, cannot update");
             throw new Error("Server not reachable, cannot update");
