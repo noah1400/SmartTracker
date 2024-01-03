@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useStopwatch } from 'react-timer-hook';
 import './Timer.css';
-import { IconButton } from '@mui/material';
+import { IconButton, TextField } from '@mui/material';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import PauseCircleIcon from '@mui/icons-material/PauseCircle';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
@@ -136,6 +136,25 @@ const Timer: React.FC<TimerProps> = ({
       >
         <StopCircleIcon fontSize="large" />
       </IconButton>
+      <div>
+        <TextField
+          label="Notes"
+          variant="outlined"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          style={{ margin: '10px' }}
+          sx={{
+            input: { color: 'white' }, // Changes the text color
+            '& label': { color: 'grey' }, // Changes the label color
+            '& label.Mui-focused': { color: activeColor }, // Changes the label color when focused
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': { borderColor: 'white' }, // Changes the border color
+              '&:hover fieldset': { borderColor: 'white' }, // Changes the border color on hover
+              '&.Mui-focused fieldset': { borderColor: 'white' }, // Changes the border color when focused
+            },
+          }}
+        />
+      </div>
     </div>
   );
 };
