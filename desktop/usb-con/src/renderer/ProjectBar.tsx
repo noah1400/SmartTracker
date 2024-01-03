@@ -18,6 +18,12 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
 }) => {
   const [activeProjectIndex, setActiveProjectIndex] = useState<number | null>(null);
 
+  useEffect(() => {
+    if (projects.length > 0) {
+      console.log("Example project:", projects[0].dataValues);
+    }
+  }, [projects]);
+
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     const newActiveProject = projects[newValue] || null;
     setActiveProjectIndex(newValue);
@@ -78,7 +84,6 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
         'serial-port-data',
         handleIpcRendererEvent,
       );
-      console.log('hinzugefügt');
       console.log(isListenerAdded);
       isListenerAdded = true;
     }
@@ -131,8 +136,8 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
       >
         {projects.map((project, index) => (
           <Tab
-            key={project.id}
-            label={project.name}
+            key={project.dataValues.localID}
+            label={project.dataValues.name}
             sx={{
               color: 'white',
               borderRadius: '8px',

@@ -43,7 +43,16 @@ const stHandler = {
   autoUpdateInterval(autoUpdateInterval: number) {
     ipcRenderer.invoke('autoUpdateInterval', autoUpdateInterval);
   },
-}
+  getProjects: async () => {
+    return ipcRenderer.invoke('getProjects');
+  },
+  getTimeEntries: async () => {
+    return ipcRenderer.invoke('getTimeEntries');
+  },
+  addProject: async (name: string, description: string) => {
+    return ipcRenderer.invoke('addProject', name, description);
+  },
+};
 contextBridge.exposeInMainWorld('smarttracker', stHandler);
 
 export type SmartTrackerHandler = typeof stHandler;

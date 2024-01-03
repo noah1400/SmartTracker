@@ -16,7 +16,7 @@ interface Project {
 interface TimeEntry {
   projectId: string;
   startTime: Date;
-  endTime: Date;
+  endTime: Date | null;
 }
 
 interface TimerProps {
@@ -37,8 +37,8 @@ const Timer: React.FC<TimerProps> = ({ activeProject, onTimeToggle }) => {
   });
 
   useEffect(() => {
-    localStorage.setItem('timeEntryogs', JSON.stringify(timeEntry));
-  }, [timeEntry]);
+    console.log(timeEntry);
+  }, [timeEntry]);  
 
   useEffect(() => {
     if (activeProject) {
@@ -50,9 +50,22 @@ const Timer: React.FC<TimerProps> = ({ activeProject, onTimeToggle }) => {
     if (!isRunning) {
       start();
       //timeLogs.push({ projectId: activeProject ? activeProject.id : '', startTime: new Date(), endTime: new Date() });
+      const newEntry: TimeEntry = {
+        projectId: activeProject ? activeProject.id.toString() : '',
+        startTime: new Date(),
+        endTime: null
+      };
+      setTimeEntry([...timeEntry, newEntry]);
+      console.log('timeEntry: ', timeEntry);
+
     } else {
       pause();
       onTimeToggle({ hours, minutes, seconds });
+      const updatedEntries = timeEntry.map((entry, index) => 
+        index === timeEntry.length - 1 ? { ...entry, endTime: new Date() } : entry
+      );
+      setTimeEntry(updatedEntries);
+      console.log('timeEntry: ', timeEntry);
     }
   };
 

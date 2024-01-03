@@ -1,10 +1,10 @@
+export type ProjectData = {
+  localID: number;
+  name: string;
+  description: string;
+};
+
+
 export type Project = {
-    id: number;
-    name: string;
-    color: string;
-    totalTime: {
-      hours: number;
-      minutes: number;
-      seconds: number;
-    };
+    dataValues: ProjectData; 
   };
