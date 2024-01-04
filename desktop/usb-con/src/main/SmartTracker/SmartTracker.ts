@@ -125,6 +125,12 @@ class SmartTracker {
     }
 
     public async manualUpdate() {
+
+        if (!this.stAuthInstance.isLoggedin()) {
+            console.error("Not logged in, cannot update");
+            throw new Error("Not logged in, cannot update");
+        }
+
         // clear auto update timeout
         if (this.autoUpdateTimeout) {
             clearTimeout(this.autoUpdateTimeout);
@@ -138,13 +144,16 @@ class SmartTracker {
 
     // update local database from server
     private async update() {
-        if (await this.ping() === false) {
-            console.error("Server not reachable, cannot update");
+
+        if (!this.stAuthInstance.isLoggedin()) {
+            // no error, just return silently because this is called by auto update
+            console.error("Not logged in, cannot update. Call connect() first.");
             return;
         }
-        if (!this.stAuthInstance.isLoggedin()) {
-            console.error("Not logged in, cannot update");
-            return;
+
+        if (await this.ping() === false) {
+            console.error("Server not reachable, cannot update");
+            throw new Error("Server not reachable, cannot update");
         }
         await this.localStorage.fetchUpdatesFromServer(this.localStorage.LastMerged)
             .then(() => {
