@@ -147,19 +147,13 @@ class SmartTracker {
 
         if (!this.stAuthInstance.isLoggedin()) {
             // no error, just return silently because this is called by auto update
-            console.error("Not logged in, cannot update");
+            console.error("Not logged in, cannot update. Call connect() first.");
             return;
         }
 
         if (await this.ping() === false) {
             console.error("Server not reachable, cannot update");
             throw new Error("Server not reachable, cannot update");
-            return;
-        }
-        if (!this.stAuthInstance.isLoggedin()) {
-            console.error("Not logged in, cannot update");
-            throw new Error("Not logged in, cannot update");
-            return;
         }
         await this.localStorage.fetchUpdatesFromServer(this.localStorage.LastMerged)
             .then(() => {
