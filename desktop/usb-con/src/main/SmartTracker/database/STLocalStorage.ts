@@ -12,14 +12,10 @@ class STLocalStorage {
   LastPushed: any;
   stAuthInstance: any;
   stApiInstance: any;
-  databaseFileCreated: boolean = false;
 
   constructor(STAuth: any, STApi: any) {
     // check if database file exists
     const filePath = 'database.sqlite';
-    if (this.checkIfFileExists(filePath)) {
-      this.databaseFileCreated = true;
-    }
     this.sequelize = new Sequelize({
       dialect: 'sqlite',
       storage: 'database.sqlite',
