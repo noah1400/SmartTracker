@@ -178,6 +178,7 @@ class STAuth {
     }
 
     async handleLoginResponse(response: Response | null) {
+
         if (!response) {
             return { success: false, error: "Login request failed", data: null };
         }

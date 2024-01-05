@@ -56,6 +56,15 @@ services:
     networks:
       - frontnet
 
+  web:
+    build:
+      context: web
+    restart: always
+    networks:
+      - frontnet
+    depends_on:
+      - backend
+
   keycloak:
     build: keycloak
     restart: always
