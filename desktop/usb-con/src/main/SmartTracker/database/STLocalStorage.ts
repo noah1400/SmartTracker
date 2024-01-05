@@ -262,29 +262,18 @@ class STLocalStorage {
   async syncWithServer() {
 
     const dataToMerge = await this.prepareDataForServer();
-
-    // console.log('dataToMerge', dataToMerge);
-
-
     // check if there is anything to push
     if (dataToMerge.projects.length === 0 && dataToMerge.timeEntries.length === 0) {
       console.log('Nothing to push');
       return;
     }
 
-    console.log('Pushing data to server...');
-
     try {
-      console.log('inside push try')
       let response = await this.stApiInstance.post('/merge', dataToMerge);
-
-      console.log('response', response)
 
       if (response && response.status === "success") {
 
         const { projects, timeEntries } = response;
-
-
 
         for (const project of projects) {
           // find local project by localID
@@ -295,8 +284,6 @@ class STLocalStorage {
           });
         }
 
-        console.log('after projects')
-
         for (const entry of timeEntries) {
           // find local time entry by localID
           const localTimeEntry = await this.getTimeEntryByID(entry.localID);
@@ -305,8 +292,6 @@ class STLocalStorage {
             serverID: entry.serverID,
           });
         }
-
-        console.log('after time entries')
 
         // update last pushed timestamp
         await this.updateLastPushedTimestamp(new Date());
@@ -346,9 +331,6 @@ class STLocalStorage {
 
       // Extract the projects and time entries from the server response
       const { projects, timeEntries } = response;
-
-      console.log(projects.length)
-      console.log(timeEntries.length)
 
       // Check if there are any updates to merge
       if (projects.length === 0 && timeEntries.length === 0) {
