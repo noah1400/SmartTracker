@@ -33,21 +33,6 @@ class STLocalStorage {
     this.stAuthInstance = STAuth;
   }
 
-  checkIfFileExists(filePath: string) {
-    try {
-      if (fs.access(filePath).then(() => true).catch(() => false)) {
-        console.log('database file exists');
-        return true;
-      } else {
-        console.log('database file does not exist');
-        return false;
-      }
-    } catch (err) {
-      console.error(err);
-      return false;
-    }
-  }
-
   set authInstance(stAuthInstance: any) {
     this.stAuthInstance = stAuthInstance;
   }
@@ -58,44 +43,38 @@ class STLocalStorage {
 
   async init() {
     await this.sequelize.sync();
-    if (this.databaseFileCreated) {
-      this.LastMerged = new Date(0);
-    } else {
-      try {
-        const filePathMerged = path.join(
-          app.getPath('userData'),
-          'last-merged.txt',
-        );
-        let timestampStrMerged = await fs.readFile(filePathMerged, 'utf8');
-        this.LastMerged = new Date(timestampStrMerged);
-        console.log('Last merged timestamp loaded from disk.');
-      } catch (error) {
-        console.warn(
-          'Error loading last merged timestamp from disk or file not found. Defaulting to new Date(0).',
-          error,
-        );
-        this.LastMerged = new Date(0);
-      }
+    try {
+      const filePathMerged = path.join(
+        app.getPath('userData'),
+        'last-merged.txt',
+      );
+      let timestampStrMerged = await fs.readFile(filePathMerged, 'utf8');
+      this.LastMerged = new Date(timestampStrMerged);
+      console.log('Last merged timestamp loaded from disk.');
+    } catch (error) {
+      console.warn(
+        'Error loading last merged timestamp from disk or file not found. Defaulting to new Date(0).',
+        error,
+      );
+      // this.LastMerged = new Date(0);
+      this.updateLastMergedTimestamp(new Date(0))
     }
 
-    if (this.databaseFileCreated) {
-      this.LastPushed = new Date(0);
-    } else {
-      try {
-        const filePathPushed = path.join(
-          app.getPath('userData'),
-          'last-pushed.txt',
-        );
-        let timestampStrPushed = await fs.readFile(filePathPushed, 'utf8');
-        this.LastPushed = new Date(timestampStrPushed);
-        console.log('Last pushed timestamp loaded from disk.');
-      } catch (error) {
-        console.warn(
-          'Error loading last pushed timestamp from disk or file not found. Defaulting to new Date(0).',
-          error,
-        );
-        this.LastPushed = new Date(0);
-      }
+    try {
+      const filePathPushed = path.join(
+        app.getPath('userData'),
+        'last-pushed.txt',
+      );
+      let timestampStrPushed = await fs.readFile(filePathPushed, 'utf8');
+      this.LastPushed = new Date(timestampStrPushed);
+      console.log('Last pushed timestamp loaded from disk.');
+    } catch (error) {
+      console.warn(
+        'Error loading last pushed timestamp from disk or file not found. Defaulting to new Date(0).',
+        error,
+      );
+      // this.LastPushed = new Date(0);
+      this.updateLastPushedTimestamp(new Date(0))
     }
   }
 
@@ -244,59 +223,100 @@ class STLocalStorage {
 
   }
 
+  async prepareDataForServer() {
+    // get all projects
+    // get all time entries
+    // get all time entries for each project
+    // return object with projects and time entries
+
+    console.log('last pushed: ', this.LastPushed)
+
+    let projects = await this.Project.findAll({
+      where: {
+        updatedAt: {
+          [Op.gt]: new Date(this.LastPushed),
+        },
+      },
+    });
+
+    let timeEntries = await this.TimeEntry.findAll({
+      where: {
+        updatedAt: {
+          [Op.gt]: new Date(this.LastPushed),
+        },
+      },
+    });
+
+    timeEntries = timeEntries.map((te: any) => {
+      return te.dataValues;
+    })
+
+    projects = projects.map((p: any) => {
+      return p.dataValues;
+    })
+
+    const dataToPush = {
+      projects: projects,
+      timeEntries: timeEntries,
+    };
+
+    return dataToPush;
+  }
+
   async syncWithServer() {
 
-    console.log('syncWithServer...')
+    const dataToMerge = await this.prepareDataForServer();
 
-    const updatedProjects = await this.Project.findAll({
-      where: {
-        updatedAt: {
-          [Op.gt]: this.LastPushed,
-        },
-      },
-    });
+    // console.log('dataToMerge', dataToMerge);
 
-    const updatedTimeEntries = await this.TimeEntry.findAll({
-      where: {
-        updatedAt: {
-          [Op.gt]: this.LastPushed,
-        },
-      },
-    });
 
-    // check if there are any updates to sync
-    if (updatedProjects.length === 0 && updatedTimeEntries.length === 0) {
-      console.log('No updates to sync.');
+    // check if there is anything to push
+    if (dataToMerge.projects.length === 0 && dataToMerge.timeEntries.length === 0) {
+      console.log('Nothing to push');
       return;
     }
 
-    // only add project.dataValues and timeEntry.dataValues to dataToMerge
-    const dataToMerge = {
-      "projects": updatedProjects.map((p: any) => p.dataValues),
-      "timeEntries": updatedTimeEntries.map((te: any) => te.dataValues),
-    };
-
-    console.log('dataToMerge: ', dataToMerge);
+    console.log('Pushing data to server...');
 
     try {
+      console.log('inside push try')
       let response = await this.stApiInstance.post('/merge', dataToMerge);
-      console.log('response in sync: ', response);
-      if (response.status === 'success') {
-        const { projects, timeEntries } = response.data;
 
-        console.log('projects in sync: ', projects);
-        console.log('timeEntries in sync: ', timeEntries);
+      console.log('response', response)
 
-        for (const project in projects) {
-          await this.updateProjectServerID(project.localID, project.serverID);
+      if (response && response.status === "success") {
+
+        const { projects, timeEntries } = response;
+
+
+
+        for (const project of projects) {
+          // find local project by localID
+          const localProject = await this.getProjectByID(project.localID);
+          // update local project with serverID
+          await localProject.update({
+            serverID: project.serverID,
+          });
         }
 
-        for (const entry in timeEntries) {
-          await this.updateTimeEntryServerID(entry.localID, entry.serverID);
+        console.log('after projects')
+
+        for (const entry of timeEntries) {
+          // find local time entry by localID
+          const localTimeEntry = await this.getTimeEntryByID(entry.localID);
+          // update local time entry with serverID
+          await localTimeEntry.update({
+            serverID: entry.serverID,
+          });
         }
 
-        this.updateLastPushedTimestamp(new Date());
+        console.log('after time entries')
+
+        // update last pushed timestamp
+        await this.updateLastPushedTimestamp(new Date());
+
       }
+
     } catch (error) {
       console.error(error);
     }
@@ -317,37 +337,42 @@ class STLocalStorage {
   }
 
   async fetchUpdatesFromServer(lastMerged: Date) {
-
-    console.log('fetchUpdatesFromServer...')
-
-    let timestamp = lastMerged.toISOString();
+    let timestamp = lastMerged.toISOString()
     try {
       let response = await this.stApiInstance.get('/fetch-updates', {
         'last-merged': timestamp,
       });
 
-      // Extract the projects and time entries from the server response
-      // const { projects, timeEntries } = response.data;
-      console.log('response: ', response);
-      const projects = response.projects;
-      console.log('projects: ', projects);
-      const timeEntries = response.timeEntries;
-      console.log('timeEntries: ', timeEntries);
-
-      // check if there are any updates to sync
-      if (projects.length === 0 && timeEntries.length === 0) {
-        console.log('No updates to sync.');
+      if (!response.projects || !response.timeEntries) {
+        console.error('Error fetching updates:', response.data);
         return;
       }
 
+      // Extract the projects and time entries from the server response
+      const { projects, timeEntries } = response;
+
+      console.log(projects.length)
+      console.log(timeEntries.length)
+
+      // Check if there are any updates to merge
+      if (projects.length === 0 && timeEntries.length === 0) {
+        console.log('No updates to merge.');
+        return;
+      }
+
+
       // Update local projects database
-      for (const project of projects) {
-        await this.mergeProjectWithLocalDB(project);
+      if (projects.length > 0) {
+        for (const project of projects) {
+          await this.mergeProjectWithLocalDB(project);
+        }
       }
 
       // Update local time entries database
-      for (const entry of timeEntries) {
-        await this.mergeTimeEntryWithLocalDB(entry);
+      if (timeEntries.length > 0) {
+        for (const entry of timeEntries) {
+          await this.mergeTimeEntryWithLocalDB(entry);
+        }
       }
 
       // Update the lastMerged timestamp in your local storage
@@ -362,19 +387,27 @@ class STLocalStorage {
 
   async mergeProjectWithLocalDB(project: any) {
     try {
-      // Use 'id' from the server as 'serverID' in the local database
+      // Use 'serverID' from the server as 'serverID' in the local database
       const existingProject = await this.Project.findOne({
-        where: { serverID: project.id },
+        where: { serverID: project.serverID },
       });
 
       if (existingProject) {
         // Update the existing project
-        console.log('Updating existing project')
-        await existingProject.update(project);
+        await existingProject.update({
+          serverID: project.serverID,
+          name: project.name,
+          description: project.description,
+          updated_at: new Date()
+        });
       } else {
         console.log('Creating new project')
         // Create a new project with the serverID
-        await this.Project.create({ ...project, serverID: project.id });
+        await this.Project.create({
+          serverID: project.serverID,
+          name: project.name,
+          description: project.description,
+        });
       }
 
       console.log(`Project '${project.name}' merged successfully.`);
@@ -387,20 +420,36 @@ class STLocalStorage {
 
     try {
       // Find the local project ID based on the serverProjectID (which is the serverID of the project)
-      const project = await this.Project.findOne({ where: { serverID: entry.projectId } });
-      const projectLocalID = project ? project.localID : null;
+      const project = await this.Project.findOne({ where: { serverID: entry.serverProjectID } });
+      const projectLocalID = project.localID
 
       // Handle the time entry
-      const existingEntry = await this.TimeEntry.findOne({ where: { serverID: entry.id } });
+      const existingEntry = await this.TimeEntry.findOne({ where: { serverID: entry.serverID } });
+
 
       if (existingEntry) {
         // Update the existing entry with the new data and the local project ID
-        console.log('Updating existing time entry')	
-        await existingEntry.update({ ...entry, serverID: entry.id, projectID: projectLocalID, serverProjectID: entry.projectId });
+        console.log("updating existing entry with serverID: ", entry.serverID)
+        await existingEntry.update({
+          serverID: entry.serverID,
+          projectID: projectLocalID,
+          serverProjectID: entry.serverProjectID,
+          startTime: entry.startTime,
+          endTime: entry.endTime,
+          description: entry.description,
+          updated_at: new Date(),
+        });
       } else {
-        // Create a new time entry with the serverID, local project ID, and server project ID^
-        console.log('Creating new time entry')
-        await this.TimeEntry.create({ ...entry, serverID: entry.id, projectID: projectLocalID, serverProjectID: entry.projectId });
+        console.log("creating new entry with serverID: ", entry.serverID)
+        // Create a new time entry with the serverID, local project ID, and server project ID
+        await this.TimeEntry.create({
+          serverID: entry.serverID,
+          projectID: projectLocalID,
+          serverProjectID: entry.serverProjectID,
+          startTime: entry.startTime,
+          endTime: entry.endTime,
+          description: entry.description,
+        });
       }
 
       console.log(`Time Entry merged successfully.`);
@@ -420,7 +469,8 @@ class STLocalStorage {
     }
   }
 
-  async updateLastPushedTimestamp(timestamp: Date) {
+  private async updateLastPushedTimestamp(timestamp: Date) {
+    console.log('updateLastPushedTimestamp', timestamp)
     try {
       this.LastPushed = timestamp;
       const filePath = path.join(app.getPath('userData'), 'last-pushed.txt');

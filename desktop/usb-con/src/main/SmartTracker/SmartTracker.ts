@@ -154,6 +154,13 @@ class SmartTracker {
             .catch((err) => {
                 console.log(err);
             });
+        await this.localStorage.syncWithServer()
+            .then(() => {
+                console.log("sync done");
+            })
+            .catch((err) => {
+                console.log(err);
+            });
     }
 
     get currentUser() {

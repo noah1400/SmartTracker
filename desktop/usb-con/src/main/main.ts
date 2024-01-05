@@ -94,6 +94,15 @@ ipcMain.handle('addProject', async (event, name, description) => {
     return {success: false, error: error};
   }
 });
+ipcMain.handle('manualUpdate', async (event) => {
+  try {
+    await ST.manualUpdate();
+    return {success: true};
+  } catch (error) {
+    console.error(error);
+    return {success: false, error: error};
+  }
+});
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
   console.log(msgTemplate(arg));
