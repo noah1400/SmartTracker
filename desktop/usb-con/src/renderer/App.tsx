@@ -33,7 +33,6 @@ export default function App() {
     setActiveProject(project);
     setActiveProjectColor(color || 'defaultColor');
   };
-
   const handleTimerToggle = (time: {
     hours: number;
     minutes: number;

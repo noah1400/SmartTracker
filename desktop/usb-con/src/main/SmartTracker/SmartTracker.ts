@@ -155,6 +155,7 @@ class SmartTracker {
             console.error("Server not reachable, cannot update");
             throw new Error("Server not reachable, cannot update");
         }
+        await this.localStorage.syncWithServer();
         await this.localStorage.fetchUpdatesFromServer(this.localStorage.LastMerged)
             .then(() => {
                 console.log("update done");
@@ -162,7 +163,13 @@ class SmartTracker {
             .catch((err) => {
                 console.log(err);
             });
-        await this.localStorage.syncWithServer();
+        await this.localStorage.syncWithServer()
+            .then(() => {
+                console.log("sync done");
+            })
+            .catch((err) => {
+                console.log(err);
+            });
     }
 
     get currentUser() {

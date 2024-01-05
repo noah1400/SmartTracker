@@ -4,6 +4,7 @@ from flask import jsonify, request
 from app.auth.auth import auth
 from app.db.models.Project import Project
 from app.db.models.TimeEntry import TimeEntry
+from app.db.models.User import User
 from app.db import db
 import logging
 
@@ -18,96 +19,112 @@ def protected_ping(username):
 
 @bp.route('/merge', methods=['POST'])
 @auth.auth_authenticated
-def merge_data(username):
-    client_data = request.json
-    client_projects = client_data['projects']
+def merge(username):
+    data = request.json
+    updated_projects, updated_project_id_map = merge_projects(data["projects"])
+    updated_time_entries = merge_time_entries(data["timeEntries"], updated_project_id_map)
 
-    response_data = {
-        'projects': [],
-        'timeEntries': []
-    }
+    return jsonify({"status": "success", "projects": updated_projects, "timeEntries": updated_time_entries})
 
-    for client_project in client_projects:
-        server_project_id = client_project.get('serverID')
-        project = Project.query.filter_by(id=server_project_id).first() if server_project_id else None
+def merge_projects(project_data_list):
+    updated_projects = []
+    updated_project_id_map = {}
 
-        if not project:
-            project = create_new_project(client_project)
-            # Include newly created serverID in the response
-            response_data['projects'].append({
-                'localID': client_project['localID'],
-                'serverID': project.id
-            })
-        else:
-            update_project(project, client_project)
+    for project_data in project_data_list:
+        project = update_or_create_project(project_data)
+        project_data["serverID"] = project.id
+        updated_projects.append(project_data)
+        updated_project_id_map[project_data.get("localID")] = project.id
 
-        client_time_entries = client_project['timeEntries']
-        for client_entry in client_time_entries:
-            time_entry = match_or_create_time_entry(project, client_entry)
-            if not client_entry.get('serverID'):
-                # Include newly created serverID for time entries in the response
-                response_data['timeEntries'].append({
-                    'localID': client_entry['localID'],
-                    'serverID': time_entry.id
-                })
+    return updated_projects, updated_project_id_map
+
+def update_or_create_project(project_data):
+    if project_data.get("serverID"):  # Existing project
+        project = Project.query.get(project_data["serverID"])
+        if project:
+            project.name = project_data["name"]
+            project.description = project_data["description"]
+    else:  # New project
+        project = Project(project_data["name"], project_data["description"])
+        db.session.add(project)
 
     db.session.commit()
-    return jsonify({"status": "success", "data": response_data})
+    return project
 
-def create_new_project(project_data):
-    new_project = Project(name=project_data['name'], description=project_data['description'])
-    db.session.add(new_project)
-    db.session.commit()
-    return new_project
+def merge_time_entries(time_entry_data_list, project_id_map):
+    updated_time_entries = []
 
-def update_project(existing_project, project_data):
-    existing_project.name = project_data['name']
-    existing_project.description = project_data['description']
-    db.session.commit()
+    for entry_data in time_entry_data_list:
+        update_project_id_in_entry(entry_data, project_id_map)
+        entry = update_or_create_time_entry(entry_data)
+        entry_data["serverID"] = entry.id
+        updated_time_entries.append(entry_data)
 
-def match_or_create_time_entry(project, time_entry_data):
-    server_time_entry_id = time_entry_data.get('serverID')
-    existing_time_entry = TimeEntry.query.filter_by(id=server_time_entry_id).first() if server_time_entry_id else None
+    return updated_time_entries
 
-    if not existing_time_entry:
-        new_time_entry = TimeEntry(
-            project_id=project.id,
-            start_time=time_entry_data['startTime'],
-            end_time=time_entry_data['endTime'],
-            description=time_entry_data['description']
-        )
-        db.session.add(new_time_entry)
-        return new_time_entry
+def update_project_id_in_entry(entry_data, project_id_map):
+    if entry_data.get("projectID") in project_id_map:
+        entry_data["serverProjectID"] = project_id_map[entry_data["projectID"]]
+
+def update_or_create_time_entry(entry_data):
+    if entry_data.get("serverID"):
+        entry = TimeEntry.query.get(entry_data["serverID"])
+        if entry:
+            entry.start_time = parse_datetime(entry_data["startTime"])
+            entry.end_time = parse_datetime(entry_data["endTime"])
+            entry.description = entry_data.get("description")
     else:
-        existing_time_entry.start_time = time_entry_data['startTime']
-        existing_time_entry.end_time = time_entry_data['endTime']
-        existing_time_entry.description = time_entry_data['description']
-        return existing_time_entry
+        user = User.query.get(auth.user.id)
+        project = Project.query.get(entry_data["serverProjectID"])
+        start = parse_datetime(entry_data["startTime"])
+        end = parse_datetime(entry_data["endTime"])
+        description = entry_data.get("description")
+        entry = TimeEntry(user, project, start, end, description)
+        db.session.add(entry)
+
+    db.session.commit()
+    return entry
     
 
 @bp.route('/fetch-updates', methods=['GET'])
 @auth.auth_authenticated
 def fetch_updates(username):
-    last_merged = request.args.get('last-merged')
+    last_merged_str = request.args.get('last-merged')
+    last_merged = parse_datetime(last_merged_str)
 
-    logging.error(f'last_merged: {last_merged}')
+    updated_projects = fetch_updated_projects(last_merged)
+    updated_time_entries = fetch_updated_time_entries(last_merged)
 
-    # last merged format: 1970-01-01T00:00:00.000Z
-    last_merged = datetime.strptime(last_merged, '%Y-%m-%dT%H:%M:%S.%fZ')
+    projects_data = convert_projects_to_json(updated_projects)
+    time_entries_data = convert_time_entries_to_json(updated_time_entries)
 
-    # fetch updated projects 
-    updated_projects = Project.query.filter(Project.updated_at > last_merged).all()
-    # fetch updated time entries of current user ( auth.user.id )
-    updated_time_entries = TimeEntry.query.filter(
+    return jsonify({"projects": projects_data, "timeEntries": time_entries_data})
+
+def parse_datetime(datetime_str):
+    return datetime.strptime(datetime_str, '%Y-%m-%dT%H:%M:%S.%fZ') if datetime_str else None
+
+def fetch_updated_projects(last_merged):
+    return Project.query.filter(Project.updated_at > last_merged).all() if last_merged else []
+
+def fetch_updated_time_entries(last_merged):
+    return TimeEntry.query.filter(
         TimeEntry.updated_at > last_merged,
         TimeEntry.user_id == auth.user.id
-    ).all()
+    ).all() if last_merged else []
 
-    # Convert data to JSON-friendly format
-    projects_data = [project.to_dict() for project in updated_projects]
-    time_entries_data = [entry.to_dict() for entry in updated_time_entries]
+def convert_projects_to_json(projects):
+    return [{
+        "serverID": project.id,
+        "name": project.name,
+        "description": project.description,
+    } for project in projects]
 
-    return jsonify({
-        "projects": projects_data,
-        "timeEntries": time_entries_data
-    })
+def convert_time_entries_to_json(time_entries):
+    return [{
+        "serverID": entry.id,
+        "description": entry.description,
+        "startTime": entry.start_time.isoformat(),
+        "endTime": entry.end_time.isoformat(),
+        "userId": entry.user_id,
+        "serverProjectID": entry.project_id,
+    } for entry in time_entries]
