@@ -14,8 +14,6 @@ class STLocalStorage {
   stApiInstance: any;
 
   constructor(STAuth: any, STApi: any) {
-    // check if database file exists
-    const filePath = 'database.sqlite';
     this.sequelize = new Sequelize({
       dialect: 'sqlite',
       storage: 'database.sqlite',
@@ -27,21 +25,6 @@ class STLocalStorage {
     this.TimeEntry = modelProvider.getTimeEntryModel();
     this.stApiInstance = STApi;
     this.stAuthInstance = STAuth;
-  }
-
-  private checkIfFileExists(filePath: string) {
-    try {
-      if (fs.access(filePath).then(() => true).catch(() => false)) {
-        console.log('database file exists');
-        return true;
-      } else {
-        console.log('database file does not exist');
-        return false;
-      }
-    } catch (err) {
-      console.error(err);
-      return false;
-    }
   }
 
   set authInstance(stAuthInstance: any) {
@@ -67,7 +50,6 @@ class STLocalStorage {
         'Error loading last merged timestamp from disk or file not found. Defaulting to new Date(0).',
         error,
       );
-      // this.LastMerged = new Date(0);
       this.updateLastMergedTimestamp(new Date(0))
     }
 
@@ -84,7 +66,6 @@ class STLocalStorage {
         'Error loading last pushed timestamp from disk or file not found. Defaulting to new Date(0).',
         error,
       );
-      // this.LastPushed = new Date(0);
       this.updateLastPushedTimestamp(new Date(0))
     }
   }
@@ -318,14 +299,14 @@ class STLocalStorage {
     }
   }
 
-  async updateProjectServerID(localID: Number, serverID: Number) {
+  async updateProjectServerID(localID: number, serverID: number) {
     const project = await this.Project.findOne({ where: { localID: localID } });
     if (project) {
       await project.update({ serverID: serverID });
     }
   }
 
-  async updateTimeEntryServerID(localID: Number, serverID: Number) {
+  async updateTimeEntryServerID(localID: number, serverID: number) {
     const entry = await this.TimeEntry.findOne({ where: { localID: localID } });
     if (entry) {
       await entry.update({ serverID: serverID });
