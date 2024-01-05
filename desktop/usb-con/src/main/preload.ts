@@ -52,9 +52,6 @@ const stHandler = {
   addProject: async (name: string, description: string) => {
     return ipcRenderer.invoke('addProject', name, description);
   },
-  manualUpdate: async () => {
-    return ipcRenderer.invoke('manualUpdate');
-  }
 };
 contextBridge.exposeInMainWorld('smarttracker', stHandler);
 

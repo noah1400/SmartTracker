@@ -10,6 +10,11 @@ import { Box, Container, Grid, Paper } from '@mui/material';
 export default function App() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [activeProject, setActiveProject] = useState<Project | null>(null);
+  const [activeProjectColor, setActiveProjectColor] = useState('defaultColor');
+
+  const activeProjectLocalID = activeProject
+    ? activeProject.dataValues.localID
+    : null;
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -24,13 +29,22 @@ export default function App() {
     fetchProjects();
   }, []);
 
+  const handleSetActiveProject = (project: Project | null , color: string) => {
+    setActiveProject(project);
+    setActiveProjectColor(color || 'defaultColor');
+  };
   const handleTimerToggle = (time: {
     hours: number;
     minutes: number;
     seconds: number;
   }) => {
     if (activeProject) {
-      console.log('time: ', time, 'spent on project: ', activeProject.dataValues.name);
+      console.log(
+        'time: ',
+        time,
+        'spent on project: ',
+        activeProject.dataValues.name,
+      );
     }
   };
 
@@ -41,7 +55,7 @@ export default function App() {
           <Box mb={2}>
             <ProjectBar
               projects={projects}
-              setActiveProject={setActiveProject}
+              setActiveProject={handleSetActiveProject}
             />
           </Box>
         </Grid>
@@ -70,6 +84,8 @@ export default function App() {
             >
               <Timer
                 activeProject={activeProject}
+                activeColor={activeProjectColor}
+                activeLocalID={activeProjectLocalID}
                 onTimeToggle={handleTimerToggle}
               />
             </Box>
@@ -81,7 +97,10 @@ export default function App() {
                 padding: '10px',
               }}
             >
-              <ProjectOptions activeProject={activeProject} />
+              <ProjectOptions
+                activeProject={activeProject}
+                activeColor={activeProjectColor}
+              />
             </Box>
           </Paper>
         </Grid>

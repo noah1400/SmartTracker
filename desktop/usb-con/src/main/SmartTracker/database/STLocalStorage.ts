@@ -29,6 +29,21 @@ class STLocalStorage {
     this.stAuthInstance = STAuth;
   }
 
+  private checkIfFileExists(filePath: string) {
+    try {
+      if (fs.access(filePath).then(() => true).catch(() => false)) {
+        console.log('database file exists');
+        return true;
+      } else {
+        console.log('database file does not exist');
+        return false;
+      }
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  }
+
   set authInstance(stAuthInstance: any) {
     this.stAuthInstance = stAuthInstance;
   }
@@ -363,7 +378,7 @@ class STLocalStorage {
     }
   }
 
-  async mergeProjectWithLocalDB(project: any) {
+  private async mergeProjectWithLocalDB(project: any) {
     try {
       // Use 'serverID' from the server as 'serverID' in the local database
       const existingProject = await this.Project.findOne({
@@ -394,7 +409,7 @@ class STLocalStorage {
     }
   }
 
-  async mergeTimeEntryWithLocalDB(entry: any) {
+  private async mergeTimeEntryWithLocalDB(entry: any) {
 
     try {
       // Find the local project ID based on the serverProjectID (which is the serverID of the project)
@@ -436,7 +451,7 @@ class STLocalStorage {
     }
   }
 
-  async updateLastMergedTimestamp(timestamp: Date) {
+  private async updateLastMergedTimestamp(timestamp: Date) {
     try {
       this.LastMerged = timestamp;
       const filePath = path.join(app.getPath('userData'), 'last-merged.txt');

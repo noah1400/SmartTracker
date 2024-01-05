@@ -5,13 +5,7 @@ import { IconButton } from '@mui/material';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import PauseCircleIcon from '@mui/icons-material/PauseCircle';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
-
-interface Project {
-  id: number;
-  name: string;
-  color: string;
-  totalTime: { hours: number; minutes: number; seconds: number };
-}
+import { Project } from './types';
 
 interface TimeEntry {
   projectId: string;
@@ -21,20 +15,15 @@ interface TimeEntry {
 
 interface TimerProps {
   activeProject: Project | null;
-  onTimeToggle: (time: {
-    hours: number;
-    minutes: number;
-    seconds: number;
-  }) => void;
+  activeColor: string; 
+  activeLocalID: number | null;
+  onTimeToggle: (time: { hours: number; minutes: number; seconds: number; }) => void;
 }
 
-const Timer: React.FC<TimerProps> = ({ activeProject, onTimeToggle }) => {
+const Timer: React.FC<TimerProps> = ({ activeProject, activeColor, activeLocalID, onTimeToggle }) => {
   const { seconds, minutes, hours, isRunning, start, pause, reset } =
     useStopwatch({ autoStart: false });
-  const [timeEntry, setTimeEntry] = useState<TimeEntry[]>(() => {
-    const savedLogs = localStorage.getItem('timeLogs');
-    return savedLogs ? JSON.parse(savedLogs) : [];
-  });
+    const [timeEntry, setTimeEntry] = useState<TimeEntry[]>([]);
 
   useEffect(() => {
     console.log(timeEntry);
@@ -45,13 +34,17 @@ const Timer: React.FC<TimerProps> = ({ activeProject, onTimeToggle }) => {
       resetStopwatch();
     }
   }, [activeProject]);
+  //test color: 
+  useEffect(() => {
+    console.log("Active Project Color:", activeColor); // Check the color value
+  }, [activeColor]);
 
   const toggleTimer = () => {
     if (!isRunning) {
       start();
       //timeLogs.push({ projectId: activeProject ? activeProject.id : '', startTime: new Date(), endTime: new Date() });
       const newEntry: TimeEntry = {
-        projectId: activeProject ? activeProject.id.toString() : '',
+        projectId: activeProject ? activeProject.dataValues.localID.toString() : '',
         startTime: new Date(),
         endTime: null
       };
@@ -80,7 +73,7 @@ const Timer: React.FC<TimerProps> = ({ activeProject, onTimeToggle }) => {
     )} : ${String(seconds).padStart(2, '0')}`;
 
   const iconButtonStyle = {
-    color: activeProject ? activeProject.color : 'white',
+    color: activeColor ,
   };
   const isButtonDisabled = !activeProject;
 
