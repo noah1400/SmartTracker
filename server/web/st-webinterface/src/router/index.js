@@ -23,4 +23,23 @@ const router = createRouter({
   ]
 });
 
+router.beforeEach(async (to, from, next) => {
+  const isLoggedIn = localStorage.getItem('isLoggedIn');
+  if (to.path !== '/login' && !isLoggedIn) {
+    try {
+      await axios.get('http://localhost/auth/status', { withCredentials: true });
+      localStorage.setItem('isLoggedIn', 'true');
+      next();
+    } catch (error) {
+      localStorage.removeItem('isLoggedIn');
+      next('/login');
+    }
+  } else if (to.path === '/login' && isLoggedIn) {
+    next('/');
+  } else {
+    next();
+  }
+});
+
+
 export default router;

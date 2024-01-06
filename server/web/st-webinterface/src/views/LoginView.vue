@@ -47,6 +47,14 @@ export default {
         // Handle response here if needed
         console.log('Login Successful:', response.data);
 
+        await axios.get('http://localhost/auth/status')
+        .then(response => {
+          localStorage.setItem('isLoggedIn', true);
+        }).catch(error => {
+          console.error('Status Error:', error);
+          localStorage.setItem('isLoggedIn', false);
+        });
+
         // Redirect to another route after successful login
         this.$router.push('/');
       } catch (error) {
