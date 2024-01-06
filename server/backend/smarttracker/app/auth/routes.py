@@ -23,3 +23,11 @@ def login():
 @auth.auth_authenticated
 def authenticated_route(username):
     return { 'message': f'Hello, {username}' }, 200
+
+@bp_auth.route('/status', methods=['GET'])
+@auth.auth_authentication_check
+def authenticated_check_route(authenticated):
+    if authenticated:
+        return jsonify({'authenticated': True}), 200
+    else:
+        return jsonify({'authenticated': False}), 401

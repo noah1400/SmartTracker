@@ -8,6 +8,7 @@ from app.db import db
 from app.db.models.User import User
 from app.auth.services.keycloak_auth import KeyCloakService
 from app.auth.exceptions import InvalidCredentials, UnregisteredService, InvalidToken, ExpiredToken
+from werkzeug.exceptions import BadRequest
 
 class AuthConfig:
     """Class to manage auth service configurations."""
@@ -43,12 +44,32 @@ class Auth:
         self._user = None
         self.services = AuthConfig.load_services()
 
+    def auth_authentication_check(self, f):
+        """Decorator to check if user is authenticated."""
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            try:
+                auth_method, token = self._extract_token()
+                if auth_method == 'oauth':
+                    provider = self._get_provider_from_request(request)
+                    self.validate_oauth_token(token, provider)
+                else:
+                    self._validate_token(token)
+                return f(True, *args, **kwargs)
+            except Exception as e:
+                logging.error(f'Authentication error: {e}')
+                # log traceback
+                logging.error(e, exc_info=True)
+                return f(False, *args, **kwargs)
+            
+        return decorated
+            
     def auth_authenticated(self, f):
         """Decorator to authenticate API requests."""
         @wraps(f)
         def decorated(*args, **kwargs):
             try:
-                auth_method, token = self._extract_token(request)
+                auth_method, token = self._extract_token()
                 logging.info(f'Authenticating token: {token}')
                 if auth_method == 'oauth':
                     provider = self._get_provider_from_request(request)
@@ -73,21 +94,30 @@ class Auth:
             raise UnregisteredService("Provider header is missing")
         return provider
 
-    def _extract_token(self, request):
-        """Extract token from the Authorization header."""
+    def _extract_token(self):
+        """Extract token from the Authorization header or cookies."""
+        # Try extracting from the Authorization header
         auth_header = request.headers.get('Authorization')
-        if not auth_header:
-            raise InvalidToken("Authorization header is missing")
+        if auth_header:
+            parts = auth_header.split()
+            if parts[0].lower() != 'bearer':
+                raise BadRequest("Invalid Authorization header format")
 
-        parts = auth_header.split()
-        if parts[0] != 'Bearer':
-            raise InvalidToken("Invalid Authorization header format")
-        if len(parts) == 2:
-            return 'internal', parts[1]
-        elif len(parts) == 3 and parts[1].lower() == 'oauth':
-            return 'oauth', parts[2]
-        else:
-            raise InvalidToken("Invalid Authorization header format")
+            if len(parts) == 2:
+                return 'internal', parts[1]
+            elif len(parts) == 3 and parts[1].lower() == 'oauth':
+                return 'oauth', parts[2]
+            else:
+                raise BadRequest("Invalid Authorization header format")
+
+        # Try extracting from cookies if Authorization header is not present
+        token = request.cookies.get('token')
+        if token:
+            return 'internal', token
+
+        # Token not found in both Authorization header and cookies
+        raise BadRequest("Authorization token is missing")
+    
     def _validate_token(self, token):
         """Validate the extracted token."""
         try:
