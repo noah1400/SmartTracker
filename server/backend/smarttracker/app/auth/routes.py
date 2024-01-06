@@ -31,3 +31,9 @@ def authenticated_check_route(authenticated):
         return jsonify({'authenticated': True}), 200
     else:
         return jsonify({'authenticated': False}), 401
+    
+@bp_auth.route('/logout', methods=['POST'])
+def logout():
+    response = make_response(jsonify({"message": "Logged out successfully"}))
+    response.set_cookie('token', '', expires=0, httponly=True)  # Clear the JWT token cookie
+    return response
