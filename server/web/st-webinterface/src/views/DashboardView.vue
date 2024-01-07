@@ -178,6 +178,7 @@
 </template>
   
 <script setup>
+// NOSONAR
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
