@@ -3,7 +3,8 @@
         <div class="mt-8 flow-root">
             <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                 <div class="inline-block min-w-full py-2 align-middle">
-                    <table class="min-w-full divide-y divide-gray-300" description="Projects Table">
+                    <table class="min-w-full divide-y divide-gray-300">
+                        <caption class="hidden">Project Table</caption>
                         <thead>
                             <tr>
                                 <th scope="col"
