@@ -1,0 +1,4 @@
+<template>
+
+    default content
+</template>
