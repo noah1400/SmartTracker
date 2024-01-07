@@ -42,21 +42,27 @@ export default {
     async login() {
       try {
         // Sending a POST request to the login endpoint
-        const response = await axios.post('http://localhost/auth/login', this.credentials);
+        const response1 = await axios.post('http://localhost/auth/login', this.credentials);
         
         // Handle response here if needed
-        console.log('Login Successful:', response.data);
+        console.log('Login Successful:', response1.data);
+        console.log('Token:', response1.data.token);
+        console.log('User ID:', response1.data.id);
+        console.log('Username:', response1.data.username);
 
         await axios.get('http://localhost/auth/status')
         .then(response => {
           localStorage.setItem('isLoggedIn', true);
+          localStorage.setItem('username', response1.data.username);
+          localStorage.setItem('id', response1.data.id);
         }).catch(error => {
-          console.error('Status Error:', error);
           localStorage.setItem('isLoggedIn', false);
+          localStorage.setItem('username', '');
+          localStorage.setItem('id', '');
         });
 
         // Redirect to another route after successful login
-        this.$router.push('/');
+        this.$router.push('/dashboard');
       } catch (error) {
         console.error('Login Error:', error);
       }

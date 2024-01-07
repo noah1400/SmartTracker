@@ -4,24 +4,32 @@ import LogoutView from '../views/LogoutView.vue'; // Import the LogoutView
 import DashboardView from '../views/DashboardView.vue'; // Import the DashboardView
 import AboutView from '../views/AboutView.vue'; // Import the AboutView
 import HomeView from '../views/HomeView.vue'; // Import the HomeView
+import DashboardContentView from '../views/DashboardContentView.vue'; // Import the DashboardContentView
+import UsersView from '../views/UsersView.vue'; // Import the UsersView
+import ProjectsView from '../views/ProjectsView.vue'; // Import the ProjectsView
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/',
+      path: '/dashboard',
       name: 'dashboard',
       component: DashboardView,
       children: [
         {
+          path: '',
+          name: 'dashboard-content',
+          component: DashboardContentView
+        },
+        {
           path: 'users',
           name: 'users',
-          component: AboutView
+          component: UsersView
         },
         {
           path: 'projects',
           name: 'projects',
-          component: HomeView
+          component: ProjectsView
         }
       ]
     },
