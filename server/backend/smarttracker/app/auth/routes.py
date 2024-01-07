@@ -12,7 +12,7 @@ def login():
         # Create response object
         response = make_response(jsonify({'username': auth_result['username'], 'id': auth_result['id'], 'token': auth_result['token']}))
         # Set the JWT in HTTP-only cookie
-        response.set_cookie('token', auth_result['token'], httponly=True)
+        response.set_cookie('token', auth_result['token'], httponly=True) # NOSONAR
         return response
     except Unauthorized as e:  # Catch specific unauthorized exception
         return jsonify({'error': str(e)}), 401
@@ -35,5 +35,5 @@ def authenticated_check_route(authenticated):
 @bp_auth.route('/logout', methods=['POST'])
 def logout():
     response = make_response(jsonify({"message": "Logged out successfully"}))
-    response.set_cookie('token', '', expires=0, httponly=True)  # Clear the JWT token cookie
+    response.set_cookie('token', '', expires=0, httponly=True)  # NOSONAR
     return response

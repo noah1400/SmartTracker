@@ -5,11 +5,13 @@ WORKDIR /app
 
 COPY st-webinterface/package*.json ./
 
-RUN npm install
+RUN npm install --ignore-scripts
 
 COPY st-webinterface/ .
 
 RUN npm run build
+
+USER node
 
 # Stage 2: Serve the app with Nginx
 FROM nginx:stable-alpine AS production-stage
