@@ -58,14 +58,28 @@ export default function App() {
     setLoginFormOpen(false);
   };
   const handleLoginFormSubmit = (username: string, password: string) => {
-    // Handle the login submission logic here
-    console.log('Login Info:', username, password);
-    setLoggedIn(true);
-    handleCloseLoginForm();
+    try {
+      const st = window.smarttracker;
+      st.connect(username, password);
+      /*
+      if (st.isLoggedin()) {
+        console.log('Login successful');
+        setLoggedIn(true);
+        handleCloseLoginForm();
+      } else {
+        console.error('Login failed');
+        //error to user
+      }*/
+    } catch (error) {
+      console.error('Login error:', error);
+      //error to user
+    }
   };
+
   const handleLogout = () => {
+    window.smarttracker.disconnect();
     setLoggedIn(false);
-  };
+  }; 
 
   return (
     <Container maxWidth="lg">
@@ -129,10 +143,7 @@ export default function App() {
                 padding: '15px',
               }}
             >
-              <IconButton
-                sx={{ color: 'white'}}
-                onClick={handleOpenLoginForm} 
-              >
+              <IconButton sx={{ color: 'white' }} onClick={handleOpenLoginForm}>
                 {isLoggedIn ? (
                   <Badge
                     overlap="circular"
@@ -141,16 +152,12 @@ export default function App() {
                     anchorOrigin={{
                       vertical: 'bottom',
                       horizontal: 'left',
-                
                     }}
-                    
                   >
-                    <AccountCircleIcon  sx={{ fontSize: '3.5rem' }}/>
+                    <AccountCircleIcon sx={{ fontSize: '3.5rem' }} />
                   </Badge>
                 ) : (
-                  <AccountCircleIcon
-                    sx={{ fontSize: '3.5rem' }} 
-                  />
+                  <AccountCircleIcon sx={{ fontSize: '3.5rem' }} />
                 )}
               </IconButton>
               <LoginForm
@@ -158,7 +165,7 @@ export default function App() {
                 onClose={handleCloseLoginForm}
                 onSubmit={handleLoginFormSubmit}
                 isLoggedIn={isLoggedIn}
-        onLogout={handleLogout}
+                onLogout={handleLogout}
               />
             </Box>
           </Paper>

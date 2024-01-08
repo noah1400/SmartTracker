@@ -14,7 +14,7 @@ ReactDOM.render(
 );
 
 const st = window.smarttracker;
-st.connect('admin', 'admin');
+//st.connect('admin', 'admin');
 st.autoUpdate(true);
 st.autoUpdateInterval(10000);
 

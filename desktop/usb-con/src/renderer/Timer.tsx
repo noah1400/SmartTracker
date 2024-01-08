@@ -12,15 +12,7 @@ import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import PauseCircleIcon from '@mui/icons-material/PauseCircle';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
 import { Project } from './types';
-import { Translate } from '@mui/icons-material';
 
-interface TimeEntry {
-  localId: number | null;
-  startTime: Date;
-  endTime: Date | null;
-  description: string;
-  projectId: number;
-}
 
 interface TimerProps {
   activeProject: Project | null;
@@ -41,7 +33,6 @@ const Timer: React.FC<TimerProps> = ({
 }) => {
   const { seconds, minutes, hours, isRunning, start, pause, reset } =
     useStopwatch({ autoStart: false });
-  const [timeEntry, setTimeEntry] = useState<TimeEntry[]>([]);
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [description, setDescription] = useState('');
   const totalDuration = 60; // progress in seconds
@@ -81,17 +72,19 @@ const Timer: React.FC<TimerProps> = ({
     projectId: number,
   ) => {
     try {
+      console.log("s: \n",  startTime, "\ne: \n", endTime, "\nd: \n", description, "\nid: \n", projectId); 
       const response = await window.smarttracker.addTimeEntry(
         startTime,
         endTime,
         description,
         projectId,
-      );
-      if (response.success) {
-        console.log('Time entry added');
+      ); 
+      if(response.success) {
+        console.log("Time entry added");
       } else {
-        console.log('Failed to add time entry', response.error);
+        console.log("Failed to add time entry", response.error);
       }
+      
     } catch (error) {
       console.error('Error adding time entry:', error);
     }
@@ -160,6 +153,7 @@ const Timer: React.FC<TimerProps> = ({
         </Grid>
         <Grid item>
           <IconButton
+            className="timer-actions"
             onClick={resetStopwatch}
             style={iconButtonStyle}
             disabled={isButtonDisabled}

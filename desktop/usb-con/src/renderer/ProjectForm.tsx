@@ -15,13 +15,13 @@ function ProjectForm({
   onSubmit,
   resetForm,
   onReset,
-}: {
+}: Readonly<{
   open: boolean;
   onClose: () => void;
   onSubmit: (name: string, description: string) => void;
   resetForm: boolean;
   onReset: () => void;
-}) {
+}>) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
 
