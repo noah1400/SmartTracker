@@ -9,14 +9,35 @@ import {
 } from '@mui/material';
 
 function LoginForm({
-  open,
-  onClose,
-  onSubmit,
-}: {
-  open: boolean;
-  onClose: () => void;
-  onSubmit: (username: string, password: string) => void;
-}) {
+    open,
+    onClose,
+    onSubmit,
+    isLoggedIn,
+    onLogout,
+  }: {
+    open: boolean;
+    onClose: () => void;
+    onSubmit: (username: string, password: string) => void;
+    isLoggedIn: boolean;
+    onLogout: () => void;
+  }) {
+    if (isLoggedIn) {
+        // View when user is logged in
+        return (
+          <Dialog open={open} onClose={onClose}>
+            <DialogTitle>User Logged In</DialogTitle>
+            <DialogContent>
+              You are currently logged in.
+            </DialogContent>
+            <DialogActions>
+              <Button variant="contained" onClick={onLogout}>
+                Logout
+              </Button>
+            </DialogActions>
+          </Dialog>
+        );
+      }
+      
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 

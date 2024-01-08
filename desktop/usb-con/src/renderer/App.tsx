@@ -63,6 +63,9 @@ export default function App() {
     setLoggedIn(true);
     handleCloseLoginForm();
   };
+  const handleLogout = () => {
+    setLoggedIn(false);
+  };
 
   return (
     <Container maxWidth="lg">
@@ -154,6 +157,8 @@ export default function App() {
                 open={isLoginFormOpen}
                 onClose={handleCloseLoginForm}
                 onSubmit={handleLoginFormSubmit}
+                isLoggedIn={isLoggedIn}
+        onLogout={handleLogout}
               />
             </Box>
           </Paper>
