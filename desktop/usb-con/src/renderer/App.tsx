@@ -13,7 +13,7 @@ export default function App() {
   const [activeProject, setActiveProject] = useState<Project | null>(null);
   const [activeProjectColor, setActiveProjectColor] = useState('defaultColor');
   const [isLoginFormOpen, setLoginFormOpen] = useState(false);
-  const [isLoggedIn, setLoggedIn] = useState(false);
+  const [Logged, setLogged] = useState(false);
 
   const activeProjectLocalID = activeProject
     ? activeProject.dataValues.localID
@@ -57,29 +57,27 @@ export default function App() {
   const handleCloseLoginForm = () => {
     setLoginFormOpen(false);
   };
-  const handleLoginFormSubmit = (username: string, password: string) => {
+  const handleLoginFormSubmit = async (username: string, password: string) => {
     try {
       const st = window.smarttracker;
-      st.connect(username, password);
-      setLoggedIn(true);
-      /*
-      if (st.isLoggedin()) {
+  
+      await st.connect(username, password);
+  
+      /*if (st.isLoggedin()) {
         console.log('Login successful');
-        setLoggedIn(true);
+        setLogged(true);
         handleCloseLoginForm();
       } else {
         console.error('Login failed');
-        //error to user
       }*/
     } catch (error) {
       console.error('Login error:', error);
-      //error to user
     }
   };
 
   const handleLogout = () => {
     window.smarttracker.disconnect();
-    setLoggedIn(false);
+    setLogged(false);
   }; 
 
   return (
@@ -145,7 +143,7 @@ export default function App() {
               }}
             >
               <IconButton sx={{ color: 'white' }} onClick={handleOpenLoginForm}>
-                {isLoggedIn ? (
+                {Logged ? (
                   <Badge
                     overlap="circular"
                     badgeContent=""
@@ -165,7 +163,7 @@ export default function App() {
                 open={isLoginFormOpen}
                 onClose={handleCloseLoginForm}
                 onSubmit={handleLoginFormSubmit}
-                isLoggedIn={isLoggedIn}
+                isLoggedIn={Logged}
                 onLogout={handleLogout}
               />
             </Box>

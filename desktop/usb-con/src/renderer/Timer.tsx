@@ -167,7 +167,7 @@ const Timer: React.FC<TimerProps> = ({
           marginTop: '130px',
           input: { color: 'white' },
           '& label': { color: 'grey' },
-          '& label.Mui-focused': { color: activeColor },
+          '& label.Mui-focused': { color: 'white' },
           '& .MuiOutlinedInput-root': {
             '& fieldset': { borderColor: 'white' },
             '&:hover fieldset': { borderColor: 'white' },
