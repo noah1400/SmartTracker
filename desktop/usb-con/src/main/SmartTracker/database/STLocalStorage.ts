@@ -252,6 +252,15 @@ class STLocalStorage {
       timeEntries: timeEntries,
     };
 
+    // add all projects of time entries that are not already in projects
+    for (const timeEntry of timeEntries) {
+      if (!projects.some((p: any) => p.localID === timeEntry.projectID)) {
+        const project = await this.getProjectByID(timeEntry.projectID);
+        if (project) {
+          projects.push(project.dataValues);
+        }
+      }
+    }
     return dataToPush;
   }
 
