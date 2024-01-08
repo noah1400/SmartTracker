@@ -10,6 +10,8 @@ import { useState } from 'react';
 import { Project } from './types';
 import { SpeedDialIcon } from '@mui/material';
 import ProjectForm from './ProjectForm';
+import LoginForm from './LoginForm';
+import InfoIcon from '@mui/icons-material/Info';
 
 interface ProjectOptionsProps {
   activeProject: Project | null;
@@ -32,7 +34,10 @@ const onReset = () => {
   const handleEdit = () => {
     console.log('Edit');
   };
-  const handleNewProject = async (name: string, description: string) => {
+  const handleNewProject = async (
+    name: string, 
+    description: string
+    ) => {
     try {
       const response = await window.smarttracker.addProject(name, description);
       if (response.success) {
@@ -81,6 +86,16 @@ const onReset = () => {
           />
         }
       >
+        <SpeedDialAction
+          icon={<InfoIcon sx={{ color: '#282a2c' }} />}
+          onClick={handleEdit}
+          tooltipTitle="Infos"
+          sx={{
+            '& .MuiSvgIcon-root:hover': {
+              color: 'white',
+            },
+          }}
+        />
         <SpeedDialAction
           icon={<EditIcon sx={{ color: '#282a2c' }} />}
           onClick={handleEdit}
