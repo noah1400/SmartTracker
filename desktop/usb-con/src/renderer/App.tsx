@@ -85,8 +85,8 @@ export default function App() {
   return (
     <Container maxWidth="lg">
       <Grid container spacing={2}>
-        <Grid item xs={12}>
-          <Box mb={2}>
+        <Grid item xs={8}>
+          <Box mb={0}>
             <ProjectBar
               projects={projects}
               setActiveProject={handleSetActiveProject}

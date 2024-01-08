@@ -164,6 +164,8 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
                 activeProjectIndex !== null
                   ? `#${tabColor[activeProjectIndex]}`
                   : 'defaultColor',
+              height: '6px',
+              borderRadius: '10px',
             },
           }}
         >

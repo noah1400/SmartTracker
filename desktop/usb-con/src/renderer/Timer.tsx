@@ -129,7 +129,7 @@ const Timer: React.FC<TimerProps> = ({
         sx={{
           color: activeColor,
           '& .MuiCircularProgress-circle': {
-            strokeLinecap: 'square',
+            strokeLinecap: 'round',
           },
         }}
       />
