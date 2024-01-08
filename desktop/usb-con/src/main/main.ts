@@ -99,8 +99,9 @@ ipcMain.on('ipc-example', async (event, arg) => {
   event.reply('ipc-example', msgTemplate('pong'));
 });
 ipcMain.handle('add-time-entry', async (event, startTime, endTime, description, projectId) => {
+  console.log("add-time-entry called with params: ", startTime, endTime, description, projectId)
   try {
-    await ST.addTimeEntry(startTime, endTime, description, projectId);
+    ST.addTimeEntry(projectId, description, startTime, endTime);
     return { status: 'success' };
   } catch (error: any) {
     return { status: 'error', message: error.message };
