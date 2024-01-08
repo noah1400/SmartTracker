@@ -1,15 +1,31 @@
 .timer-container {
   text-align: center;
   font-family: Arial, Helvetica, sans-serif;
+  position: relative;
 }
 
 .circular-progress {
   position: absolute;
-  transform: translate(90px, -150px);
+  margin-top: 5px;
+  top: -20%;
+  left: -14%;
+  z-index: 1; 
 }
 
 .timer-display {
+  position: relative;
   font-size: 2em;
   margin: 0;
-  color: white; 
+  color: white;
+  z-index: 2; 
+}
+
+.timer-actions { 
+  position: relative;
+  z-index: 3; 
+}
+
+.notes-textfield {
+  position: relative;
+  z-index: 4;
 }
