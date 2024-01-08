@@ -117,7 +117,7 @@ class STLocalStorage {
       startTime: startTime,
       endTime: endTime,
       description: description,
-      projectId: projectId,
+      projectID: projectId,
     });
   }
 
@@ -252,6 +252,15 @@ class STLocalStorage {
       timeEntries: timeEntries,
     };
 
+    // add all projects of time entries that are not already in projects
+    for (const timeEntry of timeEntries) {
+      if (!projects.some((p: any) => p.localID === timeEntry.projectID)) {
+        const project = await this.getProjectByID(timeEntry.projectID);
+        if (project) {
+          projects.push(project.dataValues);
+        }
+      }
+    }
     return dataToPush;
   }
 
@@ -292,6 +301,8 @@ class STLocalStorage {
         // update last pushed timestamp
         await this.updateLastPushedTimestamp(new Date());
 
+      } else {
+        console.error('Error merging:', response.data);
       }
 
     } catch (error) {
@@ -375,7 +386,6 @@ class STLocalStorage {
           updated_at: new Date()
         });
       } else {
-        console.log('Creating new project')
         // Create a new project with the serverID
         await this.Project.create({
           serverID: project.serverID,
@@ -403,7 +413,6 @@ class STLocalStorage {
 
       if (existingEntry) {
         // Update the existing entry with the new data and the local project ID
-        console.log("updating existing entry with serverID: ", entry.serverID)
         await existingEntry.update({
           serverID: entry.serverID,
           projectID: projectLocalID,
@@ -414,7 +423,6 @@ class STLocalStorage {
           updated_at: new Date(),
         });
       } else {
-        console.log("creating new entry with serverID: ", entry.serverID)
         // Create a new time entry with the serverID, local project ID, and server project ID
         await this.TimeEntry.create({
           serverID: entry.serverID,
