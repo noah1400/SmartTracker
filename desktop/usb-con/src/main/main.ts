@@ -98,6 +98,14 @@ ipcMain.on('ipc-example', async (event, arg) => {
   console.log(msgTemplate(arg));
   event.reply('ipc-example', msgTemplate('pong'));
 });
+ipcMain.handle('add-time-entry', async (event, startTime, endTime, description, projectId) => {
+  try {
+    await ST.addTimeEntry(startTime, endTime, description, projectId);
+    return { status: 'success' };
+  } catch (error: any) {
+    return { status: 'error', message: error.message };
+  }
+});
 
 ipcMain.on('send-to-device', (event, data) => {
   sendDataOverSerial(data);

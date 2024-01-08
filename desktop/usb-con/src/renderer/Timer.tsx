@@ -1,69 +1,108 @@
 import React, { useState, useEffect } from 'react';
 import { useStopwatch } from 'react-timer-hook';
 import './Timer.css';
-import { IconButton } from '@mui/material';
+import { CircularProgress, IconButton, TextField } from '@mui/material';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import PauseCircleIcon from '@mui/icons-material/PauseCircle';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
 import { Project } from './types';
+import { Translate } from '@mui/icons-material';
 
 interface TimeEntry {
-  projectId: string;
+  localId: number | null;
   startTime: Date;
   endTime: Date | null;
+  description: string;
+  projectId: number;
 }
 
 interface TimerProps {
   activeProject: Project | null;
-  activeColor: string; 
+  activeColor: string;
   activeLocalID: number | null;
-  onTimeToggle: (time: { hours: number; minutes: number; seconds: number; }) => void;
+  onTimeToggle: (time: {
+    hours: number;
+    minutes: number;
+    seconds: number;
+  }) => void;
 }
 
-const Timer: React.FC<TimerProps> = ({ activeProject, activeColor, activeLocalID, onTimeToggle }) => {
+const Timer: React.FC<TimerProps> = ({
+  activeProject,
+  activeColor,
+  activeLocalID,
+  onTimeToggle,
+}) => {
   const { seconds, minutes, hours, isRunning, start, pause, reset } =
     useStopwatch({ autoStart: false });
-    const [timeEntry, setTimeEntry] = useState<TimeEntry[]>([]);
-
-  useEffect(() => {
-    console.log(timeEntry);
-  }, [timeEntry]);  
+  const [timeEntry, setTimeEntry] = useState<TimeEntry[]>([]);
+  const [startTime, setStartTime] = useState<Date | null>(null);
+  const [description, setDescription] = useState('');
+  const totalDuration = 60; // progress in seconds
 
   useEffect(() => {
     if (activeProject) {
       resetStopwatch();
     }
   }, [activeProject]);
-  //test color: 
-  useEffect(() => {
-    console.log("Active Project Color:", activeColor); // Check the color value
-  }, [activeColor]);
 
   const toggleTimer = () => {
     if (!isRunning) {
+      const startTimestamp = new Date();
       start();
-      //timeLogs.push({ projectId: activeProject ? activeProject.id : '', startTime: new Date(), endTime: new Date() });
-      const newEntry: TimeEntry = {
-        projectId: activeProject ? activeProject.dataValues.localID.toString() : '',
-        startTime: new Date(),
-        endTime: null
-      };
-      setTimeEntry([...timeEntry, newEntry]);
-      console.log('timeEntry: ', timeEntry);
-
+      setStartTime(startTimestamp);
+      console.log('start: ', startTimestamp);
     } else {
       pause();
+      const endTime = new Date();
       onTimeToggle({ hours, minutes, seconds });
-      const updatedEntries = timeEntry.map((entry, index) => 
-        index === timeEntry.length - 1 ? { ...entry, endTime: new Date() } : entry
-      );
-      setTimeEntry(updatedEntries);
-      console.log('timeEntry: ', timeEntry);
+      if (startTime) {
+        addTimeEntry(
+          startTime,
+          endTime,
+          'Test description',
+          activeProject ? activeProject.dataValues.localID : -1,
+        );
+      }
+      setStartTime(null);
+      console.log('end: ', endTime);
     }
   };
-
+  const addTimeEntry = async (
+    startTime: Date,
+    endTime: Date,
+    description: string,
+    projectId: number,
+  ) => {
+    try {
+      const response = await window.smarttracker.addTimeEntry(
+        startTime,
+        endTime,
+        description,
+        projectId,
+      );
+      if (response.success) {
+        console.log('Time entry added');
+      } else {
+        console.log('Failed to add time entry', response.error);
+      }
+    } catch (error) {
+      console.error('Error adding time entry:', error);
+    }
+  };
   const resetStopwatch = () => {
+    if (startTime) {
+      const endTime = new Date();
+      addTimeEntry(
+        startTime,
+        endTime,
+        'Test description 2',
+        activeProject ? activeProject.dataValues.localID : -1,
+      );
+    }
     reset(new Date(0), false);
+    pause();
+    setStartTime(null);
   };
 
   const formatTime = () =>
@@ -73,12 +112,28 @@ const Timer: React.FC<TimerProps> = ({ activeProject, activeColor, activeLocalID
     )} : ${String(seconds).padStart(2, '0')}`;
 
   const iconButtonStyle = {
-    color: activeColor ,
+    color: activeColor,
   };
   const isButtonDisabled = !activeProject;
+  const elapsedTimeInSeconds = hours * 3600 + minutes * 60 + seconds;
+  const timeValue = ((elapsedTimeInSeconds % totalDuration)  / totalDuration) * 100;
 
   return (
     <div className="timer-container">
+      <CircularProgress
+        variant="determinate"
+        value={timeValue}
+         
+        className="circular-progress"
+        thickness={2.8}
+        size={300}
+        sx={{
+          color: activeColor,
+          '& .MuiCircularProgress-circle': {
+            strokeLinecap: 'round'
+          },
+        }}
+      />
       <p className="timer-display">{formatTime()}</p>
       <IconButton
         onClick={toggleTimer}
@@ -98,6 +153,26 @@ const Timer: React.FC<TimerProps> = ({ activeProject, activeColor, activeLocalID
       >
         <StopCircleIcon fontSize="large" />
       </IconButton>
+      <div>
+        <TextField
+          label="Notes"
+          variant="outlined"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          style={{ margin: '40px' }}
+          sx={{
+            input: { color: 'white' }, // Changes the text color
+            '& label': { color: 'grey' }, // Changes the label color
+            '& label.Mui-focused': { color: activeColor }, // Changes the label color when focused
+            '& .MuiOutlinedInput-root': {
+              '& fieldset': { borderColor: 'white' }, // Changes the border color
+              '&:hover fieldset': { borderColor: 'white' }, // Changes the border color on hover
+              '&.Mui-focused fieldset': { borderColor: 'white' }, // Changes the border color when focused
+            marginTop: '40px',
+            },
+          }}
+        />
+      </div>
     </div>
   );
 };
