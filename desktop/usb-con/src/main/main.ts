@@ -78,7 +78,7 @@ ipcMain.handle('autoUpdateInterval', async (event, autoUpdateInterval: number) =
 });
 
 ipcMain.handle('getProjects', async () => {
-  return await ST.projects; 
+  return await ST.projects;
 });
 
 ipcMain.handle('getTimeEntries', async () => {
@@ -194,6 +194,19 @@ const createWindow = async () => {
       mainWindow.minimize();
     } else {
       mainWindow.show();
+      mainWindow.focus();
+      const focusInterval = setInterval(() => {
+        if (!mainWindow) {
+          clearInterval(focusInterval);
+          return;
+        }
+        if (mainWindow.isMinimized()) {
+          mainWindow.restore();
+        }
+        mainWindow.show();
+        mainWindow.focus();
+        console.log("testing focus");
+      }, 5000); //
     }
   });
 
@@ -251,7 +264,7 @@ app
     //   .catch((err:any) => {
     //     console.log(err);
     //   });
-    
+
     // ST.connect('admin', 'admin');
     // ST.autoUpdate = true;
     // ST.autoUpdateInterval = 1000;
