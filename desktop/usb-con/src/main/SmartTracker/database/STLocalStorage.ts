@@ -290,7 +290,6 @@ class STLocalStorage {
         }
 
         for (const entry of timeEntries) {
-          console.log("updating time entry", entry)
           // find local time entry by localID
           const localTimeEntry = await this.getTimeEntryByID(entry.localID);
           // update local time entry with serverID
@@ -387,7 +386,6 @@ class STLocalStorage {
           updated_at: new Date()
         });
       } else {
-        console.log('Creating new project')
         // Create a new project with the serverID
         await this.Project.create({
           serverID: project.serverID,
@@ -406,7 +404,6 @@ class STLocalStorage {
 
     try {
       // Find the local project ID based on the serverProjectID (which is the serverID of the project)
-      console.log("merging time entry", entry)
       const project = await this.Project.findOne({ where: { serverID: entry.serverProjectID } });
       const projectLocalID = project.localID
 
@@ -416,7 +413,6 @@ class STLocalStorage {
 
       if (existingEntry) {
         // Update the existing entry with the new data and the local project ID
-        console.log("updating existing entry with serverID: ", entry.serverID)
         await existingEntry.update({
           serverID: entry.serverID,
           projectID: projectLocalID,
@@ -427,7 +423,6 @@ class STLocalStorage {
           updated_at: new Date(),
         });
       } else {
-        console.log("creating new entry with serverID: ", entry.serverID)
         // Create a new time entry with the serverID, local project ID, and server project ID
         await this.TimeEntry.create({
           serverID: entry.serverID,
