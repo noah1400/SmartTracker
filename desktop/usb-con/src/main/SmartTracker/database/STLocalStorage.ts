@@ -117,7 +117,7 @@ class STLocalStorage {
       startTime: startTime,
       endTime: endTime,
       description: description,
-      projectId: projectId,
+      projectID: projectId,
     });
   }
 
@@ -290,6 +290,7 @@ class STLocalStorage {
         }
 
         for (const entry of timeEntries) {
+          console.log("updating time entry", entry)
           // find local time entry by localID
           const localTimeEntry = await this.getTimeEntryByID(entry.localID);
           // update local time entry with serverID
@@ -301,6 +302,8 @@ class STLocalStorage {
         // update last pushed timestamp
         await this.updateLastPushedTimestamp(new Date());
 
+      } else {
+        console.error('Error merging:', response.data);
       }
 
     } catch (error) {
@@ -403,6 +406,7 @@ class STLocalStorage {
 
     try {
       // Find the local project ID based on the serverProjectID (which is the serverID of the project)
+      console.log("merging time entry", entry)
       const project = await this.Project.findOne({ where: { serverID: entry.serverProjectID } });
       const projectLocalID = project.localID
 
