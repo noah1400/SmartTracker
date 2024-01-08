@@ -61,6 +61,7 @@ export default function App() {
     try {
       const st = window.smarttracker;
       st.connect(username, password);
+      setLoggedIn(true);
       /*
       if (st.isLoggedin()) {
         console.log('Login successful');
