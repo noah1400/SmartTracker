@@ -3,7 +3,7 @@
 * | Author      :   Waveshare team
 * | Function    :   Hardware underlying interface
 * | Info        :
-*                Used to shield the underlying layers of each master 
+*                Used to shield the underlying layers of each master
 *                and enhance portability
 *----------------
 * | This version:   V1.0
@@ -32,7 +32,6 @@
 #include "DEV_Config.h"
 #include <Arduino.h>
 
-
 void GPIO_Init()
 {
   pinMode(DEV_CS_PIN, OUTPUT);
@@ -40,19 +39,25 @@ void GPIO_Init()
   pinMode(DEV_DC_PIN, OUTPUT);
   pinMode(DEV_BL_PIN, OUTPUT);
   pinMode(TP_RST_PIN, OUTPUT);
-  analogWrite(DEV_BL_PIN,140);
- }
+  analogWrite(DEV_BL_PIN, 140);
+}
 
- void Config_Init()
- {
+void Config_Init()
+{
   GPIO_Init();
-  Serial.begin(115200)
   SPI.setDataMode(SPI_MODE3);
   SPI.setBitOrder(1);
   SPI.setClockDivider(SPI_CLOCK_DIV2);
-  SPI.begin();
-  Wire.begin();
-  }
+  // SPI.begin();
+  const int customMOSIPin = 13;
+  const int customMISOPin = 12;
+  const int customSCKPin = 14;
+  const int customSSPin = 33;
+  SPI.begin(customSSPin, customMISOPin, customMOSIPin, customSCKPin);
+  const int customSDAPin = 21; // Benutzerdefinierter SDA-Pin
+  const int customSCLPin = 22; // Benutzerdefinierter SCL-Pin
+  Wire.begin(customSDAPin, customSCLPin);
+}
 
 UBYTE DEV_I2C_Read_Byte(UBYTE DevAddr, UBYTE RegAddr)
 {
@@ -68,19 +73,19 @@ UBYTE DEV_I2C_Read_Byte(UBYTE DevAddr, UBYTE RegAddr)
   return value;
 }
 
-void DEV_I2C_Read_nByte(UBYTE DevAddr,UBYTE Cmd, UBYTE *data, UBYTE num)
+void DEV_I2C_Read_nByte(UBYTE DevAddr, UBYTE Cmd, UBYTE *data, UBYTE num)
 {
 
-	Wire.beginTransmission(DevAddr);
-	Wire.write(Cmd);
-	Wire.requestFrom(DevAddr, num);
+  Wire.beginTransmission(DevAddr);
+  Wire.write(Cmd);
+  Wire.requestFrom(DevAddr, num);
 
-	UBYTE i = 0;
-	for(i = 0; i < num; i++) {
-		data[i] =  Wire.read();
-	}
-	Wire.endTransmission();
-
+  UBYTE i = 0;
+  for (i = 0; i < num; i++)
+  {
+    data[i] = Wire.read();
+  }
+  Wire.endTransmission();
 }
 
 void DEV_I2C_Write_Byte(UBYTE DevAddr, UBYTE RegAddr, UBYTE value)
@@ -90,4 +95,3 @@ void DEV_I2C_Write_Byte(UBYTE DevAddr, UBYTE RegAddr, UBYTE value)
   Wire.write(value);
   Wire.endTransmission();
 }
-
