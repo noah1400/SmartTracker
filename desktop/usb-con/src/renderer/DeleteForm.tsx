@@ -1,7 +1,22 @@
 import React from 'react';
-import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material';
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Button,
+} from '@mui/material';
 
-const DeleteForm = ({ open, onClose, onConfirm }) => {
+const DeleteForm = ({
+  open,
+  onClose,
+  onConfirm,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+}) => {
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>Delete Project</DialogTitle>

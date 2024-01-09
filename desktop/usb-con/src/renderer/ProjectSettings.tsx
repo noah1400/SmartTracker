@@ -11,6 +11,7 @@ import { Project } from './types';
 import { SpeedDialIcon } from '@mui/material';
 import ProjectForm from './ProjectForm';
 import DeleteForm from './DeleteForm';
+import ProjectInfoForm from './ProjectInfoForm';
 
 import InfoIcon from '@mui/icons-material/Info';
 
@@ -154,6 +155,8 @@ const onReset = () => {
        open={deleteDialogOpen}
        onClose={handleCloseDeleteDialog}
        onConfirm={confirmDelete}
+      />
+      <InfoForm
       />
     </Box>
   );
