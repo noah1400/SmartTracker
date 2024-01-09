@@ -156,8 +156,7 @@ const onReset = () => {
        onClose={handleCloseDeleteDialog}
        onConfirm={confirmDelete}
       />
-      <InfoForm
-      />
+    
     </Box>
   );
 }

@@ -20,41 +20,20 @@ function useLoginForm() {
   };
 }
 
-function LoggedInView({ onLogout }: { onLogout: () => void }) {
-  return (
-      <Dialog
-        open={Boolean(open)}
-        onClose={onClose}
-        sx={{
-          '& .MuiPaper-root': {
-            backgroundColor: '#2a2a2a',
-            color: 'white',
-          },
-        }}
-      >
-        <DialogTitle sx={{ textAlign: 'center' }}>Settings</DialogTitle>
-        <DialogContent>You are currently logged in.</DialogContent>
-        <DialogActions sx={{ justifyContent: 'center' }}>
-          <Button variant="contained" onClick={onLogout}>
-            Logout
-          </Button>
-        </DialogActions>
-      </Dialog>
-    
-  );
-}
-function LoggedOutView({ username, password, setUsername, setPassword, onSubmit, onClose }: Readonly<{ 
-  username: string; 
-  password: string; 
-  setUsername: (username: string) => void; 
-  setPassword: (password: string) => void; 
-  onSubmit: (username: string, password: string) => void; 
+function LoginForm({ open, onClose, onSubmit, isLogged, onLogout }: Readonly<{ 
+  open: boolean; 
   onClose: () => void; 
+  onSubmit: (username: string, password: string) => void; 
+  isLogged: boolean; 
+  onLogout: () => void; 
 }>) {
+  const { username, password, setUsername, setPassword } = useLoginForm();
+
   const handleSubmit = () => {
     onSubmit(username, password);
     onClose();
   };
+
   return (
     <Dialog
       open={Boolean(open)}
@@ -89,8 +68,7 @@ function LoggedOutView({ username, password, setUsername, setPassword, onSubmit,
         <TextField
           autoFocus
           margin="dense"
-          label="username"
-          
+          label="Username"
           variant="outlined"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
@@ -98,7 +76,7 @@ function LoggedOutView({ username, password, setUsername, setPassword, onSubmit,
         />
         <TextField
           margin="dense"
-          label="password"
+          label="Password"
           type="password"
           variant="outlined"
           value={password}
@@ -106,36 +84,17 @@ function LoggedOutView({ username, password, setUsername, setPassword, onSubmit,
           sx={{ width: '80%' }}
         />
       </DialogContent>
-      <DialogActions sx={{ justifyContent: 'center', marginBottom:'8px' }}>
+      <DialogActions sx={{ justifyContent: 'center', marginBottom: '8px' }}>
+        {isLogged && (
+          <Button variant="outlined" onClick={onLogout} sx={{ mr: 2, color: 'white' }}>
+            Logout
+          </Button>
+        )}
         <Button variant="contained" onClick={handleSubmit}>
-          Login
+          {isLogged ? 'Update' : 'Login'}
         </Button>
       </DialogActions>
     </Dialog>
-  );
-}
-function LoginForm({ open, onClose, onSubmit, isLoggedIn, onLogout }: { 
-  open: boolean; 
-  onClose: () => void; 
-  onSubmit: (username: string, password: string) => void; 
-  isLoggedIn: boolean; 
-  onLogout: () => void; 
-}) {
-  const { username, password, setUsername, setPassword } = useLoginForm();
-
-  if (isLoggedIn) {
-    return <LoggedInView onLogout={onLogout} />;
-  }
-
-  return (
-    <LoggedOutView
-      username={username}
-      password={password}
-      setUsername={setUsername}
-      setPassword={setPassword}
-      onSubmit={onSubmit}
-      onClose={onClose}
-    />
   );
 }
 

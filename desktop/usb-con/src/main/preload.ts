@@ -31,8 +31,8 @@ ipcRenderer.on('data', (event, data) => {
 contextBridge.exposeInMainWorld('electron', electronHandler);
 
 const stHandler = {
-  connect(username: string, password: string) {
-    ipcRenderer.invoke('connect', username, password);
+  async connect(username: string, password: string) {
+    return ipcRenderer.invoke('connect', username, password);
   },
   disconnect() {
     ipcRenderer.invoke('disconnect');
