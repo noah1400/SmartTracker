@@ -4,8 +4,8 @@
   align-items: center;
   justify-content: space-around;
   background-color: rgb(42, 42, 42);
-  padding: 8px;
   width: 100vw;
+  height: 10vh;
 
 }
 
@@ -13,13 +13,13 @@
   display: flex;
   justify-content: space-around;
   align-items: center;
-  margin: 0 10px;
-  padding: 8px 16px;
+  margin: 0px 14px;
+  padding: 14px 16px;
   border: none;
   cursor: pointer;
-  border-radius: 16px;
+  border-radius: 40px;
   color: #ffffff;
-  transition: background-color 0.3s ease;
+  transition: background-color font-size 0.4s ease;
   font-size: small;
 }
 
@@ -27,6 +27,7 @@
   background-color: #3498db;
   color: white;
   font-size: large;
+  
 }
 
 .css-1oqqzyl-MuiContainer-root {

@@ -15,13 +15,13 @@ function ProjectForm({
   onSubmit,
   resetForm,
   onReset,
-}: {
+}: Readonly<{
   open: boolean;
   onClose: () => void;
   onSubmit: (name: string, description: string) => void;
   resetForm: boolean;
   onReset: () => void;
-}) {
+}>) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
 
@@ -38,35 +38,61 @@ function ProjectForm({
   }, [resetForm, onReset]);
 
   return (
-    <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Create a new project </DialogTitle>
-      <DialogContent>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      sx={{
+        '& .MuiPaper-root': {
+          backgroundColor: '#2a2a2a',
+          color: 'white',
+        },
+        '& .MuiInputBase-input': {
+          color: 'white',
+        },
+        '& .MuiInputLabel-root': {
+          color: 'white',
+        },
+        '& .MuiOutlinedInput-root': {
+          '& fieldset': {
+            borderColor: 'white',
+          },
+          '&:hover fieldset': {
+            borderColor: 'white',
+          },
+          '&.Mui-focused fieldset': {
+            borderColor: 'white',
+          },
+          color: 'white',
+        },
+      }}
+    >
+      <DialogTitle sx={{ textAlign: 'center' }}>Create a new project </DialogTitle>
+      <DialogContent sx={{ textAlign: 'center' }}>
         <TextField
           autoFocus
           margin="dense"
-          label="Project Name"
+          label="Name"
           fullWidth
-          variant="filled"
+          variant="outlined"
           value={name}
           onChange={(e) => setName(e.target.value)}
+          sx={{ width: '90%' }}
         />
         <TextField
           margin="dense"
-          label="Description"
+          label="What is it about?"
           fullWidth
           multiline
           rows={4}
-          variant="filled"
+          variant="outlined"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
+          sx={{ width: '90%' }}
         />
       </DialogContent>
-      <DialogActions>
-        <Button variant="outlined" onClick={onClose}>
-          Cancel
-        </Button>
+      <DialogActions sx={{ justifyContent: 'center', marginBottom:'8px' }}>
         <Button variant="contained" onClick={handleSubmit}>
-          Add
+          Save
         </Button>
       </DialogActions>
     </Dialog>

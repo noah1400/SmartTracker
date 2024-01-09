@@ -5,12 +5,15 @@ import './Menu.css';
 import './App.css';
 import { Project } from './types';
 import ProjectOptions from './ProjectSettings';
-import { Box, Container, Grid, Paper } from '@mui/material';
-
+import { Badge, Box, Container, Grid, IconButton, Paper } from '@mui/material';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import LoginForm from './LoginForm';
 export default function App() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [activeProject, setActiveProject] = useState<Project | null>(null);
   const [activeProjectColor, setActiveProjectColor] = useState('defaultColor');
+  const [isLoginFormOpen, setLoginFormOpen] = useState(false);
+  const [Logged, setLogged] = useState(false);
 
   const activeProjectLocalID = activeProject
     ? activeProject.dataValues.localID
@@ -29,7 +32,7 @@ export default function App() {
     fetchProjects();
   }, []);
 
-  const handleSetActiveProject = (project: Project | null , color: string) => {
+  const handleSetActiveProject = (project: Project | null, color: string) => {
     setActiveProject(project);
     setActiveProjectColor(color || 'defaultColor');
   };
@@ -47,12 +50,42 @@ export default function App() {
       );
     }
   };
+  const handleOpenLoginForm = () => {
+    setLoginFormOpen(true);
+  };
+
+  const handleCloseLoginForm = () => {
+    setLoginFormOpen(false);
+  };
+  const handleLoginFormSubmit = async (username: string, password: string) => {
+    try {
+      const st = window.smarttracker;
+  
+      await st.connect(username, password);
+      setLogged(true);
+      handleCloseLoginForm();
+      /*if (st.isLoggedin()) {
+        console.log('Login successful');
+        setLogged(true);
+        handleCloseLoginForm();
+      } else {
+        console.error('Login failed');
+      }*/
+    } catch (error) {
+      console.error('Login error:', error);
+    }
+  };
+
+  const handleLogout = () => {
+    window.smarttracker.disconnect();
+    setLogged(false);
+  }; 
 
   return (
     <Container maxWidth="lg">
       <Grid container spacing={2}>
-        <Grid item xs={12}>
-          <Box mb={2}>
+        <Grid item xs={8}>
+          <Box mb={0}>
             <ProjectBar
               projects={projects}
               setActiveProject={handleSetActiveProject}
@@ -100,6 +133,39 @@ export default function App() {
               <ProjectOptions
                 activeProject={activeProject}
                 activeColor={activeProjectColor}
+              />
+            </Box>
+            <Box
+              style={{
+                position: 'absolute',
+                top: 0,
+                right: 0,
+                padding: '15px',
+              }}
+            >
+              <IconButton sx={{ color: 'white' }} onClick={handleOpenLoginForm}>
+                {Logged ? (
+                  <Badge
+                    overlap="circular"
+                    badgeContent=""
+                    color="success"
+                    anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'left',
+                    }}
+                  >
+                    <AccountCircleIcon sx={{ fontSize: '3.5rem' }} />
+                  </Badge>
+                ) : (
+                  <AccountCircleIcon sx={{ fontSize: '3.5rem' }} />
+                )}
+              </IconButton>
+              <LoginForm
+                open={isLoginFormOpen}
+                onClose={handleCloseLoginForm}
+                onSubmit={handleLoginFormSubmit}
+                isLoggedIn={Logged}
+                onLogout={handleLogout}
               />
             </Box>
           </Paper>

@@ -12,15 +12,7 @@ import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import PauseCircleIcon from '@mui/icons-material/PauseCircle';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
 import { Project } from './types';
-import { Translate } from '@mui/icons-material';
 
-interface TimeEntry {
-  localId: number | null;
-  startTime: Date;
-  endTime: Date | null;
-  description: string;
-  projectId: number;
-}
 
 interface TimerProps {
   activeProject: Project | null;
@@ -41,7 +33,6 @@ const Timer: React.FC<TimerProps> = ({
 }) => {
   const { seconds, minutes, hours, isRunning, start, pause, reset } =
     useStopwatch({ autoStart: false });
-  const [timeEntry, setTimeEntry] = useState<TimeEntry[]>([]);
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [description, setDescription] = useState('');
   const totalDuration = 60; // progress in seconds
@@ -66,7 +57,7 @@ const Timer: React.FC<TimerProps> = ({
         addTimeEntry(
           startTime,
           endTime,
-          'Test description',
+          description,
           activeProject ? activeProject.dataValues.localID : -1,
         );
       }
@@ -86,12 +77,8 @@ const Timer: React.FC<TimerProps> = ({
         endTime,
         description,
         projectId,
-      );
-      if (response.success) {
-        console.log('Time entry added');
-      } else {
-        console.log('Failed to add time entry', response.error);
-      }
+      ); 
+      
     } catch (error) {
       console.error('Error adding time entry:', error);
     }
@@ -136,7 +123,7 @@ const Timer: React.FC<TimerProps> = ({
         sx={{
           color: activeColor,
           '& .MuiCircularProgress-circle': {
-            strokeLinecap: 'square',
+            strokeLinecap: 'round',
           },
         }}
       />
@@ -160,6 +147,7 @@ const Timer: React.FC<TimerProps> = ({
         </Grid>
         <Grid item>
           <IconButton
+            className="timer-actions"
             onClick={resetStopwatch}
             style={iconButtonStyle}
             disabled={isButtonDisabled}
@@ -173,7 +161,7 @@ const Timer: React.FC<TimerProps> = ({
           marginTop: '130px',
           input: { color: 'white' },
           '& label': { color: 'grey' },
-          '& label.Mui-focused': { color: activeColor },
+          '& label.Mui-focused': { color: 'white' },
           '& .MuiOutlinedInput-root': {
             '& fieldset': { borderColor: 'white' },
             '&:hover fieldset': { borderColor: 'white' },
