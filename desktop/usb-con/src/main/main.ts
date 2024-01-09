@@ -38,13 +38,7 @@ let mainWindow: BrowserWindow | null = null;
 // ST.autoUpdateInterval = 1000;
 ipcMain.handle('connect', async (event, username, password) => {
   console.log('Connecting to server...');
-  try {
-    await ST.connect(username, password);
-    return true;
-  } catch (error) {
-    console.error(error);
-    return false;
-  }
+  return ST.connect(username, password);
 });
 ipcMain.handle('disconnect', async (event) => {
   console.log('Disconnecting from server...');
