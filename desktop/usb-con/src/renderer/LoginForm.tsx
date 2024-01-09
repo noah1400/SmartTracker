@@ -8,24 +8,22 @@ import {
   Button,
 } from '@mui/material';
 
-function LoginForm({
-  open,
-  onClose,
-  onSubmit,
-  isLoggedIn,
-  onLogout,
-}: {
-  open: boolean;
-  onClose: () => void;
-  onSubmit: (username: string, password: string) => void;
-  isLoggedIn: boolean;
-  onLogout: () => void;
-}) {
-  if (isLoggedIn) {
-    // View when user is logged in
-    return (
+function useLoginForm() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+
+  return {
+    username,
+    password,
+    setUsername,
+    setPassword,
+  };
+}
+
+function LoggedInView({ onLogout }: { onLogout: () => void }) {
+  return (
       <Dialog
-        open={open}
+        open={Boolean(open)}
         onClose={onClose}
         sx={{
           '& .MuiPaper-root': {
@@ -42,20 +40,24 @@ function LoginForm({
           </Button>
         </DialogActions>
       </Dialog>
-    );
-  }
-
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-
+    
+  );
+}
+function LoggedOutView({ username, password, setUsername, setPassword, onSubmit, onClose }: Readonly<{ 
+  username: string; 
+  password: string; 
+  setUsername: (username: string) => void; 
+  setPassword: (password: string) => void; 
+  onSubmit: (username: string, password: string) => void; 
+  onClose: () => void; 
+}>) {
   const handleSubmit = () => {
     onSubmit(username, password);
     onClose();
   };
-
   return (
     <Dialog
-      open={open}
+      open={Boolean(open)}
       onClose={onClose}
       sx={{
         '& .MuiPaper-root': {
@@ -110,6 +112,30 @@ function LoginForm({
         </Button>
       </DialogActions>
     </Dialog>
+  );
+}
+function LoginForm({ open, onClose, onSubmit, isLoggedIn, onLogout }: { 
+  open: boolean; 
+  onClose: () => void; 
+  onSubmit: (username: string, password: string) => void; 
+  isLoggedIn: boolean; 
+  onLogout: () => void; 
+}) {
+  const { username, password, setUsername, setPassword } = useLoginForm();
+
+  if (isLoggedIn) {
+    return <LoggedInView onLogout={onLogout} />;
+  }
+
+  return (
+    <LoggedOutView
+      username={username}
+      password={password}
+      setUsername={setUsername}
+      setPassword={setPassword}
+      onSubmit={onSubmit}
+      onClose={onClose}
+    />
   );
 }
 
