@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { Project } from './types';
 import { SpeedDialIcon } from '@mui/material';
 import ProjectForm from './ProjectForm';
+import DeleteForm from './DeleteForm';
 
 import InfoIcon from '@mui/icons-material/Info';
 
@@ -24,6 +25,21 @@ export default function ProjectOptions({
 
   const [formOpen, setFormOpen] = useState(false);
   const [resetForm, setResetForm] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+  const handleDelete = () => {
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    console.log('Project deleted');
+    // Add your delete logic here
+    setDeleteDialogOpen(false);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setDeleteDialogOpen(false);
+  };
 
   const handleOpenForm = () => {
     setFormOpen(true);
@@ -51,8 +67,8 @@ const onReset = () => {
     }
   };
 
-  const handleDelete = () => {
-    console.log('Delete');
+  const handleInfo = () => {
+    console.log('Info');
   };
   return (
     <Box sx={{ height: 70, transform: 'translateZ(0px)', flexGrow: 1 }}>
@@ -88,7 +104,7 @@ const onReset = () => {
       >
         <SpeedDialAction
           icon={<InfoIcon sx={{ color: '#282a2c' }} />}
-          onClick={handleEdit}
+          onClick={handleInfo}
           tooltipTitle="Infos"
           sx={{
             '& .MuiSvgIcon-root:hover': {
@@ -133,6 +149,11 @@ const onReset = () => {
         onSubmit={handleNewProject}
         resetForm={resetForm}
         onReset={onReset}
+      />
+      <DeleteForm
+       open={deleteDialogOpen}
+       onClose={handleCloseDeleteDialog}
+       onConfirm={confirmDelete}
       />
     </Box>
   );

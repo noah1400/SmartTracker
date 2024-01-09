@@ -6,7 +6,6 @@ import {
   DialogActions,
   TextField,
   Button,
-  InputAdornment,
 } from '@mui/material';
 
 function LoginForm({

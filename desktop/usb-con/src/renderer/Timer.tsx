@@ -57,7 +57,7 @@ const Timer: React.FC<TimerProps> = ({
         addTimeEntry(
           startTime,
           endTime,
-          'Test description',
+          description,
           activeProject ? activeProject.dataValues.localID : -1,
         );
       }
@@ -72,18 +72,12 @@ const Timer: React.FC<TimerProps> = ({
     projectId: number,
   ) => {
     try {
-      console.log("s: \n",  startTime, "\ne: \n", endTime, "\nd: \n", description, "\nid: \n", projectId); 
       const response = await window.smarttracker.addTimeEntry(
         startTime,
         endTime,
         description,
         projectId,
       ); 
-      if(response.success) {
-        console.log("Time entry added");
-      } else {
-        console.log("Failed to add time entry", response.error);
-      }
       
     } catch (error) {
       console.error('Error adding time entry:', error);
