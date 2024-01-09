@@ -8,6 +8,7 @@ import ProjectOptions from './ProjectSettings';
 import { Badge, Box, Container, Grid, IconButton, Paper } from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LoginForm from './LoginForm';
+import { SmartTracker } from '../main/SmartTracker/SmartTracker';
 export default function App() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [activeProject, setActiveProject] = useState<Project | null>(null);
@@ -58,16 +59,22 @@ export default function App() {
     setLoginFormOpen(false);
   };
   const handleLoginFormSubmit = async (username: string, password: string) => {
+    const ST = window.smarttracker; 
     try {
-      const st = window.smarttracker;
+      const response = await ST.connect(username, password);
   
-      st.connect(username, password);
-      setLogged(true);
-      handleCloseLoginForm();
-      //improve error handling
+      if(response) {
+        setLogged(true);
+        handleCloseLoginForm();
+        console.log('Login successful');
+      } else {
+        console.log('Login failed');
+
+      }
       
     } catch (error) {
       console.error('Login error:', error);
+      console.log('Login failed');
     }
   };
 

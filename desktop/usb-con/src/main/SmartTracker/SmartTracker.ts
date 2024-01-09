@@ -76,7 +76,7 @@ class SmartTracker {
 
             console.log("Logged in with token: " + this.token);
             this.stApiInstance.token = this.token;
-            return result_1.success;
+            return result_1.success ;
         } catch (err) {
             console.log(err);
             throw err; // Re-throw the error to be caught by the caller

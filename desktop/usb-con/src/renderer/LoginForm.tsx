@@ -72,7 +72,7 @@ function LoginForm({ open, onClose, onSubmit, isLogged, onLogout }: Readonly<{
           variant="outlined"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          sx={{ width: '80%' }}
+          sx={{ width: '70%' }}
         />
         <TextField
           margin="dense"
@@ -81,7 +81,7 @@ function LoginForm({ open, onClose, onSubmit, isLogged, onLogout }: Readonly<{
           variant="outlined"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          sx={{ width: '80%' }}
+          sx={{ width: '70%' }}
         />
       </DialogContent>
       <DialogActions sx={{ justifyContent: 'center', marginBottom: '8px' }}>
