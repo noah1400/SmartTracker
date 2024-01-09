@@ -13,7 +13,7 @@ export default function App() {
   const [activeProject, setActiveProject] = useState<Project | null>(null);
   const [activeProjectColor, setActiveProjectColor] = useState('defaultColor');
   const [isLoginFormOpen, setLoginFormOpen] = useState(false);
-  const [Logged, setLogged] = useState(false);
+  const [logged, setLogged] = useState(false);
 
   const activeProjectLocalID = activeProject
     ? activeProject.dataValues.localID
@@ -61,16 +61,11 @@ export default function App() {
     try {
       const st = window.smarttracker;
   
-      await st.connect(username, password);
+      st.connect(username, password);
       setLogged(true);
       handleCloseLoginForm();
-      /*if (st.isLoggedin()) {
-        console.log('Login successful');
-        setLogged(true);
-        handleCloseLoginForm();
-      } else {
-        console.error('Login failed');
-      }*/
+      //improve error handling
+      
     } catch (error) {
       console.error('Login error:', error);
     }
@@ -144,7 +139,7 @@ export default function App() {
               }}
             >
               <IconButton sx={{ color: 'white' }} onClick={handleOpenLoginForm}>
-                {Logged ? (
+                {logged ? (
                   <Badge
                     overlap="circular"
                     badgeContent=""
@@ -164,7 +159,7 @@ export default function App() {
                 open={isLoginFormOpen}
                 onClose={handleCloseLoginForm}
                 onSubmit={handleLoginFormSubmit}
-                isLoggedIn={Logged}
+                isLogged={logged}
                 onLogout={handleLogout}
               />
             </Box>
