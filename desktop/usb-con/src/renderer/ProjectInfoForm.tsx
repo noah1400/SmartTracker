@@ -1,15 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogTitle, DialogContent, List, ListItem, ListItemText } from '@mui/material';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  List,
+  ListItem,
+  ListItemText,
+} from '@mui/material';
+import { Project } from './types';
 
-const ProjectInfoForm = ({ open, onClose, project }) => {
+const ProjectInfoForm = ({
+  open,
+  onClose,
+  project,
+}: {
+  open: boolean;
+  onClose: () => void;
+  project: Project | null;
+}) => {
   const [timeEntries, setTimeEntries] = useState([]);
 
   useEffect(() => {
     const fetchTimeEntries = async () => {
-      if (project && project.id) {
+      if (project && project.dataValues.localID) {
         try {
-          const entries = await window.smarttracker.getTimeEntriesByProject(project.id);
-          setTimeEntries(entries);
+          const entries = await window.smarttracker.getProjectTimeEntries(
+            project.dataValues.localID);
+          console.log('Entries:', entries);
+          setTimeEntries(entries || []);
         } catch (error) {
           console.error('Error fetching time entries:', error);
           // Handle errors appropriately
@@ -27,9 +45,12 @@ const ProjectInfoForm = ({ open, onClose, project }) => {
       <DialogTitle>Project Info</DialogTitle>
       <DialogContent>
         <List>
-          {timeEntries.map((entry, index) => (
+          {timeEntries.map((timeentry, index) => (
             <ListItem key={index}>
-              <ListItemText primary={`Entry ${index + 1}`} secondary={`Time: ${entry.time}`} />
+              <ListItemText
+                primary={`Entry ${index + 1}`}
+                //secondary={`Time: ${timeentry.dataValues.startTime}}`}
+              />
             </ListItem>
           ))}
         </List>

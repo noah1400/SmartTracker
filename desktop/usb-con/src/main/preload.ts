@@ -58,6 +58,9 @@ const stHandler = {
   manualUpdate: async () => {
     return ipcRenderer.invoke('manual-update-request');
   },
+  getProjectTimeEntries: async (projectId: number) => {
+    return ipcRenderer.invoke('getProjectTimeEntries', projectId);
+  },
 };
 
 contextBridge.exposeInMainWorld('smarttracker', stHandler);

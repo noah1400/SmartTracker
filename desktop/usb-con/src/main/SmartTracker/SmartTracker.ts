@@ -200,7 +200,7 @@ class SmartTracker {
         return this.localStorage.getTimeEntryByID(id);
     }
 
-    getTimeEntriesByProject(projectId: number) {
+    getProjectTimeEntries(projectId: number) {
         return this.localStorage.getProjectTimeEntries(projectId);
     }
 

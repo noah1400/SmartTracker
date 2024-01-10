@@ -88,6 +88,15 @@ ipcMain.handle('getProjects', async () => {
 ipcMain.handle('getTimeEntries', async () => {
   return await ST.timeEntries;
 });
+ipcMain.handle('getProjectTimeEntries', async (event, projectId) => {
+  try {
+     await ST.getProjectTimeEntries(projectId);
+      return {success: true};
+  } catch (error) {
+    console.error(error);
+    return {success: false, error: error};
+  }
+});
 ipcMain.handle('addProject', async (event, name, description) => {
   try {
     await ST.addProject(name, description);

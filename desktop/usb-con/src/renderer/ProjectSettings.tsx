@@ -29,15 +29,20 @@ export default function ProjectOptions({
   const [formOpen, setFormOpen] = useState(false);
   const [resetForm, setResetForm] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [infoFormOpen, setInfoFormOpen] = useState(false);
   const [syncAlert, setSyncAlert] = useState({ open: false, message: '' });
 
   const handleDelete = () => {
     setDeleteDialogOpen(true);
   };
+  const handleInfo = () => {
+    setInfoFormOpen(true); 
+  };
+  
 
   const confirmDelete = () => {
     console.log('Project deleted');
-    // Add your delete logic here
+    // Add delete logic here
     setDeleteDialogOpen(false);
   };
 
@@ -60,7 +65,6 @@ export default function ProjectOptions({
       if (response.success) {
         console.log('Project added');
         setResetForm(true);
-        console.log(syncAlert);
         setSyncAlert({ open: true, message: 'Project created' });
       } else {
         console.log('Failed to add project', response.error);
@@ -76,11 +80,6 @@ export default function ProjectOptions({
     setSyncAlert({ ...syncAlert, open: false });
   };
 
-  const handleInfo = () => {
-    console.log('Info');
-  };
-
-  console.log(syncAlert);
 
   return (
     <Box>
@@ -175,6 +174,11 @@ export default function ProjectOptions({
           onClose={handleCloseDeleteDialog}
           onConfirm={confirmDelete}
         />
+        <ProjectInfoForm
+          open={infoFormOpen}
+          onClose={() => setFormOpen(false)}
+          project={activeProject}
+          />
       </Box>
       <Snackbar
           open={syncAlert.open}
