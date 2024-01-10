@@ -17,12 +17,16 @@ import {
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LoginForm from './LoginForm';
 import CloudSyncIcon from '@mui/icons-material/CloudSync';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+
 export default function App() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [activeProject, setActiveProject] = useState<Project | null>(null);
   const [activeProjectColor, setActiveProjectColor] = useState('defaultColor');
   const [isLoginFormOpen, setLoginFormOpen] = useState(false);
   const [logged, setLogged] = useState(false);
+  const [syncAlert, setSyncAlert] = useState({ open: false, message: '' });
 
   const activeProjectLocalID = activeProject
     ? activeProject.dataValues.localID
@@ -90,6 +94,7 @@ export default function App() {
       const response = await window.smarttracker.manualUpdate();
       if (response.success) {
         console.log('Sync successful');
+        setSyncAlert({ open: true, message: 'Sync successful' });
       } else {
         console.log('Sync failed');
       }
@@ -101,6 +106,12 @@ export default function App() {
   const handleLogout = () => {
     window.smarttracker.disconnect();
     setLogged(false);
+  };
+  const handleCloseAlert = (event: any, reason: any) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSyncAlert({ ...syncAlert, open: false });
   };
 
   return (
@@ -169,7 +180,7 @@ export default function App() {
                 sx={{
                   color: 'white',
                   '&.Mui-disabled': {
-                    color: 'grey', 
+                    color: 'grey',
                   },
                 }}
                 onClick={manualSync}
@@ -201,6 +212,20 @@ export default function App() {
                 isLogged={logged}
                 onLogout={handleLogout}
               />
+              <Snackbar
+                open={syncAlert.open}
+                autoHideDuration={3000}
+                onClose={handleCloseAlert}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              >
+                <Alert
+                  onClose={handleCloseAlert}
+                  severity="success"
+                  sx={{ width: '100%' }}
+                >
+                  {syncAlert.message}
+                </Alert>
+              </Snackbar>
             </Box>
           </Paper>
         </Grid>
