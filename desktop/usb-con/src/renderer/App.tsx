@@ -5,15 +5,28 @@ import './Menu.css';
 import './App.css';
 import { Project } from './types';
 import ProjectOptions from './ProjectSettings';
-import { Badge, Box, Container, Grid, IconButton, Paper } from '@mui/material';
+import {
+  Badge,
+  Box,
+  Button,
+  Container,
+  Grid,
+  IconButton,
+  Paper,
+} from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LoginForm from './LoginForm';
+import CloudSyncIcon from '@mui/icons-material/CloudSync';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+
 export default function App() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [activeProject, setActiveProject] = useState<Project | null>(null);
   const [activeProjectColor, setActiveProjectColor] = useState('defaultColor');
   const [isLoginFormOpen, setLoginFormOpen] = useState(false);
   const [logged, setLogged] = useState(false);
+  const [syncAlert, setSyncAlert] = useState({ open: false, message: '' });
 
   const activeProjectLocalID = activeProject
     ? activeProject.dataValues.localID
@@ -58,23 +71,48 @@ export default function App() {
     setLoginFormOpen(false);
   };
   const handleLoginFormSubmit = async (username: string, password: string) => {
+    const ST = window.smarttracker;
     try {
-      const st = window.smarttracker;
-  
-      st.connect(username, password);
-      setLogged(true);
-      handleCloseLoginForm();
-      //improve error handling
-      
+      const response = await ST.connect(username, password);
+
+      if (response) {
+        setLogged(true);
+        handleCloseLoginForm();
+        console.log('Login successful');
+      } else {
+        console.log('Login failed');
+      }
     } catch (error) {
       console.error('Login error:', error);
+      handleOpenLoginForm();
+
+      console.log('Login failed');
+    }
+  };
+  const manualSync = async () => {
+    try {
+      const response = await window.smarttracker.manualUpdate();
+      if (response.success) {
+        console.log('Sync successful');
+        setSyncAlert({ open: true, message: 'Sync successful' });
+      } else {
+        console.log('Sync failed');
+      }
+    } catch (error) {
+      console.error('Sync error:', error);
     }
   };
 
   const handleLogout = () => {
     window.smarttracker.disconnect();
     setLogged(false);
-  }; 
+  };
+  const handleCloseAlert = (event: any, reason: any) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSyncAlert({ ...syncAlert, open: false });
+  };
 
   return (
     <Container maxWidth="lg">
@@ -138,6 +176,18 @@ export default function App() {
                 padding: '15px',
               }}
             >
+              <IconButton
+                sx={{
+                  color: 'white',
+                  '&.Mui-disabled': {
+                    color: 'grey',
+                  },
+                }}
+                onClick={manualSync}
+                disabled={!logged}
+              >
+                <CloudSyncIcon sx={{ fontSize: '2rem' }} />
+              </IconButton>
               <IconButton sx={{ color: 'white' }} onClick={handleOpenLoginForm}>
                 {logged ? (
                   <Badge
@@ -162,6 +212,20 @@ export default function App() {
                 isLogged={logged}
                 onLogout={handleLogout}
               />
+              <Snackbar
+                open={syncAlert.open}
+                autoHideDuration={3000}
+                onClose={handleCloseAlert}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              >
+                <Alert
+                  onClose={handleCloseAlert}
+                  severity="success"
+                  sx={{ width: '100%' }}
+                >
+                  {syncAlert.message}
+                </Alert>
+              </Snackbar>
             </Box>
           </Paper>
         </Grid>

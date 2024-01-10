@@ -66,7 +66,9 @@ function ProjectForm({
         },
       }}
     >
-      <DialogTitle sx={{ textAlign: 'center' }}>Create a new project </DialogTitle>
+      <DialogTitle sx={{ textAlign: 'center' }}>
+        Create a new project{' '}
+      </DialogTitle>
       <DialogContent sx={{ textAlign: 'center' }}>
         <TextField
           autoFocus
@@ -76,7 +78,12 @@ function ProjectForm({
           variant="outlined"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          sx={{ width: '90%' }}
+          sx={{
+            width: '90%',
+            '& label.Mui-focused': {
+              color: 'white',
+            },
+          }}
         />
         <TextField
           margin="dense"
@@ -87,10 +94,15 @@ function ProjectForm({
           variant="outlined"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          sx={{ width: '90%' }}
+          sx={{
+            width: '90%',
+            '& label.Mui-focused': {
+              color: 'white',
+            },
+          }}
         />
       </DialogContent>
-      <DialogActions sx={{ justifyContent: 'center', marginBottom:'8px' }}>
+      <DialogActions sx={{ justifyContent: 'center', marginBottom: '8px' }}>
         <Button variant="contained" onClick={handleSubmit}>
           Save
         </Button>

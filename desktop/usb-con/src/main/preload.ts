@@ -55,6 +55,12 @@ const stHandler = {
   addTimeEntry: (startTime: Date, endTime: Date, description: string, projectId: number) => {
     return ipcRenderer.invoke('add-time-entry', startTime, endTime, description, projectId)
   }, 
+  manualUpdate: async () => {
+    return ipcRenderer.invoke('manual-update-request');
+  },
+  getProjectTimeEntries: async (projectId: number) => {
+    return ipcRenderer.invoke('getProjectTimeEntries', projectId);
+  },
 };
 
 contextBridge.exposeInMainWorld('smarttracker', stHandler);

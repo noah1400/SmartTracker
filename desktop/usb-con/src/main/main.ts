@@ -71,12 +71,31 @@ ipcMain.handle('autoUpdateInterval', async (event, autoUpdateInterval: number) =
   }
 });
 
+ipcMain.handle('manual-update-request', async (event, args) => {
+  try{
+    await ST.manualUpdate();
+    return {success: true};
+  } catch (error) {
+    console.error(error);
+    return {success: false, error: error};
+  }
+});
+
 ipcMain.handle('getProjects', async () => {
   return await ST.projects; 
 });
 
 ipcMain.handle('getTimeEntries', async () => {
   return await ST.timeEntries;
+});
+ipcMain.handle('getProjectTimeEntries', async (event, projectId) => {
+  try {
+     await ST.getProjectTimeEntries(projectId);
+      return {success: true};
+  } catch (error) {
+    console.error(error);
+    return {success: false, error: error};
+  }
 });
 ipcMain.handle('addProject', async (event, name, description) => {
   try {
