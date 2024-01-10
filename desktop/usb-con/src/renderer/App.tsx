@@ -5,10 +5,18 @@ import './Menu.css';
 import './App.css';
 import { Project } from './types';
 import ProjectOptions from './ProjectSettings';
-import { Badge, Box, Container, Grid, IconButton, Paper } from '@mui/material';
+import {
+  Badge,
+  Box,
+  Button,
+  Container,
+  Grid,
+  IconButton,
+  Paper,
+} from '@mui/material';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LoginForm from './LoginForm';
-import { SmartTracker } from '../main/SmartTracker/SmartTracker';
+import CloudSyncIcon from '@mui/icons-material/CloudSync';
 export default function App() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [activeProject, setActiveProject] = useState<Project | null>(null);
@@ -59,29 +67,41 @@ export default function App() {
     setLoginFormOpen(false);
   };
   const handleLoginFormSubmit = async (username: string, password: string) => {
-    const ST = window.smarttracker; 
+    const ST = window.smarttracker;
     try {
       const response = await ST.connect(username, password);
-  
-      if(response) {
+
+      if (response) {
         setLogged(true);
         handleCloseLoginForm();
         console.log('Login successful');
       } else {
         console.log('Login failed');
-
       }
-      
     } catch (error) {
       console.error('Login error:', error);
+      handleOpenLoginForm();
+
       console.log('Login failed');
+    }
+  };
+  const manualSync = async () => {
+    try {
+      const response = await window.smarttracker.manualUpdate();
+      if (response.success) {
+        console.log('Sync successful');
+      } else {
+        console.log('Sync failed');
+      }
+    } catch (error) {
+      console.error('Sync error:', error);
     }
   };
 
   const handleLogout = () => {
     window.smarttracker.disconnect();
     setLogged(false);
-  }; 
+  };
 
   return (
     <Container maxWidth="lg">
@@ -145,6 +165,18 @@ export default function App() {
                 padding: '15px',
               }}
             >
+              <IconButton
+                sx={{
+                  color: 'white',
+                  '&.Mui-disabled': {
+                    color: 'grey', 
+                  },
+                }}
+                onClick={manualSync}
+                disabled={!logged}
+              >
+                <CloudSyncIcon sx={{ fontSize: '2rem' }} />
+              </IconButton>
               <IconButton sx={{ color: 'white' }} onClick={handleOpenLoginForm}>
                 {logged ? (
                   <Badge

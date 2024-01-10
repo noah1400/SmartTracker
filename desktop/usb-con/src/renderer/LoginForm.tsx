@@ -6,7 +6,10 @@ import {
   DialogActions,
   TextField,
   Button,
+  FormControlLabel,
+  Switch,
 } from '@mui/material';
+import { Title } from '@mui/icons-material';
 
 function useLoginForm() {
   const [username, setUsername] = useState('');
@@ -20,19 +23,80 @@ function useLoginForm() {
   };
 }
 
-function LoginForm({ open, onClose, onSubmit, isLogged, onLogout }: Readonly<{ 
-  open: boolean; 
-  onClose: () => void; 
-  onSubmit: (username: string, password: string) => void; 
-  isLogged: boolean; 
-  onLogout: () => void; 
+function LoginForm({
+  open,
+  onClose,
+  onSubmit,
+  isLogged,
+  onLogout,
+}: Readonly<{
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (username: string, password: string) => void;
+  isLogged: boolean;
+  onLogout: () => void;
 }>) {
   const { username, password, setUsername, setPassword } = useLoginForm();
+  const [autoUpdateEnabled, setAutoUpdateEnabled] = useState(false);
 
   const handleSubmit = () => {
     onSubmit(username, password);
     onClose();
   };
+  const handleSwitchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setAutoUpdateEnabled(event.target.checked);
+    handleAutoUpdate(event.target.checked);
+  };
+
+  const handleAutoUpdate = (enabled: boolean) => {
+    const st = window.smarttracker;
+    /*st.autoUpdate(enabled);
+    st.autoUpdateInterval(10000);
+    console.log('autoUpdateEnabled: ', autoUpdateEnabled);*/
+  };
+
+  const renderLoginFields = () => (
+    <>
+      <TextField
+        autoFocus
+        margin="dense"
+        label="Username"
+        variant="outlined"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        sx={{
+          width: '70%',
+          '& label.Mui-focused': {
+            color: 'white',
+          },
+        }}
+      />
+      <TextField
+        margin="dense"
+        label="Password"
+        type="password"
+        variant="outlined"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        sx={{
+          width: '70%',
+          '& label.Mui-focused': {
+            color: 'white',
+          },
+        }}
+      />
+    </>
+  );
+  const renderSettings = () => (
+    <div>
+      <FormControlLabel
+        label="Autosync"
+        control={
+          <Switch checked={autoUpdateEnabled} onChange={handleSwitchChange} />
+        }
+      />
+    </div>
+  );
 
   return (
     <Dialog
@@ -63,36 +127,26 @@ function LoginForm({ open, onClose, onSubmit, isLogged, onLogout }: Readonly<{
         },
       }}
     >
-      <DialogTitle sx={{ textAlign: 'center' }}>Access Services</DialogTitle>
+      <DialogTitle sx={{ textAlign: 'center' }}>
+        {isLogged ? `Welcome, ${username}!` : 'Access Services'}
+      </DialogTitle>
       <DialogContent sx={{ textAlign: 'center' }}>
-        <TextField
-          autoFocus
-          margin="dense"
-          label="Username"
-          variant="outlined"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          sx={{ width: '70%' }}
-        />
-        <TextField
-          margin="dense"
-          label="Password"
-          type="password"
-          variant="outlined"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          sx={{ width: '70%' }}
-        />
+        {isLogged ? renderSettings() : renderLoginFields()}
       </DialogContent>
       <DialogActions sx={{ justifyContent: 'center', marginBottom: '8px' }}>
-        {isLogged && (
-          <Button variant="outlined" onClick={onLogout} sx={{ mr: 2, color: 'white' }}>
+        {isLogged ? (
+          <Button
+            variant="contained"
+            onClick={onLogout}
+            sx={{ mr: 2, color: 'white' }}
+          >
             Logout
           </Button>
+        ) : (
+          <Button variant="contained" onClick={handleSubmit}>
+            Login
+          </Button>
         )}
-        <Button variant="contained" onClick={handleSubmit}>
-          {isLogged ? 'Update' : 'Login'}
-        </Button>
       </DialogActions>
     </Dialog>
   );
