@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useStopwatch } from 'react-timer-hook';
 import './Timer.css';
-import { CircularProgress, IconButton, TextField } from '@mui/material';
+import {
+  CircularProgress,
+  IconButton,
+  TextField,
+  Box,
+  Grid,
+} from '@mui/material';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import PauseCircleIcon from '@mui/icons-material/PauseCircle';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
 import { Project } from './types';
-import { Translate } from '@mui/icons-material';
 
-interface TimeEntry {
-  localId: number | null;
-  startTime: Date;
-  endTime: Date | null;
-  description: string;
-  projectId: number;
-}
 
 interface TimerProps {
   activeProject: Project | null;
@@ -35,7 +33,6 @@ const Timer: React.FC<TimerProps> = ({
 }) => {
   const { seconds, minutes, hours, isRunning, start, pause, reset } =
     useStopwatch({ autoStart: false });
-  const [timeEntry, setTimeEntry] = useState<TimeEntry[]>([]);
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [description, setDescription] = useState('');
   const totalDuration = 60; // progress in seconds
@@ -60,7 +57,7 @@ const Timer: React.FC<TimerProps> = ({
         addTimeEntry(
           startTime,
           endTime,
-          'Test description',
+          description,
           activeProject ? activeProject.dataValues.localID : -1,
         );
       }
@@ -80,12 +77,8 @@ const Timer: React.FC<TimerProps> = ({
         endTime,
         description,
         projectId,
-      );
-      if (response.success) {
-        console.log('Time entry added');
-      } else {
-        console.log('Failed to add time entry', response.error);
-      }
+      ); 
+      
     } catch (error) {
       console.error('Error adding time entry:', error);
     }
@@ -116,64 +109,76 @@ const Timer: React.FC<TimerProps> = ({
   };
   const isButtonDisabled = !activeProject;
   const elapsedTimeInSeconds = hours * 3600 + minutes * 60 + seconds;
-  const timeValue = ((elapsedTimeInSeconds % totalDuration)  / totalDuration) * 100;
+  const timeValue =
+    ((elapsedTimeInSeconds % totalDuration) / totalDuration) * 100;
 
   return (
-    <div className="timer-container">
+    <Box className="timer-container" position="relative" textAlign="center">
       <CircularProgress
         variant="determinate"
         value={timeValue}
-         
         className="circular-progress"
         thickness={2.8}
-        size={300}
+        size={280}
         sx={{
           color: activeColor,
           '& .MuiCircularProgress-circle': {
-            strokeLinecap: 'round'
+            strokeLinecap: 'round',
           },
         }}
       />
-      <p className="timer-display">{formatTime()}</p>
-      <IconButton
-        onClick={toggleTimer}
-        style={iconButtonStyle}
-        disabled={isButtonDisabled}
+      <Box className="timer-display" position="relative" zIndex="2" sx={{marginTop: '30px',}}>
+        {formatTime()}
+      </Box>
+      <Grid container spacing={2} justifyContent="center">
+        <Grid item>
+          <IconButton
+           className="timer-actions"
+            onClick={toggleTimer}
+            style={iconButtonStyle}
+            disabled={isButtonDisabled}
+          >
+            {isRunning ? (
+              <PauseCircleIcon fontSize="large" />
+            ) : (
+              <PlayCircleIcon fontSize="large" />
+            )}
+          </IconButton>
+        </Grid>
+        <Grid item>
+          <IconButton
+            className="timer-actions"
+            onClick={resetStopwatch}
+            style={iconButtonStyle}
+            disabled={isButtonDisabled}
+          >
+            <StopCircleIcon fontSize="large" />
+          </IconButton>
+        </Grid>
+      </Grid>
+      <Box 
+        sx={{
+          marginTop: '130px',
+          input: { color: 'white' },
+          '& label': { color: 'grey' },
+          '& label.Mui-focused': { color: 'white' },
+          '& .MuiOutlinedInput-root': {
+            '& fieldset': { borderColor: 'white' },
+            '&:hover fieldset': { borderColor: 'white' },
+            '&.Mui-focused fieldset': { borderColor: 'white' },
+          },
+        }}
       >
-        {isRunning ? (
-          <PauseCircleIcon fontSize="large" />
-        ) : (
-          <PlayCircleIcon fontSize="large" />
-        )}
-      </IconButton>
-      <IconButton
-        onClick={resetStopwatch}
-        style={iconButtonStyle}
-        disabled={isButtonDisabled}
-      >
-        <StopCircleIcon fontSize="large" />
-      </IconButton>
-      <div>
         <TextField
+          className="notes-textfield"
           label="Notes"
           variant="outlined"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          style={{ margin: '40px' }}
-          sx={{
-            input: { color: 'white' }, // Changes the text color
-            '& label': { color: 'grey' }, // Changes the label color
-            '& label.Mui-focused': { color: activeColor }, // Changes the label color when focused
-            '& .MuiOutlinedInput-root': {
-              '& fieldset': { borderColor: 'white' }, // Changes the border color
-              '&:hover fieldset': { borderColor: 'white' }, // Changes the border color on hover
-              '&.Mui-focused fieldset': { borderColor: 'white' }, // Changes the border color when focused
-            marginTop: '40px',
-            },
-          }}
+          fullWidth
         />
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 };
 

@@ -31,8 +31,8 @@ ipcRenderer.on('data', (event, data) => {
 contextBridge.exposeInMainWorld('electron', electronHandler);
 
 const stHandler = {
-  connect(username: string, password: string) {
-    ipcRenderer.invoke('connect', username, password);
+  async connect(username: string, password: string) {
+    return ipcRenderer.invoke('connect', username, password);
   },
   disconnect() {
     ipcRenderer.invoke('disconnect');
@@ -55,6 +55,12 @@ const stHandler = {
   addTimeEntry: (startTime: Date, endTime: Date, description: string, projectId: number) => {
     return ipcRenderer.invoke('add-time-entry', startTime, endTime, description, projectId)
   }, 
+  manualUpdate: async () => {
+    return ipcRenderer.invoke('manual-update-request');
+  },
+  getProjectTimeEntries: async (projectId: number) => {
+    return ipcRenderer.invoke('getProjectTimeEntries', projectId);
+  },
 };
 
 contextBridge.exposeInMainWorld('smarttracker', stHandler);

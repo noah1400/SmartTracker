@@ -45,36 +45,44 @@ class SmartTracker {
     }
 
     // connect to server:
-    connect(username: string, password: string) {
+    async connect(username: string, password: string): Promise<boolean> {
         console.log("Connecting to server...");
 
+        // Check if already logged in
         if (this.stAuthInstance.isLoggedin()) {
             this.token = this.stAuthInstance.TOKEN;
             if (this.token) {
                 this.stApiInstance.token = this.token;
                 console.log("Already logged in with token: " + this.token);
-                return;
+                return Promise.resolve(true);
             }
         }
+
+        // Validate credentials
         if (!username || !password) {
-            throw new Error("Username and password required");
+            return Promise.reject(new Error("Username and password required"));
         }
-        // not logged in, try to login
-        this.stAuthInstance.login(username, password)
-            .then((result: any) => {
-                console.log(result);
-                this.token = result.data.token;
-                if (!this.token) {
-                    console.error("Login failed, no token received.");
-                    throw new Error("Login failed, no token received.");
-                }
-                console.log("Logged in with token: " + this.token);
-                this.stApiInstance.token = this.token;
-            })
-            .catch((err: any) => {
-                console.log(err);
-            });
+
+        // Attempt to login
+        try {
+            const result_1 = await this.stAuthInstance.login(username, password);
+            console.log(result_1);
+            this.token = result_1.data.token;
+
+            if (!this.token) {
+                console.error("Login failed, no token received.");
+                throw new Error("Login failed, no token received.");
+            }
+
+            console.log("Logged in with token: " + this.token);
+            this.stApiInstance.token = this.token;
+            return result_1.success ;
+        } catch (err) {
+            console.log(err);
+            throw err; // Re-throw the error to be caught by the caller
+        }
     }
+
 
     // disconnect from server
     disconnect() {
@@ -192,7 +200,7 @@ class SmartTracker {
         return this.localStorage.getTimeEntryByID(id);
     }
 
-    getTimeEntriesByProject(projectId: number) {
+    getProjectTimeEntries(projectId: number) {
         return this.localStorage.getProjectTimeEntries(projectId);
     }
 

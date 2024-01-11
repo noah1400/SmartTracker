@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
-import Timer from './Timer';
 
 const container = document.getElementById('root') as HTMLElement;
 
@@ -13,10 +12,6 @@ ReactDOM.render(
   container
 );
 
-const st = window.smarttracker;
-st.connect('admin', 'admin');
-st.autoUpdate(true);
-st.autoUpdateInterval(10000);
 
 // calling IPC exposed from preload script
 window.electron.ipcRenderer.once('ipc-example', (arg) => {

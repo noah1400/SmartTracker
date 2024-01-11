@@ -38,13 +38,7 @@ let mainWindow: BrowserWindow | null = null;
 // ST.autoUpdateInterval = 1000;
 ipcMain.handle('connect', async (event, username, password) => {
   console.log('Connecting to server...');
-  try {
-    await ST.connect(username, password);
-    return true;
-  } catch (error) {
-    console.error(error);
-    return false;
-  }
+  return ST.connect(username, password);
 });
 ipcMain.handle('disconnect', async (event) => {
   console.log('Disconnecting from server...');
@@ -77,12 +71,31 @@ ipcMain.handle('autoUpdateInterval', async (event, autoUpdateInterval: number) =
   }
 });
 
+ipcMain.handle('manual-update-request', async (event, args) => {
+  try{
+    await ST.manualUpdate();
+    return {success: true};
+  } catch (error) {
+    console.error(error);
+    return {success: false, error: error};
+  }
+});
+
 ipcMain.handle('getProjects', async () => {
   return await ST.projects; 
 });
 
 ipcMain.handle('getTimeEntries', async () => {
   return await ST.timeEntries;
+});
+ipcMain.handle('getProjectTimeEntries', async (event, projectId) => {
+  try {
+     await ST.getProjectTimeEntries(projectId);
+      return {success: true};
+  } catch (error) {
+    console.error(error);
+    return {success: false, error: error};
+  }
 });
 ipcMain.handle('addProject', async (event, name, description) => {
   try {
@@ -100,7 +113,7 @@ ipcMain.on('ipc-example', async (event, arg) => {
 });
 ipcMain.handle('add-time-entry', async (event, startTime, endTime, description, projectId) => {
   try {
-    await ST.addTimeEntry(startTime, endTime, description, projectId);
+    ST.addTimeEntry(projectId, description, startTime, endTime);
     return { status: 'success' };
   } catch (error: any) {
     return { status: 'error', message: error.message };

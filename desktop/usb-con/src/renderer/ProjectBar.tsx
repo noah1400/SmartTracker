@@ -41,12 +41,6 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
     }
   }, [projects]);
 
-  useEffect(() => {
-    if (projects.length > 0) {
-      console.log("Example project:", projects[0].dataValues);
-    }
-  }, [projects]);
-
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     const newActiveProject = projects[newValue] || null;
     const newColor = tabColor[newValue];
@@ -164,6 +158,8 @@ const ProjectBar: React.FC<ProjectBarProps> = ({
                 activeProjectIndex !== null
                   ? `#${tabColor[activeProjectIndex]}`
                   : 'defaultColor',
+              height: '6px',
+              borderRadius: '10px',
             },
           }}
         >
