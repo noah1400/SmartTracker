@@ -16,6 +16,7 @@ query.set_field('timeEntries', time_entry_queries.resolve_time_entries)
 query.set_field('timeEntry', time_entry_queries.resolve_time_entry)
 query.set_field('users', user_queries.resolve_users)
 query.set_field('user', user_queries.resolve_user)
+query.set_field('timeEntriesByProject', time_entry_queries.resolve_time_entries_by_project)
 
 user_type = ObjectType('User')
 user_type.set_field('timeEntries', time_entry_queries.resolve_time_entries_for_user)

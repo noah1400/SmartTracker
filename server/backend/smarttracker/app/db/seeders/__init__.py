@@ -62,6 +62,7 @@ def create_roles_with_permissions():
     userPermissions += Permission.query.filter(Permission.name.like('update:own_%')).all()
     userPermissions += Permission.query.filter(Permission.name.like('create:own_%')).all()
     userPermissions += Permission.query.filter(Permission.name.like('delete:own_%')).all()
+    userPermissions += Permission.query.filter(Permission.name.like('read:projects')).all()
 
     user.permissions = userPermissions
 

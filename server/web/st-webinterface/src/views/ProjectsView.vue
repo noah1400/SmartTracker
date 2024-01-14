@@ -18,8 +18,6 @@
           id
           name
           description
-          createdAt
-          updatedAt
         }
       }
     `;

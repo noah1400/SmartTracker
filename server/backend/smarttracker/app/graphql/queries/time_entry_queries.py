@@ -42,3 +42,13 @@ def resolve_time_entries_for_project(project: dict, info):
     
     filtered_time_entries = [ te.to_dict() for te in TimeEntry.query.filter_by(project_id=project['id']).all() if is_authorized_for_action('time_entry', 'read', te.user_id) ]
     return filtered_time_entries
+
+def resolve_time_entries_by_project(obj, info, projectId):
+    if is_authorized_for_action('time_entry', 'read'):
+        time_entries = [time_entry.to_dict() for time_entry in TimeEntry.query.filter_by(project_id=projectId).all()]
+        return time_entries
+    elif is_authorized_for_action('time_entry', 'read', auth.user.id):
+        time_entries = [time_entry.to_dict() for time_entry in TimeEntry.query.filter_by(project_id=projectId, user_id=auth.user.id).all()]
+        return time_entries
+    else:
+        raise unauthorized
