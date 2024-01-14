@@ -16,7 +16,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 bg-white">
-                            <tr v-for="project in projects" :key="project.name">
+                            <tr v-for="project in projects" :key="project.id" @click="navigateToProject(project.id)" class="cursor-pointer hover:bg-gray-100">
                                 <td
                                     class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8">
                                     {{ project.name }}</td>
@@ -32,10 +32,21 @@
 </template>
   
 <script>
+import { useRouter } from 'vue-router';
+
 export default {
     name: 'ProjectTable',
     props: {
         projects: Array
+    },
+    setup() {
+        const router = useRouter();
+
+        const navigateToProject = (projectId) => {
+            router.push(`/dashboard/projects/${projectId}`);
+        };
+
+        return { navigateToProject };
     }
 };
 </script>

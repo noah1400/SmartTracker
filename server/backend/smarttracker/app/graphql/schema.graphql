@@ -44,6 +44,7 @@ type Query {
     projects: [Project!]!
     timeEntry(id: ID!): TimeEntry
     timeEntries: [TimeEntry!]!
+    timeEntriesByProject(projectId: ID!): [TimeEntry!]!
 }
 
 type Mutation {
