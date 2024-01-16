@@ -12,11 +12,11 @@ ReactDOM.render(
   container
 );
 
-
 // calling IPC exposed from preload script
 window.electron.ipcRenderer.once('ipc-example', (arg) => {
   console.log(arg);
 });
+ 
 
 // this fires the ipcRenderer event to get the pong in the window
 window.electron.ipcRenderer.sendMessage('ipc-example', ['ping']);

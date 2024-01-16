@@ -133,18 +133,24 @@ class SmartTracker {
     }
 
     public async manualUpdate() {
-
         if (!this.stAuthInstance.isLoggedin()) {
-            console.error("Not logged in, cannot update");
+            console.error("Attempted manual update without login.");
             throw new Error("Not logged in, cannot update");
         }
-
-        // clear auto update timeout
+    
         if (this.autoUpdateTimeout) {
             clearTimeout(this.autoUpdateTimeout);
+            this.autoUpdateTimeout = null; // Clear the reference
         }
-        await this.update();
-        // restart auto update
+    
+        try {
+            await this.update();
+            console.log("Update successful.");
+        } catch (updateError) {
+            console.error("Update failed:", updateError);
+            throw updateError; // Rethrow to handle it in ipcMain
+        }
+    
         if (this.auto_update) {
             this.startAutoUpdate();
         }
@@ -165,12 +171,13 @@ class SmartTracker {
         }
         await this.localStorage.syncWithServer();
         await this.localStorage.fetchUpdatesFromServer(this.localStorage.LastMerged)
-            .then(() => {
-                console.log("update done");
-            })
-            .catch((err) => {
-                console.log(err);
-            });
+        .then(() => {
+            console.log("update done");
+        })
+        .catch((err) => {
+            console.error(err);
+            throw err; // Rethrow the error
+        });
         await this.localStorage.syncWithServer()
             .then(() => {
                 console.log("sync done");

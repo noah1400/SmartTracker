@@ -79,6 +79,7 @@ export default function App() {
         setLogged(true);
         handleCloseLoginForm();
         console.log('Login successful');
+        console.log('data: ', username, password);
       } else {
         console.log('Login failed');
       }
@@ -93,16 +94,17 @@ export default function App() {
     try {
       const response = await window.smarttracker.manualUpdate();
       if (response.success) {
-        console.log('Sync successful');
+        console.log('Sync successful', response);
         setSyncAlert({ open: true, message: 'Sync successful' });
       } else {
-        console.log('Sync failed');
+        console.error('Sync failed:', response.error);
+        setSyncAlert({ open: true, message: 'Sync failed: ' + response.error });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Sync error:', error);
+      setSyncAlert({ open: true, message: 'Sync error: ' + error.message });
     }
   };
-
   const handleLogout = () => {
     window.smarttracker.disconnect();
     setLogged(false);
