@@ -71,13 +71,13 @@ ipcMain.handle('autoUpdateInterval', async (event, autoUpdateInterval: number) =
   }
 });
 
-ipcMain.handle('manual-update-request', async (event, args) => {
-  try{
+ipcMain.handle('manualUpdate', async (event, args) => {
+  try {
     await ST.manualUpdate();
-    return {success: true};
-  } catch (error) {
-    console.error(error);
-    return {success: false, error: error};
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error in manualUpdate:", error);
+    return { success: false, error: error.message };
   }
 });
 

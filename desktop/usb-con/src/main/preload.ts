@@ -56,7 +56,7 @@ const stHandler = {
     return ipcRenderer.invoke('add-time-entry', startTime, endTime, description, projectId)
   }, 
   manualUpdate: async () => {
-    return ipcRenderer.invoke('manual-update-request');
+    return ipcRenderer.invoke('manualUpdate');
   },
   getProjectTimeEntries: async (projectId: number) => {
     return ipcRenderer.invoke('getProjectTimeEntries', projectId);
