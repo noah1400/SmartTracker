@@ -73,7 +73,7 @@ After successfully building the Docker images, start the containers with the fol
 
 
 ```
-docker compose up d-
+docker compose up -d
 ```
 
 This command starts all services defined in your `docker-compose.yml` file in the background.
