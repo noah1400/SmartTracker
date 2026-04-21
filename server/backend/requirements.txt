@@ -1,12 +1,12 @@
-Flask==3.0.*
+Flask==3.1.*
 Flask-SQLAlchemy==3.1.*
 mysqlclient==2.2.*
-python-dotenv==1.0.0
-cryptography==43.0.*
-requests==2.32.*
+python-dotenv==1.2.2
+cryptography==46.0.*
+requests==2.33.*
 PyJWT==2.8.*
 bcrypt==4.0.*
 ariadne==0.20.*
 flask-cors==5.0.*
 faker==19.11.*
-werkzeug==3.0.*
+werkzeug==3.1.*
